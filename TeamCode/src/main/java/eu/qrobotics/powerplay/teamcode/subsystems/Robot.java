@@ -27,6 +27,11 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
     public LynxModule hub1;
     public LynxModule hub2;
 
+    public Drivetrain drive;
+    public Intake intake;
+    public Extendo  extendo;
+    public Elevator elevator;
+    public Outtake outtake;
 
     private List<Subsystem> subsystems;
     private List<Subsystem> subsystemsWithProblems;
@@ -74,7 +79,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
         }
     };
 
-    public Robot(OpMode opMode, boolean isAutonomous, Alliance alliance) {
+    public Robot(OpMode opMode, boolean isAutonomous) {
         // Initialize statistics
         top10 = new MovingStatistics(10);
         top100 = new MovingStatistics(100);
@@ -91,7 +96,41 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
 
         //region Initialize subsystems
         subsystems = new ArrayList<>();
-
+        try {
+            drive = new Drivetrain(opMode.hardwareMap, this, isAutonomous);
+            subsystems.add(drive);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to initialize drivetrain: " + e.getMessage());
+            Log.w(TAG, e);
+        }
+        try {
+            intake = new Intake(opMode.hardwareMap, this);
+            subsystems.add(intake);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to initialize intake: " + e.getMessage());
+            Log.w(TAG, e);
+        }
+        try {
+            extendo = new Extendo(opMode.hardwareMap);
+            subsystems.add(extendo);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to initialize extendo: " + e.getMessage());
+            Log.w(TAG, e);
+        }
+        try {
+            elevator = new Elevator(opMode.hardwareMap);
+            subsystems.add(elevator);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to initialize elevator: " + e.getMessage());
+            Log.w(TAG, e);
+        }
+        try {
+            outtake = new Outtake(opMode.hardwareMap);
+            subsystems.add(outtake);
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to initialize outtake: " + e.getMessage());
+            Log.w(TAG, e);
+        }
 
         //endregion
         for (Subsystem subsystem : subsystems) {
