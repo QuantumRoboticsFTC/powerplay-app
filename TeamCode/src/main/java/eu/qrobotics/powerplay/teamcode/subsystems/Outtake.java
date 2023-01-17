@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Outtake implements Subsystem {
 
     public enum TurretMode {
-        MANUAL,
-        AUTO
+        TRANSFER,
+        SCORE
     }
 
     public enum TurretPosition {
@@ -23,7 +23,8 @@ public class Outtake implements Subsystem {
         TRANSFER,
         SCORE,
         PUSH,
-        UP
+        UP,
+        MANUAL
     }
 
     public enum ClawMode {
@@ -39,6 +40,7 @@ public class Outtake implements Subsystem {
     public static double SERVO_OFFSET = 0;
 
     public static double MANUAL_OFFSET = 0;
+    public static double ARM_MANUAL_OFFSET = 0;
 
     public static double TURRET_LEFT_POSITION = 0.05;
     public static double TURRET_RIGHT_POSITION = 0.95;
@@ -71,7 +73,7 @@ public class Outtake implements Subsystem {
 
         clawMode = ClawMode.OPEN;
         armPosition = ArmPosition.TRANSFER;
-        turretMode = TurretMode.AUTO;
+        turretMode = TurretMode.SCORE;
         turretPosition = TurretPosition.CENTER;
     }
 
@@ -80,7 +82,7 @@ public class Outtake implements Subsystem {
     public void update() {
         if(IS_DISABLED) return;
         switch (turretMode) {
-            case AUTO:
+            case SCORE:
                 switch (turretPosition) {
                     case LEFT:
                         turretManualPosition = TURRET_LEFT_POSITION;
@@ -102,6 +104,12 @@ public class Outtake implements Subsystem {
                         turretServoRight.setPosition(MANUAL_OFFSET);
                 }
                 break;
+            case TRANSFER:
+                turretManualPosition = TURRET_CENTER_POSITION;
+                turretServoLeft.setPosition(TURRET_CENTER_POSITION + SERVO_OFFSET);
+                turretServoRight.setPosition(TURRET_CENTER_POSITION);
+                break;
+
         }
 
         switch (armPosition) {
@@ -120,6 +128,10 @@ public class Outtake implements Subsystem {
             case UP:
                 outtakeArmServoLeft.setPosition(ARM_UP_POSITION);
                 outtakeArmServoRight.setPosition(ARM_UP_POSITION);
+                break;
+            case MANUAL:
+                outtakeArmServoLeft.setPosition(ARM_MANUAL_OFFSET);
+                outtakeArmServoRight.setPosition(ARM_MANUAL_OFFSET);
                 break;
 
         }
@@ -146,6 +158,20 @@ public class Outtake implements Subsystem {
 
             default:
                 return TURRET_CENTER_POSITION;
+        }
+    }
+    public double getArmPosition () {
+        switch (armPosition) {
+            case TRANSFER:
+                return ARM_TRANSFER_POSITION;
+            case SCORE:
+                return ARM_SCORE_POSITION;
+            case PUSH:
+                return ARM_PUSH_POSITION;
+            case UP:
+                return ARM_UP_POSITION;
+            default:
+                return ARM_UP_POSITION;
         }
     }
 }

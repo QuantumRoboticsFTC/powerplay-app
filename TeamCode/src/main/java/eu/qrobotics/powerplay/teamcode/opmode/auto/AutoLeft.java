@@ -1,22 +1,15 @@
 package eu.qrobotics.powerplay.teamcode.opmode.auto;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import eu.qrobotics.powerplay.teamcode.AprilTagAutonomousInitDetectionExample;
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
 
 import org.openftc.apriltag.AprilTagDetection;
@@ -120,7 +113,7 @@ public class AutoLeft extends LinearOpMode {
         while (!isStarted() && !isStopRequested()) {
             robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
             robot.extendo.targetPosition = Extendo.TargetHeight.AUTO_CONE5;
-            robot.outtake.turretMode = Outtake.TurretMode.AUTO;
+            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             if (gamepad1.a) {
                 robot.outtake.clawMode = Outtake.ClawMode.CLOSE;

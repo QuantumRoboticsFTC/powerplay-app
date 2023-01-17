@@ -9,17 +9,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Extendo implements Subsystem {
 
     public static int THRESHOLD_DOWN = 15;
-    public static int THRESHOLD_DOWN_LEVEL_1 = 50;
-    public static int THRESHOLD_DOWN_LEVEL_2 = 100;
-    public static int THRESHOLD_DOWN_LEVEL_3 = 250;
+    public static int THRESHOLD_DOWN_LEVEL_1 = 30;
+    public static int THRESHOLD_DOWN_LEVEL_2 = 60;
+    public static int THRESHOLD_DOWN_LEVEL_3 = 100;
     public static int THRESHOLD = 20;
     public static int THRESHOLD_LEVEL_1 = 10;
     public static int THRESHOLD_LEVEL_2 = 50;
     public static int THRESHOLD_LEVEL_3 = 250;
-    public static double DOWN_POWER_1 = -0.8;
-    public static double DOWN_POWER_2 = -0.7;
-    public static double DOWN_POWER_3 = -0.6;
-    public static double DOWN_POWER_4 = -0.7;
+    public static double DOWN_POWER_1 = -1;
+    public static double DOWN_POWER_2 = -1;
+    public static double DOWN_POWER_3 = -1;
+    public static double DOWN_POWER_4 = -1;
     public static double HOLD_POWER = 0;
     public static double LEVEL_1_POWER = 0.4;
     public static double LEVEL_2_POWER = 0.5;

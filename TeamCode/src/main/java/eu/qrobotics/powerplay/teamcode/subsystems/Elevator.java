@@ -23,9 +23,9 @@ public class Elevator implements Subsystem {
     public static double DOWN_POWER_4 = -0.7;
     public static double HOLD_POWER = 0.09;
     public static double LEVEL_1_POWER = 0.4;
-    public static double LEVEL_2_POWER = 0.6;
-    public static double LEVEL_3_POWER = 0.75;
-    public static double LEVEL_4_POWER = 0.85;
+    public static double LEVEL_2_POWER = 0.7;
+    public static double LEVEL_3_POWER = 0.95;
+    public static double LEVEL_4_POWER = 0.95;
 
     public enum ElevatorMode {
         DISABLED,
