@@ -41,8 +41,8 @@ public class Elevator implements Subsystem {
                 return this;
             }
         },
-        MID(290),
-        HIGH(760){
+        MID(300),
+        HIGH(770){
             @Override
             public TargetHeight next() {
                 return this;

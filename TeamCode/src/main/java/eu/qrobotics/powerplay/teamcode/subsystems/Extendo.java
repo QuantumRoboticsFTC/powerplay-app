@@ -42,31 +42,31 @@ public class Extendo implements Subsystem {
     }
 
     public enum TargetHeight {
-        AUTO_CONE5(1030) {
+        AUTO_CONE5(495) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE4(113) {
+        AUTO_CONE4(400) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE3(1040) {
+        AUTO_CONE3(400) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE2(1040) {
+        AUTO_CONE2(400) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE1(1040) {
+        AUTO_CONE1(400) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
@@ -115,7 +115,7 @@ public class Extendo implements Subsystem {
 
         motor.setDirection(DcMotor.Direction.REVERSE);
 
-        //motorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //motorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         downPosition = getRawEncoder();

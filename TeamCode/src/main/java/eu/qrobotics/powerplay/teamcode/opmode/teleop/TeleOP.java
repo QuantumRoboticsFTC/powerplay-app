@@ -142,7 +142,8 @@ public class TeleOP extends OpMode {
 //        }
 
         if (stickyGamepad2.right_bumper) {
-            robot.outtake.clawMode = Outtake.ClawMode.CLOSE;
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+            robot.intake.clawMode = Intake.ClawMode.OPEN;
             grabTimer.reset();
         } else if (stickyGamepad2.left_bumper) {
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
@@ -151,10 +152,11 @@ public class TeleOP extends OpMode {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
             turretCenterTimer.reset();
         }
+        if (0.05 < grabTimer.seconds() && grabTimer.seconds() < 0.15) {
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSE;
+        }
         if (0.5 < grabTimer.seconds() && grabTimer.seconds() < 0.65) {
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
-            robot.intake.clawMode = Intake.ClawMode.OPEN;
             robot.intake.armPosition = Intake.ArmPosition.CONE_1;
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         }

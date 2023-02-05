@@ -16,13 +16,15 @@ public class Outtake implements Subsystem {
         LEFT,
         RIGHT,
         CENTER,
-        MANUAL
+        MANUAL,
+        AUTO_SCORE
     }
 
     public enum ArmPosition {
         TRANSFER,
         SCORE,
         PUSH,
+        AUTO_INIT,
         UP,
         MANUAL
     }
@@ -44,14 +46,17 @@ public class Outtake implements Subsystem {
 
     public static double TURRET_LEFT_POSITION = 0.05;
     public static double TURRET_RIGHT_POSITION = 0.95;
-    public static double TURRET_CENTER_POSITION = 0.5;
+    public static double TURRET_CENTER_POSITION = 0.51;
+
+    public static double TURRET_AUTO_SCORE_POSITION = 0.09;
 
     public static double ARM_TRANSFER_POSITION = 0.26;
     public static double ARM_UP_POSITION = 0.60;
+    public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.95;
     public static double ARM_PUSH_POSITION = 0.95;
 
-    public static double CLAW_OPEN_POSITION = 0.5;
+    public static double CLAW_OPEN_POSITION = 0.3;
     public static double CLAW_CLOSE_POSITION = 0.18;
 
     private Servo turretServoLeft;
@@ -70,10 +75,12 @@ public class Outtake implements Subsystem {
         outtakeClawServo = hardwareMap.get(Servo.class, "outtakeClawServo");
 
         outtakeArmServoRight.setDirection(Servo.Direction.REVERSE);
+        turretServoLeft.setDirection(Servo.Direction.REVERSE);
+        turretServoRight.setDirection(Servo.Direction.REVERSE);
 
         clawMode = ClawMode.OPEN;
         armPosition = ArmPosition.TRANSFER;
-        turretMode = TurretMode.SCORE;
+        turretMode = TurretMode.TRANSFER;
         turretPosition = TurretPosition.CENTER;
     }
 
@@ -99,9 +106,16 @@ public class Outtake implements Subsystem {
                         turretServoLeft.setPosition(TURRET_CENTER_POSITION + SERVO_OFFSET);
                         turretServoRight.setPosition(TURRET_CENTER_POSITION);
                         break;
+                    case AUTO_SCORE:
+                        turretManualPosition = TURRET_AUTO_SCORE_POSITION;
+                        turretServoLeft.setPosition(TURRET_AUTO_SCORE_POSITION + SERVO_OFFSET);
+                        turretServoRight.setPosition(TURRET_AUTO_SCORE_POSITION);
+                        break;
                     case MANUAL:
                         turretServoLeft.setPosition(MANUAL_OFFSET + SERVO_OFFSET);
                         turretServoRight.setPosition(MANUAL_OFFSET);
+                    default:
+                        break;
                 }
                 break;
             case TRANSFER:
@@ -129,9 +143,15 @@ public class Outtake implements Subsystem {
                 outtakeArmServoLeft.setPosition(ARM_UP_POSITION);
                 outtakeArmServoRight.setPosition(ARM_UP_POSITION);
                 break;
+            case AUTO_INIT:
+                outtakeArmServoLeft.setPosition(ARM_AUTO_INIT_POSITION);
+                outtakeArmServoRight.setPosition(ARM_AUTO_INIT_POSITION);
+                break;
             case MANUAL:
                 outtakeArmServoLeft.setPosition(ARM_MANUAL_OFFSET);
                 outtakeArmServoRight.setPosition(ARM_MANUAL_OFFSET);
+                break;
+            default:
                 break;
 
         }
@@ -142,6 +162,8 @@ public class Outtake implements Subsystem {
                 break;
             case CLOSE:
                 outtakeClawServo.setPosition(CLAW_CLOSE_POSITION);
+                break;
+            default:
                 break;
         }
     }

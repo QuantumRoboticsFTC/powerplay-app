@@ -46,7 +46,8 @@ public class Intake implements Subsystem {
 
     public enum ArmRotate {
         PARALLEL,
-        PARALLEL_AUTO,
+        PARALLEL_CONE5,
+        PARALLEL_CONE4,
         STRAIGHT,
         TRANSFER
     }
@@ -56,20 +57,21 @@ public class Intake implements Subsystem {
         CLOSE
     }
 
-    public static double ARM_CONE_1_POSITION = 0.87;
-    public static double ARM_CONE_2_POSITION = 0.85;
-    public static double ARM_CONE_3_POSITION = 0.78;
-    public static double ARM_CONE_4_POSITION = 0.68;
-    public static double ARM_CONE_5_POSITION = 0.60;
-    public static double ARM_TRANSFER_POSITION = 0.78;
+    public static double ARM_CONE_1_POSITION = 0.95;
+    public static double ARM_CONE_2_POSITION = 0.9;
+    public static double ARM_CONE_3_POSITION = 0.85;
+    public static double ARM_CONE_4_POSITION = 0.80;
+    public static double ARM_CONE_5_POSITION = 0.76;
+    public static double ARM_TRANSFER_POSITION = 0.79;
 
     public static double ROTATE_PARALLEL_POSITION = 0.73;
     public static double ROTATE_STRAIGHT_POSITION = 0.4;
-    public static double ROTATE_TRANSFER_POSITION = 0.17;
-    public static double ROTATE_PARALLEL_AUTO_POSITION = 0.72;
+    public static double ROTATE_TRANSFER_POSITION = 0.24;
+    public static double ROTATE_PARALLEL_CONE5_POSITION = 0.45;
+    public static double ROTATE_PARALLEL_CONE4_POSITION = 0.71;
 
-    public static double CLAW_OPEN_POSITION = 0.25;
-    public static double CLAW_CLOSED_POSITION = 0.5;
+    public static double CLAW_OPEN_POSITION = 0.4;
+    public static double CLAW_CLOSED_POSITION = 0.61;
 
     public ArmPosition armPosition;
     public ArmRotate armRotate;
@@ -88,9 +90,9 @@ public class Intake implements Subsystem {
 
         intakeArmServoRight.setDirection(Servo.Direction.REVERSE);
 
-        armPosition = ArmPosition.TRANSFER;
-        clawMode = ClawMode.OPEN;
-        armRotate = ArmRotate.TRANSFER;
+//        armPosition = ArmPosition.TRANSFER;
+//        clawMode = ClawMode.OPEN;
+//        armRotate = ArmRotate.TRANSFER;
     }
 
     public static boolean IS_DISABLED = false;
@@ -123,6 +125,8 @@ public class Intake implements Subsystem {
                 intakeArmServoLeft.setPosition(ARM_TRANSFER_POSITION);
                 intakeArmServoRight.setPosition(ARM_TRANSFER_POSITION);
                 break;
+            default:
+                break;
 
         }
         switch (armRotate) {
@@ -135,8 +139,12 @@ public class Intake implements Subsystem {
             case STRAIGHT:
                 intakeRotateServo.setPosition(ROTATE_STRAIGHT_POSITION);
                 break;
-            case PARALLEL_AUTO:
-                intakeRotateServo.setPosition(ROTATE_PARALLEL_AUTO_POSITION);
+            case PARALLEL_CONE5:
+                intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE5_POSITION);
+            case PARALLEL_CONE4:
+                intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE4_POSITION);
+            default:
+                break;
         }
         switch (clawMode) {
             case OPEN:
@@ -144,6 +152,8 @@ public class Intake implements Subsystem {
                 break;
             case CLOSE:
                 intakeClawServo.setPosition(CLAW_CLOSED_POSITION);
+                break;
+            default:
                 break;
         }
     }
