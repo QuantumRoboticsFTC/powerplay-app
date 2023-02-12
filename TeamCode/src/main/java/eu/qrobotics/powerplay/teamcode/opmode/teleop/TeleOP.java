@@ -31,6 +31,13 @@ public class TeleOP extends OpMode {
     private ElapsedTime turretCenterTimer = new ElapsedTime(0);
     private ElapsedTime grabTimer = new ElapsedTime(0);
     private ElapsedTime intakeGrabTimer = new ElapsedTime(0);
+    private ElapsedTime coneDropTimer = new ElapsedTime(0);
+    private ElapsedTime outtakeConeDropTimer = new ElapsedTime(0);
+
+    private boolean careAboutIntakeSensor = true;
+    private boolean startedTransfer = false;
+
+    private boolean staccMode = false;
 
     Robot robot;
     DriveMode driveMode;
@@ -88,15 +95,24 @@ public class TeleOP extends OpMode {
         if (stickyGamepad1.right_bumper) {
             driveMode = DriveMode.NORMAL;
         }
+
         if (gamepad1.right_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
             robot.extendo.manualPower = gamepad1.right_trigger;
             robot.intake.armPosition = Intake.ArmPosition.CONE_1;
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
+            careAboutIntakeSensor = true;
+            startedTransfer = false;
+            if(robot.outtake.getArmPosition() == Outtake.ARM_AUTO_INIT_POSITION && robot.elevator.elevatorMode != Elevator.ElevatorMode.UP) {
+                robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
+            }
         } else if (gamepad1.left_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
             robot.extendo.manualPower = -gamepad1.left_trigger * 0.75;
+        }
+        if(careAboutIntakeSensor && robot.intake.hasCone() && robot.intake.armRotate != Intake.ArmRotate.TRANSFER && robot.intake.clawMode == Intake.ClawMode.OPEN) {
+            robot.intake.clawMode = Intake.ClawMode.CLOSED;
         }
 //        if(stickyGamepad1.y) {
 //            if(robot.extendo.manualSpeedMode == Extendo.ManualSpeedMode.FAST)
@@ -109,9 +125,29 @@ public class TeleOP extends OpMode {
             robot.extendo.manualPower = 0;
         }
         if (stickyGamepad1.dpad_down) {
-            intakeGrabTimer.reset();
-            robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
-            robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+//            intakeGrabTimer.reset();
+            robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+            if(!staccMode || (staccMode && robot.intake.armPosition == Intake.ArmPosition.VERTICAL && robot.intake.armRotate == Intake.ArmRotate.STRAIGHT)) {
+                robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
+                robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+            } else {
+                robot.intake.armRotate = Intake.ArmRotate.STRAIGHT;
+                robot.intake.armPosition = Intake.ArmPosition.VERTICAL;
+            }
+        }
+        if(!startedTransfer && robot.intake.armPosition == Intake.ArmPosition.TRANSFER && robot.extendo.getEncoder() < 10) {
+//            robot.intake.clawMode = Intake.ClawMode.OPEN;
+            coneDropTimer.reset();
+            startedTransfer = true;
+        }
+        if (0.3 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.45) {
+            robot.intake.clawMode = Intake.ClawMode.OPEN;
+        }
+        if (0.5 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.65) {
+            robot.outtake.armPosition= Outtake.ArmPosition.AUTO_INIT;
+        }
+        if (0.9 < coneDropTimer.seconds() && coneDropTimer.seconds() < 1.05) {
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
         if (stickyGamepad1.dpad_left) {
             robot.intake.armPosition = robot.intake.armPosition.previous();
@@ -123,14 +159,19 @@ public class TeleOP extends OpMode {
             robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         }
         if (stickyGamepad1.a) {
-            robot.intake.clawMode = Intake.ClawMode.CLOSE;
+            robot.intake.clawMode = Intake.ClawMode.CLOSED;
         }
         if (stickyGamepad1.b) {
             robot.intake.clawMode = Intake.ClawMode.OPEN;
+            careAboutIntakeSensor = false;
         }
         //endregion
-
         // region Driver 2 controls
+
+        if(stickyGamepad2.back) {
+            staccMode = !staccMode;
+        }
+
 //        if (robot.elevator.elevatorMode == Elevator.ElevatorMode.DOWN) {
             if (stickyGamepad2.dpad_up) {
                 robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
@@ -140,32 +181,43 @@ public class TeleOP extends OpMode {
                 robot.elevator.targetPosition = Elevator.TargetHeight.LOW;
             }
 //        }
-
+        if (stickyGamepad2.dpad_right) {
+            if(robot.outtake.alignerMode == Outtake.AlignerMode.DEPLOYED)
+                robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
+            else if(robot.outtake.alignerMode == Outtake.AlignerMode.RETRACTED)
+                robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+        }
         if (stickyGamepad2.right_bumper) {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             grabTimer.reset();
         } else if (stickyGamepad2.left_bumper) {
+            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
             robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
             turretCenterTimer.reset();
         }
-        if (0.05 < grabTimer.seconds() && grabTimer.seconds() < 0.15) {
-            robot.outtake.clawMode = Outtake.ClawMode.CLOSE;
+        if (0.05 < grabTimer.seconds() && grabTimer.seconds() < 0.15 ) {
+            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
+//            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
         if (0.5 < grabTimer.seconds() && grabTimer.seconds() < 0.65) {
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
-            robot.intake.armPosition = Intake.ArmPosition.CONE_1;
-            robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
+            robot.intake.armPosition = Intake.ArmPosition.VERTICAL;
+            robot.intake.armRotate = Intake.ArmRotate.STRAIGHT;
         }
         if (0.9 < grabTimer.seconds() && grabTimer.seconds() < 1.05) {
             robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         }
-        if(robot.elevator.elevatorMode == Elevator.ElevatorMode.UP && robot.elevator.getDistanceLeft() < ELEVATOR_ARM_THRESHOLD && robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
+        if (1 < grabTimer.seconds() && grabTimer.seconds() < 1.15) {
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
         }
+//        if(robot.elevator.elevatorMode == Elevator.ElevatorMode.UP && robot.elevator.getDistanceLeft() < ELEVATOR_ARM_THRESHOLD && robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
+//            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+//        }
         if (0.6 < intakeGrabTimer.seconds() && intakeGrabTimer.seconds() < 0.75) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         }
@@ -195,18 +247,19 @@ public class TeleOP extends OpMode {
             }
         }
 
-        if (stickyGamepad2.x && robot.outtake.armPosition != Outtake.ArmPosition.TRANSFER) {
-            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
+        if (stickyGamepad2.x) {
             robot.outtake.turretPosition = Outtake.TurretPosition.RIGHT;
-        } else if (stickyGamepad2.y && robot.outtake.armPosition != Outtake.ArmPosition.TRANSFER) {
-            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
+        } else if (stickyGamepad2.y ) {
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        } else if (stickyGamepad2.b && robot.outtake.armPosition != Outtake.ArmPosition.TRANSFER) {
-            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
+        } else if (stickyGamepad2.b ) {
             robot.outtake.turretPosition = Outtake.TurretPosition.LEFT;
         }
         if (stickyGamepad2.a) {
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
+            outtakeConeDropTimer.reset();
+        }
+        if (0.1 < outtakeConeDropTimer.seconds() && outtakeConeDropTimer.seconds() < 0.25) {
+            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         }
         if ( Math.abs(gamepad2.right_stick_x) > 0.1){
             if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {

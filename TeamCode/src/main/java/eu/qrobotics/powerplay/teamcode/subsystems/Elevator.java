@@ -41,13 +41,14 @@ public class Elevator implements Subsystem {
                 return this;
             }
         },
-        MID(300),
-        HIGH(770){
+        MID(360),
+        HIGH(735){
             @Override
             public TargetHeight next() {
                 return this;
             }
-        };
+        },
+        AUTO_DROP(680);
 
         private final int encoderPosition;
 

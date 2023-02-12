@@ -14,7 +14,7 @@ public class Extendo implements Subsystem {
     public static int THRESHOLD_DOWN_LEVEL_3 = 100;
     public static int THRESHOLD = 20;
     public static int THRESHOLD_LEVEL_1 = 10;
-    public static int THRESHOLD_LEVEL_2 = 50;
+    public static int THRESHOLD_LEVEL_2 = 100;
     public static int THRESHOLD_LEVEL_3 = 250;
     public static double DOWN_POWER_1 = -1;
     public static double DOWN_POWER_2 = -1;
@@ -24,7 +24,7 @@ public class Extendo implements Subsystem {
     public static double LEVEL_1_POWER = 0.4;
     public static double LEVEL_2_POWER = 0.5;
     public static double LEVEL_3_POWER = 0.75;
-    public static double LEVEL_4_POWER = 0.9;
+    public static double LEVEL_4_POWER = 1;
 
     public static double FAST_SPEED_MULTIPLIER = 1;
     public static double SLOW_SPEED_MULTIPLIER = 0.5;
@@ -42,31 +42,31 @@ public class Extendo implements Subsystem {
     }
 
     public enum TargetHeight {
-        AUTO_CONE5(495) {
+        AUTO_CONE5(553) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE4(400) {
+        AUTO_CONE4(815) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE3(400) {
+        AUTO_CONE3(815) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE2(400) {
+        AUTO_CONE2(807) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
             }
         },
-        AUTO_CONE1(400) {
+        AUTO_CONE1(805) {
             @Override
             public Extendo.TargetHeight previous() {
                 return this;
