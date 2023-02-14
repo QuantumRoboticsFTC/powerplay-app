@@ -210,11 +210,12 @@ public class AutoLeft extends LinearOpMode {
         while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.000001);
         }
-        robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
 //        robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
+        robot.sleep(0.2);
+        robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;

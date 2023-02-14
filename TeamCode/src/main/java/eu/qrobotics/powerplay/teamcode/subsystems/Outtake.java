@@ -57,12 +57,12 @@ public class Outtake implements Subsystem {
 
     public static double TURRET_LEFT_POSITION = 0.05;
     public static double TURRET_RIGHT_POSITION = 0.95;
-    public static double TURRET_CENTER_POSITION = 0.49;
+    public static double TURRET_CENTER_POSITION = 0.485;
 
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.09;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.91;
 
-    public static double ARM_TRANSFER_POSITION = 0.26;
+    public static double ARM_TRANSFER_POSITION = 0.25;
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
@@ -71,8 +71,8 @@ public class Outtake implements Subsystem {
     public static double CLAW_OPEN_POSITION = 0.305;
     public static double CLAW_CLOSE_POSITION = 0.18;
 
-    public static double ALIGNER_RETRACTED_POSITION = 0.32;
-    public static double ALIGNER_DEPLOYED_POSITION = 0.295;
+    public static double ALIGNER_RETRACTED_POSITION = 0.55;
+    public static double ALIGNER_DEPLOYED_POSITION = 0.47;
 
     private Servo turretServoLeft;
     private Servo turretServoRight;

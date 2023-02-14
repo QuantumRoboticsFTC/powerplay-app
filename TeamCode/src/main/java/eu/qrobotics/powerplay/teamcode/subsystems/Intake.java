@@ -80,11 +80,11 @@ public class Intake implements Subsystem {
         CLOSED
     }
 
-    public static double ARM_CONE_1_POSITION = 0.95;
-    public static double ARM_CONE_2_POSITION = 0.88;
-    public static double ARM_CONE_3_POSITION = 0.85;
-    public static double ARM_CONE_4_POSITION = 0.80;
-    public static double ARM_CONE_5_POSITION = 0.76;
+    public static double ARM_CONE_1_POSITION = 0.96;
+    public static double ARM_CONE_2_POSITION = 0.92;
+    public static double ARM_CONE_3_POSITION = 0.87;
+    public static double ARM_CONE_4_POSITION = 0.83;
+    public static double ARM_CONE_5_POSITION = 0.78;
     public static double ARM_VERTICAL_POSITION = 0.7;
     public static double ARM_TRANSFER_POSITION = 0.8;
     public static double ARM_AUTOPARK_POSITION = 0.6;

@@ -99,7 +99,8 @@ public class TeleOP extends OpMode {
         if (gamepad1.right_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
             robot.extendo.manualPower = gamepad1.right_trigger;
-            robot.intake.armPosition = Intake.ArmPosition.CONE_1;
+            if(robot.intake.armPosition != Intake.ArmPosition.CONE_1 && robot.intake.armPosition != Intake.ArmPosition.CONE_2 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_3 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_4 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_5)
+                robot.intake.armPosition = Intake.ArmPosition.CONE_1;
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             careAboutIntakeSensor = true;
