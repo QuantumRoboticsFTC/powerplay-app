@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
+
 @Config
 public class Outtake implements Subsystem {
 
@@ -86,12 +88,12 @@ public class Outtake implements Subsystem {
     public double turretManualPosition = 0.5;
 
     public Outtake(HardwareMap hardwareMap) {
-        turretServoLeft = hardwareMap.get(Servo.class, "turretServoLeft");
-        turretServoRight = hardwareMap.get(Servo.class, "turretServoRight");
-        outtakeArmServoLeft = hardwareMap.get(Servo.class, "outtakeArmServoLeft");
-        outtakeArmServoRight = hardwareMap.get(Servo.class, "outtakeArmServoRight");
-        outtakeClawServo = hardwareMap.get(Servo.class, "outtakeClawServo");
-        outtakeAlignerServo = hardwareMap.get(Servo.class, "outtakeAlignerServo");
+        turretServoLeft = hardwareMap.get(CachingServo.class, "turretServoLeft");
+        turretServoRight = hardwareMap.get(CachingServo.class, "turretServoRight");
+        outtakeArmServoLeft = hardwareMap.get(CachingServo.class, "outtakeArmServoLeft");
+        outtakeArmServoRight = hardwareMap.get(CachingServo.class, "outtakeArmServoRight");
+        outtakeClawServo = hardwareMap.get(CachingServo.class, "outtakeClawServo");
+        outtakeAlignerServo = hardwareMap.get(CachingServo.class, "outtakeAlignerServo");
         outtakeSensor = hardwareMap.get(ColorRangeSensor.class, "outtakeSensor");
 
         outtakeArmServoRight.setDirection(Servo.Direction.REVERSE);

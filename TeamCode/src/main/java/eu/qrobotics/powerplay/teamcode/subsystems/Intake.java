@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
+
 @Config
 public class Intake implements Subsystem {
 
@@ -114,10 +116,10 @@ public class Intake implements Subsystem {
     private ColorRangeSensor intakeSensor;
 
     public Intake(HardwareMap hardwareMap, Robot robot) {
-        intakeArmServoLeft = hardwareMap.get(Servo.class, "intakeArmServoLeft");
-        intakeArmServoRight = hardwareMap.get(Servo.class, "intakeArmServoRight");
-        intakeRotateServo = hardwareMap.get(Servo.class, "intakeRotateServo");
-        intakeClawServo = hardwareMap.get(Servo.class, "intakeClawServo");
+        intakeArmServoLeft = hardwareMap.get(CachingServo.class, "intakeArmServoLeft");
+        intakeArmServoRight = hardwareMap.get(CachingServo.class, "intakeArmServoRight");
+        intakeRotateServo = hardwareMap.get(CachingServo.class, "intakeRotateServo");
+        intakeClawServo = hardwareMap.get(CachingServo.class, "intakeClawServo");
         intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakeSensor");
 
         intakeArmServoRight.setDirection(Servo.Direction.REVERSE);

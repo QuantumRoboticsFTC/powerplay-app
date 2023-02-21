@@ -159,7 +159,7 @@ public class TeleOP extends OpMode {
 //        if (0.5 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.65) {
 //            robot.outtake.armPosition= Outtake.ArmPosition.AUTO_INIT;
 //        }
-        if(robot.outtake.hasCone() && startedTransfer) {
+        if(startedTransfer && robot.outtake.hasCone()) {
             outtakeSensorTimer.reset();
 //            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
@@ -217,6 +217,7 @@ public class TeleOP extends OpMode {
         if (stickyGamepad2.right_bumper) {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
+            startedTransfer = false;
             grabTimer.reset();
         } else if (stickyGamepad2.left_bumper) {
             robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
