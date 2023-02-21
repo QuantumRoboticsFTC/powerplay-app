@@ -29,6 +29,7 @@ public class Outtake implements Subsystem {
     public enum ArmPosition {
         TRANSFER,
         SCORE,
+        SCORE_TILTED,
         PUSH,
         AUTO_INIT,
         UP,
@@ -68,6 +69,7 @@ public class Outtake implements Subsystem {
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
+    public static double ARM_SCORE_TILTED_POSITION = 0.87;
     public static double ARM_PUSH_POSITION = 0.95;
 
     public static double CLAW_OPEN_POSITION = 0.305;
@@ -162,6 +164,10 @@ public class Outtake implements Subsystem {
             case SCORE:
                 outtakeArmServoLeft.setPosition(ARM_SCORE_POSITION);
                 outtakeArmServoRight.setPosition(ARM_SCORE_POSITION);
+                break;
+            case SCORE_TILTED:
+                outtakeArmServoLeft.setPosition(ARM_SCORE_TILTED_POSITION);
+                outtakeArmServoRight.setPosition(ARM_SCORE_TILTED_POSITION);
                 break;
             case PUSH:
                 outtakeArmServoLeft.setPosition(ARM_PUSH_POSITION);

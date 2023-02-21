@@ -201,11 +201,11 @@ public class TeleOP extends OpMode {
 
 //        if (robot.elevator.elevatorMode == Elevator.ElevatorMode.DOWN) {
             if (stickyGamepad2.dpad_up) {
-                robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
+                robot.elevator.targetPosition = Elevator.TargetHeight.HIGH_TILTED;
             } else if (stickyGamepad2.dpad_left) {
-                robot.elevator.targetPosition = Elevator.TargetHeight.MID;
+                robot.elevator.targetPosition = Elevator.TargetHeight.MID_TILTED;
             } else if (stickyGamepad2.dpad_down) {
-                robot.elevator.targetPosition = Elevator.TargetHeight.LOW;
+                robot.elevator.targetPosition = Elevator.TargetHeight.LOW_TILTED;
             }
 //        }
         if (stickyGamepad2.dpad_right) {
@@ -241,7 +241,7 @@ public class TeleOP extends OpMode {
             robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         }
         if (1 < grabTimer.seconds() && grabTimer.seconds() < 1.15) {
-            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+            robot.outtake.armPosition = Outtake.ArmPosition.SCORE_TILTED;
         }
 //        if(robot.elevator.elevatorMode == Elevator.ElevatorMode.UP && robot.elevator.getDistanceLeft() < ELEVATOR_ARM_THRESHOLD && robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
 //            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
