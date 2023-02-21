@@ -56,7 +56,9 @@ public class Intake implements Subsystem {
             public ArmPosition next() {
                 return this;
             }
-        };
+        },
+        FULL_1,
+        FULL_0;
 
         public ArmPosition previous() {
             return values()[ordinal() - 1];
@@ -163,6 +165,12 @@ public class Intake implements Subsystem {
                 intakeArmServoLeft.setPosition(ARM_AUTOPARK_POSITION);
                 intakeArmServoRight.setPosition(ARM_AUTOPARK_POSITION);
                 break;
+            case FULL_1:
+                intakeArmServoLeft.setPosition(1);
+                intakeArmServoRight.setPosition(1);
+            case FULL_0:
+                intakeArmServoLeft.setPosition(0);
+                intakeArmServoRight.setPosition(0);
             default:
                 break;
 

@@ -127,8 +127,12 @@ public class Extendo implements Subsystem {
         return motor.getCurrentPosition();
     }
 
-    public int getEncoder() {
+    public int updateEncoder() {
         lastEncoder = getRawEncoder() - downPosition;
+        return lastEncoder;
+    }
+
+    public int getEncoder() {
         return lastEncoder;
     }
 
@@ -160,6 +164,8 @@ public class Extendo implements Subsystem {
         if(IS_DISABLED) return;
         if (extendoMode == ExtendoMode.DISABLED)
             return;
+
+        updateEncoder();
 
         if (extendoMode == ExtendoMode.RETRACTED) {
             offsetPosition = 0;

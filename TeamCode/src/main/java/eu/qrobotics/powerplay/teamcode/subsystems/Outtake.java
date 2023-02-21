@@ -62,7 +62,7 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.09;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.91;
 
-    public static double ARM_TRANSFER_POSITION = 0.25;
+    public static double ARM_TRANSFER_POSITION = 0.28;
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
@@ -92,6 +92,7 @@ public class Outtake implements Subsystem {
         outtakeArmServoRight = hardwareMap.get(Servo.class, "outtakeArmServoRight");
         outtakeClawServo = hardwareMap.get(Servo.class, "outtakeClawServo");
         outtakeAlignerServo = hardwareMap.get(Servo.class, "outtakeAlignerServo");
+        outtakeSensor = hardwareMap.get(ColorRangeSensor.class, "outtakeSensor");
 
         outtakeArmServoRight.setDirection(Servo.Direction.REVERSE);
         turretServoLeft.setDirection(Servo.Direction.REVERSE);

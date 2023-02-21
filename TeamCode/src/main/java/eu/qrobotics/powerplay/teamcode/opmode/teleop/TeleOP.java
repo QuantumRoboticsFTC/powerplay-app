@@ -32,6 +32,7 @@ public class TeleOP extends OpMode {
     private ElapsedTime grabTimer = new ElapsedTime(0);
     private ElapsedTime intakeGrabTimer = new ElapsedTime(0);
     private ElapsedTime coneDropTimer = new ElapsedTime(0);
+    private ElapsedTime outtakeSensorTimer = new ElapsedTime(0);
     private ElapsedTime outtakeConeDropTimer = new ElapsedTime(0);
 
     private boolean careAboutIntakeSensor = true;
@@ -144,8 +145,15 @@ public class TeleOP extends OpMode {
         if (0.3 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.45) {
             robot.intake.clawMode = Intake.ClawMode.OPEN;
         }
-        if (0.5 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.65) {
-            robot.outtake.armPosition= Outtake.ArmPosition.AUTO_INIT;
+//        if (0.5 < coneDropTimer.seconds() && coneDropTimer.seconds() < 0.65) {
+//            robot.outtake.armPosition= Outtake.ArmPosition.AUTO_INIT;
+//        }
+        if(robot.outtake.hasCone() && startedTransfer) {
+            outtakeSensorTimer.reset();
+//            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+        }
+        if (0.15 < outtakeSensorTimer.seconds() && outtakeSensorTimer.seconds() < 0.2) {
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
         if (0.9 < coneDropTimer.seconds() && coneDropTimer.seconds() < 1.05) {
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
@@ -165,6 +173,13 @@ public class TeleOP extends OpMode {
         if (stickyGamepad1.b) {
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             careAboutIntakeSensor = false;
+        }
+
+        if(stickyGamepad1.back) {
+            if(robot.intake.armPosition == Intake.ArmPosition.FULL_0)
+                robot.intake.armPosition = Intake.ArmPosition.FULL_1;
+            else
+                robot.intake.armPosition = Intake.ArmPosition.FULL_0;
         }
         //endregion
         // region Driver 2 controls

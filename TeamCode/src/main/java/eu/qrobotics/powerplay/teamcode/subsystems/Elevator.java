@@ -100,8 +100,12 @@ public class Elevator implements Subsystem {
         return motorLeft.getCurrentPosition();
     }
 
-    public int getEncoder() {
+    public int updateEncoder() {
         lastEncoder = getRawEncoder() - downPosition;
+        return lastEncoder;
+    }
+
+    public int getEncoder() {
         return lastEncoder;
     }
 
@@ -134,6 +138,8 @@ public class Elevator implements Subsystem {
         if(IS_DISABLED) return;
         if (elevatorMode == ElevatorMode.DISABLED)
             return;
+
+        updateEncoder();
 
         if (elevatorMode == ElevatorMode.DOWN) {
             offsetPosition = 0;

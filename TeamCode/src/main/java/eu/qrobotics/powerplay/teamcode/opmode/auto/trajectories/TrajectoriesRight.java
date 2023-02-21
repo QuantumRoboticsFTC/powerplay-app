@@ -45,7 +45,7 @@ public class TrajectoriesRight {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(315), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(40, -12.5, Math.toRadians(0)), Math.toRadians(270))
+                .splineToLinearHeading(new Pose2d(39, -12.5, Math.toRadians(0)), Math.toRadians(270))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
