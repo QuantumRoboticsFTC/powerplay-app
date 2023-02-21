@@ -51,8 +51,8 @@ public class Elevator implements Subsystem {
             }
         },
         LOW_TILTED(20),
-        MID_TILTED(360),
-        HIGH_TILTED(735),
+        MID_TILTED(310),
+        HIGH_TILTED(690),
         AUTO_DROP(680);
 
         private final int encoderPosition;
