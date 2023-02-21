@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
+
 @Config
 public class Extendo implements Subsystem {
 
@@ -106,12 +108,12 @@ public class Extendo implements Subsystem {
 
     public ExtendoMode extendoMode;
     public ManualSpeedMode manualSpeedMode;
-    private DcMotorEx motor;
+    private CachingDcMotorEx motor;
     private Robot robot;
 
     Extendo(HardwareMap hardwareMap) {
 
-        motor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "intakeMotor"));
 
         motor.setDirection(DcMotor.Direction.REVERSE);
 

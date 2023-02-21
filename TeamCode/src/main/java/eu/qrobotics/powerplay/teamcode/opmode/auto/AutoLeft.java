@@ -27,18 +27,6 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Config
 @Autonomous
 public class AutoLeft extends LinearOpMode {
-//    private static final String VUFORIA_KEY =
-//            "AZkUdjT/////AAABmXTO5InzOk5Yo1OlXRo+EFQkVF1qqCBnur0y1G+RBktOx7nVuzRvRaahrrHE0OJTAUwmyuPkGSbIFETtV9VN5Ezo8vTtN90u2lqAMZx5ZY5qWtTs+rm/2y4CctYrNhnxeme+qRNeRj6gKhUMa2FAVHr2qBtJK/CrZ0Ud/1vpLavIr+TrHuIjABcEXRyXBcdIaj5gw4EiVChCFrjv24qMiHuOq1pHOAbpTqe392045VnPLDlJ6bJKq0cNZ3TR86ccLGd2Pg0lnVLvf/qthVFRy8NASoyrgQkEU0P5WSC+8A3IlWPPEgG2LMu8FACw+6t1da+EiznSyu5dSW7UcAw5oHKpGgfxRV3pXmNJ3bn+AfMi";
-//
-//    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
-//    private static final String LABEL_FIRST_ELEMENT = "Quad";
-//    private static final String LABEL_SECOND_ELEMENT = "Single";
-
-//    private VuforiaLocalizer vuforia;
-//    private TFObjectDetector tfod;
-
-    //    public static Point TOP_LEFT = new Point(500, 250);
-//    public static Point BOTTOM_RIGHT = new Point(775, 500);
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 15;
 
@@ -56,24 +44,10 @@ public class AutoLeft extends LinearOpMode {
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
         robot.start();
 
-//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//        OpenCvCamera webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-//        webcam.openCameraDevice();
-//        webcam.showFpsMeterOnViewport(true);
-//        RingDetector ringDetector = new RingDetector(webcam, TOP_LEFT, BOTTOM_RIGHT);
-
-//        webcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
-//        webcam.startStreaming(1280, 960, OpenCvCameraRotation.UPRIGHT);
-//        FtcDashboard.getInstance().startCameraStream(webcam, 30);
-
-//        RingDetector.Stack parkPosition = RingDetector.Stack.FOUR;
-
         int readFromCamera = -1;
 
         OpenCvCamera camera;
         AprilTagDetectionPipeline aprilTagDetectionPipeline;
-
-        final double FEET_PER_METER = 3.28084;
 
         // Lens intrinsics
         // UNITS ARE PIXELS
@@ -122,6 +96,8 @@ public class AutoLeft extends LinearOpMode {
 
             telemetry.addLine("Press a on gamepad 1 to close claw");
 
+            //region Camera shit
+
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
             if (currentDetections.size() != 0) {
@@ -169,6 +145,8 @@ public class AutoLeft extends LinearOpMode {
                 }
 
             }
+
+            //endregion Camera Shit
 
             telemetry.update();
         }

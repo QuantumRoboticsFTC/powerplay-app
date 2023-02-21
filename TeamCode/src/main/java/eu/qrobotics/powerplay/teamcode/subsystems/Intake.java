@@ -14,12 +14,13 @@ public class Intake implements Subsystem {
 
 
     public enum ArmPosition {
-        CONE_1 {
+        LOW_POLE {
             @Override
             public ArmPosition previous() {
                 return this;
             }
         },
+        CONE_1,
         CONE_2,
         CONE_3,
         CONE_4,
@@ -76,7 +77,9 @@ public class Intake implements Subsystem {
         PARALLEL_CONE5,
         PARALLEL_CONE4,
         STRAIGHT,
-        TRANSFER
+        TRANSFER,
+        LOW_POLE,
+        LOW_POLE_DROP
     }
 
     public enum ClawMode {
@@ -84,6 +87,7 @@ public class Intake implements Subsystem {
         CLOSED
     }
 
+    public static double ARM_LOW_POLE_POSITION = 0.63;
     public static double ARM_CONE_1_POSITION = 0.96;
     public static double ARM_CONE_2_POSITION = 0.92;
     public static double ARM_CONE_3_POSITION = 0.87;
@@ -98,6 +102,8 @@ public class Intake implements Subsystem {
     public static double ROTATE_TRANSFER_POSITION = 0.225;
     public static double ROTATE_PARALLEL_CONE5_POSITION = 0.45;
     public static double ROTATE_PARALLEL_CONE4_POSITION = 0.71;
+    public static double ROTATE_LOW_POLE_POSITION = 0.53;
+    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.6;
 
     public static double CLAW_OPEN_POSITION = 0.4;
     public static double CLAW_CLOSED_POSITION = 0.61;
@@ -108,18 +114,18 @@ public class Intake implements Subsystem {
     public ArmRotate armRotate;
     public ClawMode clawMode;
 
-    private Servo intakeArmServoLeft;
-    private Servo intakeArmServoRight;
-    private Servo intakeRotateServo;
-    private Servo intakeClawServo;
+    private CachingServo intakeArmServoLeft;
+    private CachingServo intakeArmServoRight;
+    private CachingServo intakeRotateServo;
+    private CachingServo intakeClawServo;
 
     private ColorRangeSensor intakeSensor;
 
     public Intake(HardwareMap hardwareMap, Robot robot) {
-        intakeArmServoLeft = hardwareMap.get(Servo.class, "intakeArmServoLeft");
-        intakeArmServoRight = hardwareMap.get(Servo.class, "intakeArmServoRight");
-        intakeRotateServo = hardwareMap.get(Servo.class, "intakeRotateServo");
-        intakeClawServo = hardwareMap.get(Servo.class, "intakeClawServo");
+        intakeArmServoLeft = new CachingServo(hardwareMap.get(Servo.class, "intakeArmServoLeft"));
+        intakeArmServoRight = new CachingServo(hardwareMap.get(Servo.class, "intakeArmServoRight"));
+        intakeRotateServo = new CachingServo(hardwareMap.get(Servo.class, "intakeRotateServo"));
+        intakeClawServo = new CachingServo(hardwareMap.get(Servo.class, "intakeClawServo"));
         intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakeSensor");
 
         intakeArmServoRight.setDirection(Servo.Direction.REVERSE);
@@ -135,6 +141,10 @@ public class Intake implements Subsystem {
     public void update() {
         if (IS_DISABLED) return;
         switch (armPosition) {
+            case LOW_POLE:
+                intakeArmServoLeft.setPosition(ARM_LOW_POLE_POSITION);
+                intakeArmServoRight.setPosition(ARM_LOW_POLE_POSITION);
+                break;
             case CONE_1:
                 intakeArmServoLeft.setPosition(ARM_CONE_1_POSITION);
                 intakeArmServoRight.setPosition(ARM_CONE_1_POSITION);
@@ -189,8 +199,16 @@ public class Intake implements Subsystem {
                 break;
             case PARALLEL_CONE5:
                 intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE5_POSITION);
+                break;
             case PARALLEL_CONE4:
                 intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE4_POSITION);
+                break;
+            case LOW_POLE:
+                intakeRotateServo.setPosition(ROTATE_LOW_POLE_POSITION);
+                break;
+            case LOW_POLE_DROP:
+                intakeRotateServo.setPosition(ROTATE_LOW_POLE_DROP_POSITION);
+                break;
             default:
                 break;
         }

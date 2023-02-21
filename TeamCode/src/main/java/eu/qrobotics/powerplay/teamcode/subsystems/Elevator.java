@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
+
 @Config
 public class Elevator implements Subsystem {
 
@@ -81,14 +83,14 @@ public class Elevator implements Subsystem {
     public double manualPower;
 
     public ElevatorMode elevatorMode;
-    private DcMotorEx motorLeft, motorRight;
+    private CachingDcMotorEx motorLeft, motorRight;
     private Robot robot;
 
     Elevator(HardwareMap hardwareMap) {
 //        this.robot = robot;
 
-        motorLeft = hardwareMap.get(DcMotorEx.class, "elevatorLeft");
-        motorRight = hardwareMap.get(DcMotorEx.class, "elevatorRight");
+        motorLeft = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "elevatorLeft"));
+        motorRight = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "elevatorRight"));
 
 //        motorLeft.setDirection(DcMotor.Direction.REVERSE);
 //        motorRight.setDirection(DcMotor.Direction.REVERSE);

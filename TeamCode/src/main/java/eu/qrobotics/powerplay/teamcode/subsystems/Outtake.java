@@ -78,24 +78,24 @@ public class Outtake implements Subsystem {
     public static double ALIGNER_RETRACTED_POSITION = 0.55;
     public static double ALIGNER_DEPLOYED_POSITION = 0.47;
 
-    private Servo turretServoLeft;
-    private Servo turretServoRight;
-    private Servo outtakeArmServoLeft;
-    private Servo outtakeArmServoRight;
-    private Servo outtakeClawServo;
-    private Servo outtakeAlignerServo;
+    private CachingServo turretServoLeft;
+    private CachingServo turretServoRight;
+    private CachingServo outtakeArmServoLeft;
+    private CachingServo outtakeArmServoRight;
+    private CachingServo outtakeClawServo;
+    private CachingServo outtakeAlignerServo;
 
     private ColorRangeSensor outtakeSensor;
 
     public double turretManualPosition = 0.5;
 
     public Outtake(HardwareMap hardwareMap) {
-        turretServoLeft = hardwareMap.get(Servo.class, "turretServoLeft");
-        turretServoRight = hardwareMap.get(Servo.class, "turretServoRight");
-        outtakeArmServoLeft = hardwareMap.get(Servo.class, "outtakeArmServoLeft");
-        outtakeArmServoRight = hardwareMap.get(Servo.class, "outtakeArmServoRight");
-        outtakeClawServo = hardwareMap.get(Servo.class, "outtakeClawServo");
-        outtakeAlignerServo = hardwareMap.get(Servo.class, "outtakeAlignerServo");
+        turretServoLeft = new CachingServo(hardwareMap.get(Servo.class, "turretServoLeft"));
+        turretServoRight = new CachingServo(hardwareMap.get(Servo.class, "turretServoRight"));
+        outtakeArmServoLeft = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoLeft"));
+        outtakeArmServoRight = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoRight"));
+        outtakeClawServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeClawServo"));
+        outtakeAlignerServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeAlignerServo"));
         outtakeSensor = hardwareMap.get(ColorRangeSensor.class, "outtakeSensor");
 
         outtakeArmServoRight.setDirection(Servo.Direction.REVERSE);
@@ -110,9 +110,10 @@ public class Outtake implements Subsystem {
     }
 
     public static boolean IS_DISABLED = false;
+
     @Override
     public void update() {
-        if(IS_DISABLED) return;
+        if (IS_DISABLED) return;
         switch (turretMode) {
             case SCORE:
                 switch (turretPosition) {
@@ -211,7 +212,8 @@ public class Outtake implements Subsystem {
                 break;
         }
     }
-    public double getTurretPosition () {
+
+    public double getTurretPosition() {
         switch (turretPosition) {
             case LEFT:
                 return TURRET_LEFT_POSITION;
@@ -226,7 +228,8 @@ public class Outtake implements Subsystem {
                 return TURRET_CENTER_POSITION;
         }
     }
-    public double getArmPosition () {
+
+    public double getArmPosition() {
         switch (armPosition) {
             case TRANSFER:
                 return ARM_TRANSFER_POSITION;
@@ -242,7 +245,8 @@ public class Outtake implements Subsystem {
                 return ARM_UP_POSITION;
         }
     }
-    public boolean hasCone () {
-        return outtakeSensor.getDistance(DistanceUnit.MM) < 30;
+
+    public boolean hasCone() {
+        return outtakeSensor.getDistance(DistanceUnit.MM) < 28;
     }
 }
