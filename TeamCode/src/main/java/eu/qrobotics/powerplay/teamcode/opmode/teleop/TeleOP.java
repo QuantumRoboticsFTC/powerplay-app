@@ -8,6 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.MovingStatistics;
+
+import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
@@ -62,6 +65,9 @@ public class TeleOP extends OpMode {
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         telemetry.log().add("Ready!");
+        robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+        robot.intake.clawMode = Intake.ClawMode.OPEN;
+        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
     }
 
     @Override
@@ -100,7 +106,12 @@ public class TeleOP extends OpMode {
         if (gamepad1.right_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
             robot.extendo.manualPower = gamepad1.right_trigger;
-            if(robot.intake.armPosition != Intake.ArmPosition.CONE_1 && robot.intake.armPosition != Intake.ArmPosition.CONE_2 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_3 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_4 &&  robot.intake.armPosition != Intake.ArmPosition.CONE_5)
+            if(robot.intake.armPosition != Intake.ArmPosition.CONE_1 &&
+                    robot.intake.armPosition != Intake.ArmPosition.CONE_2 &&
+                    robot.intake.armPosition != Intake.ArmPosition.CONE_3 &&
+                    robot.intake.armPosition != Intake.ArmPosition.CONE_4 &&
+                    robot.intake.armPosition != Intake.ArmPosition.CONE_5
+            )
                 robot.intake.armPosition = Intake.ArmPosition.CONE_1;
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
@@ -129,7 +140,7 @@ public class TeleOP extends OpMode {
         if (stickyGamepad1.dpad_down) {
 //            intakeGrabTimer.reset();
             robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
-            if(!staccMode || (staccMode && robot.intake.armPosition == Intake.ArmPosition.VERTICAL && robot.intake.armRotate == Intake.ArmRotate.STRAIGHT)) {
+            if(!staccMode || (robot.intake.armPosition == Intake.ArmPosition.VERTICAL && robot.intake.armRotate == Intake.ArmRotate.STRAIGHT)) {
                 robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
                 robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
             } else {
@@ -279,38 +290,38 @@ public class TeleOP extends OpMode {
         }
         if ( Math.abs(gamepad2.right_stick_x) > 0.1){
             if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
-                robot.outtake.MANUAL_OFFSET = robot.outtake.getTurretPosition();
+                robot.outtake.manualOffset = robot.outtake.getTurretPosition();
             }
-            if (robot.outtake.MANUAL_OFFSET - gamepad2.right_stick_x * 0.005 > 1)
-                robot.outtake.MANUAL_OFFSET = 1;
-            else if (robot.outtake.MANUAL_OFFSET - gamepad2.right_stick_x * 0.005 < -1)
-                robot.outtake.MANUAL_OFFSET = -1;
+            if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
+                robot.outtake.manualOffset = 1;
+            else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
+                robot.outtake.manualOffset = -1;
             else
-                robot.outtake.MANUAL_OFFSET -= gamepad2.right_stick_x * 0.005;
+                robot.outtake.manualOffset -= gamepad2.right_stick_x * 0.005;
             robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         }
 
         if (Math.abs(gamepad2.left_stick_y) > 0.1){
             if (robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
-                robot.outtake.ARM_MANUAL_OFFSET = robot.outtake.getArmPosition();
+                robot.outtake.armManualOffset = robot.outtake.getArmPosition();
             }
-            if (robot.outtake.ARM_MANUAL_OFFSET + gamepad2.left_stick_y * 0.005 > 1)
-                robot.outtake.ARM_MANUAL_OFFSET = 1;
-            else if (robot.outtake.MANUAL_OFFSET + gamepad2.left_stick_y * 0.005 < -1)
-                robot.outtake.ARM_MANUAL_OFFSET = -1;
+            if (robot.outtake.armManualOffset + gamepad2.left_stick_y * 0.005 > 1)
+                robot.outtake.armManualOffset = 1;
+            else if (robot.outtake.manualOffset + gamepad2.left_stick_y * 0.005 < -1)
+                robot.outtake.armManualOffset = -1;
             else
-                robot.outtake.ARM_MANUAL_OFFSET += gamepad2.left_stick_y * 0.005;
+                robot.outtake.armManualOffset += gamepad2.left_stick_y * 0.005;
             robot.outtake.armPosition = Outtake.ArmPosition.MANUAL;
         }
         //endregion
 
         //region Telemetry
 
-        telemetry.update();
         telemetry.addData("Elevator Encoder: ", robot.elevator.getEncoder());
         telemetry.addData("Elevator Target Encoder: ", robot.elevator.getTargetEncoder());
         telemetry.addData("Extendo Encoder: ", robot.extendo.getEncoder());
-//        telemetry.addData("Extendo Target Encoder: ", robot.extendo.g());
+        addStatistics();
+        telemetry.update();
         //endregion
 
         TelemetryPacket packet = new TelemetryPacket();
@@ -321,6 +332,19 @@ public class TeleOP extends OpMode {
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
 
+    }
+
+    private static String formatResults(MovingStatistics statistics) {
+        return Misc.formatInvariant("μ = %.2fms, σ = %.2fms, err = %.3fms",
+                statistics.getMean() * 1000,
+                statistics.getStandardDeviation() * 1000,
+                statistics.getStandardDeviation() / Math.sqrt(statistics.getCount()) * 1000);
+    }
+
+    private void addStatistics() {
+        telemetry.addData("Top 250", formatResults(robot.top250));
+        telemetry.addData("Top 100", formatResults(robot.top100));
+        telemetry.addData("Top 10", formatResults(robot.top10));
     }
 
     @Override

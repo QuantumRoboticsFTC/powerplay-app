@@ -52,8 +52,8 @@ public class Outtake implements Subsystem {
 
     public static double SERVO_OFFSET = 0;
 
-    public static double MANUAL_OFFSET = 0;
-    public static double ARM_MANUAL_OFFSET = 0;
+    public double manualOffset = 0;
+    public double armManualOffset = 0;
 
     public static double TURRET_LEFT_POSITION = 0.05;
     public static double TURRET_RIGHT_POSITION = 0.95;
@@ -138,8 +138,8 @@ public class Outtake implements Subsystem {
                         turretServoRight.setPosition(TURRET_RIGHT_AUTO_SCORE_POSITION);
                         break;
                     case MANUAL:
-                        turretServoLeft.setPosition(MANUAL_OFFSET + SERVO_OFFSET);
-                        turretServoRight.setPosition(MANUAL_OFFSET);
+                        turretServoLeft.setPosition(manualOffset + SERVO_OFFSET);
+                        turretServoRight.setPosition(manualOffset);
                     default:
                         break;
                 }
@@ -174,8 +174,8 @@ public class Outtake implements Subsystem {
                 outtakeArmServoRight.setPosition(ARM_AUTO_INIT_POSITION);
                 break;
             case MANUAL:
-                outtakeArmServoLeft.setPosition(ARM_MANUAL_OFFSET);
-                outtakeArmServoRight.setPosition(ARM_MANUAL_OFFSET);
+                outtakeArmServoLeft.setPosition(armManualOffset);
+                outtakeArmServoRight.setPosition(armManualOffset);
                 break;
             default:
                 break;

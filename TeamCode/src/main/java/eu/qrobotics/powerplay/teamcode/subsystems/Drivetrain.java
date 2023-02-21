@@ -198,7 +198,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
 
     public void setMotorPowersFromGamepad(Gamepad gg, double scale, boolean reverseFront) {
         MecanumUtil.Motion motion = MecanumUtil.joystickToMotion(gg.left_stick_x, gg.left_stick_y,
-                gg.right_stick_x, gg.right_stick_y, reverseFront);
+                gg.right_stick_x, gg.right_stick_y, reverseFront, true);
         if (fieldCentric) {
             motion = motion.toFieldCentricMotion(getPoseEstimate().getHeading());
         }

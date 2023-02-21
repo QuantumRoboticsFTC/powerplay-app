@@ -53,19 +53,37 @@ public class MecanumUtil {
     }
 
     /**
+     * Apply custom curve for each parameter
+     * @param x
+     * @return
+     */
+    public static double applyCurve(double x) {
+        return x * x;
+    }
+
+    /**
      * Gets the motion vector from the joystick values.
      *
      * @param leftStickX  The left joystick X.
      * @param leftStickY  The left joystick Y.
      * @param rightStickX The right joystick X.
      * @param rightStickY The right joystick Y.
+     * @param customCurve Apply the custom curve or not
      * @return The Mecanum motion vector.
      */
     public static Motion joystickToMotion(double leftStickX,
                                           double leftStickY,
                                           double rightStickX,
                                           double rightStickY,
-                                          boolean reverseFront) {
+                                          boolean reverseFront,
+                                          boolean customCurve) {
+        if (customCurve) {
+            leftStickX = applyCurve(leftStickX);
+            leftStickY = applyCurve(leftStickY);
+            rightStickX = applyCurve(rightStickX);
+            rightStickY = applyCurve(rightStickY);
+        }
+
         double vD = Math.min(Math.sqrt(Math.pow(leftStickX, 2) +
                         Math.pow(leftStickY, 2)),
                 1);

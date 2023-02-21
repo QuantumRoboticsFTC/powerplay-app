@@ -7,17 +7,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
-
-import org.openftc.apriltag.AprilTagDetection;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
@@ -52,6 +50,10 @@ public class AutoLeft extends LinearOpMode {
 //        telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         Robot robot = new Robot(this, true);
         robot.drive.setPoseEstimate(TrajectoriesLeft.START_POSE);
+        robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
+        robot.extendo.targetPosition = Extendo.TargetHeight.AUTO_CONE5;
+        robot.outtake.turretMode = Outtake.TurretMode.SCORE;
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
         robot.start();
 
 //        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -107,67 +109,44 @@ public class AutoLeft extends LinearOpMode {
 
             @Override
             public void onError(int errorCode) {
-//                    throw new Exception("");
+                // :salute:
             }
         });
 
         telemetry.setMsTransmissionInterval(50);
 
-
         while (!isStarted() && !isStopRequested()) {
-            robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
-            robot.extendo.targetPosition = Extendo.TargetHeight.AUTO_CONE5;
-            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
-            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-//            robot.intake.clawMode = Intake.ClawMode.OPEN;
             if (gamepad1.a) {
                 robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             }
 
-
-
             telemetry.addLine("Press a on gamepad 1 to close claw");
-//            telemetry.update();
-//        webcam.stopStreaming();
-//        resetStartTime();
 
-//            while (!isStopRequested()) {
-                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+            ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
-                if (currentDetections.size() != 0) {
-                    boolean tagFound = false;
+            if (currentDetections.size() != 0) {
+                boolean tagFound = false;
 
-                    for (AprilTagDetection tag : currentDetections) {
-                        if (tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT) {
-                            if (tag.id == LEFT) {
-                                readFromCamera = 1;
-                            }
-                            if (tag.id == MIDDLE) {
-                                readFromCamera = 2;
-                            }
-                            if (tag.id == RIGHT) {
-                                readFromCamera = 3;
-                            }
-                            tagOfInterest = tag;
-                            tagFound = true;
-                            break;
+                for (AprilTagDetection tag : currentDetections) {
+                    if (tag.id == LEFT || tag.id == MIDDLE || tag.id == RIGHT) {
+                        if (tag.id == LEFT) {
+                            readFromCamera = 1;
                         }
-                    }
-
-                    if (tagFound) {
-                        telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
-                        telemetry.addData("tele1 ", tagOfInterest.id);
-                    } else {
-                        telemetry.addLine("Don't see tag of interest :(");
-
-                        if (tagOfInterest == null) {
-                            telemetry.addLine("(The tag has never been seen)");
-                        } else {
-                            telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                            telemetry.addData("tele1 ", tagOfInterest.id);
+                        if (tag.id == MIDDLE) {
+                            readFromCamera = 2;
                         }
+                        if (tag.id == RIGHT) {
+                            readFromCamera = 3;
+                        }
+                        tagOfInterest = tag;
+                        tagFound = true;
+                        break;
                     }
+                }
 
+                if (tagFound) {
+                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+                    telemetry.addData("tele1 ", tagOfInterest.id);
                 } else {
                     telemetry.addLine("Don't see tag of interest :(");
 
@@ -175,14 +154,23 @@ public class AutoLeft extends LinearOpMode {
                         telemetry.addLine("(The tag has never been seen)");
                     } else {
                         telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
-                        telemetry.addData("telemetry ", tagOfInterest.id);
+                        telemetry.addData("tele1 ", tagOfInterest.id);
                     }
-
                 }
 
-                telemetry.update();
-//                sleep(20);
-//            }
+            } else {
+                telemetry.addLine("Don't see tag of interest :(");
+
+                if (tagOfInterest == null) {
+                    telemetry.addLine("(The tag has never been seen)");
+                } else {
+                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                    telemetry.addData("telemetry ", tagOfInterest.id);
+                }
+
+            }
+
+            telemetry.update();
         }
 
         if (isStopRequested()) {
@@ -190,59 +178,72 @@ public class AutoLeft extends LinearOpMode {
             return;
         }
 
-//        robot.outtake.clawMode = Outtake.ClawMode.CLOSE;
-//        robot.outtake.armPosition = Outtake.ArmPosition.UP;
-//        robot.intake.clawMode = Intake.ClawMode.OPEN;
-//        robot.intake.armPosition = Intake.ArmPosition.CONE_5;
-//        robot.intake.armRotate = Intake.ArmRotate.STRAIGHT;
-
+        camera.closeCameraDeviceAsync(null);
 
         List<Trajectory> trajectories = TrajectoriesLeft.getTrajectories(readFromCamera);
         telemetry.addData("camera tag", readFromCamera);
+        telemetry.update();
 
         // PRELOAD
+        // Go to preload junction
         robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         robot.drive.followTrajectory(trajectories.get(0));
         robot.outtake.armPosition = Outtake.ArmPosition.UP;
         robot.sleep(0.4);
+
+        // Put elevator up
         robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+        // Wait for da elevator shit
         while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
-            robot.sleep(0.000001);
+            robot.sleep(0.01);
         }
-//        robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+        // Maybe put the teeth aligner
+        // robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED
+        // Wait for moving to stop
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
+        // Fucking inertia
         robot.sleep(0.2);
+
+        // Move outtake to scoring position
         robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+        // Move intake outside of the robot
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;
         robot.sleep(0.3);
+        // Drop cone
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
+        // "slam"
         robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
         robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
         robot.sleep(0.3);
+        // Retract outtake
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
+        // Move to colleting position
         robot.drive.followTrajectorySync(trajectories.get(1));
         robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
         robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
         robot.sleep(0.2);
-        robot.outtake.armPosition = Outtake.ArmPosition.UP;
+        // Move outtake to tranfer position
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
+        // Wait for movement to stop
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
         int trajectoryIndex = 2;
-        for(int i=1;i <= 5;i++){ // i = cycul
+        for (int i = 1; i <= 5; i++) { // i = cycul
             /// extendo target switch
-            robot.extendo.targetPosition = getExtendoLevel(i); /// /// CHANGE CONE NR
+            robot.extendo.targetPosition = getExtendoLevel(i); /// CHANGE CONE NR
 
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-            if(i!=1) {
-               robot.drive.followTrajectory(trajectories.get(trajectoryIndex++));
+            if (i != 1) {
+                robot.drive.followTrajectory(trajectories.get(trajectoryIndex++));
             }
+
+            // Start collecting process
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
 
 
@@ -255,10 +256,12 @@ public class AutoLeft extends LinearOpMode {
                 robot.sleep(0.01);
             }
             robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
+            // Wait for movement
             robot.sleep(0.3);
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
             }
+
             robot.intake.clawMode = Intake.ClawMode.CLOSED;
             robot.sleep(0.2);
             robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
@@ -277,7 +280,7 @@ public class AutoLeft extends LinearOpMode {
             robot.sleep(0.15);
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
 
-            robot.intake.armPosition = getintakeArmPosition(i+1); /// CHANGE CONE NR
+            robot.intake.armPosition = getintakeArmPosition(i + 1); /// CHANGE CONE NR
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;/// CHANGE CONE NR
 
             robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
@@ -287,7 +290,7 @@ public class AutoLeft extends LinearOpMode {
             robot.sleep(0.4);
             robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
             robot.sleep(0.35);
-            while(robot.drive.isBusy() && opModeIsActive() && !isStopRequested()){
+            while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
             }
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
@@ -318,39 +321,54 @@ public class AutoLeft extends LinearOpMode {
 
         robot.stop();
     }
-    private Extendo.TargetHeight getExtendoLevel (int i) {
+
+    private Extendo.TargetHeight getExtendoLevel(int i) {
         Extendo.TargetHeight targetExtendo;
         switch (i) {
-            case 1: targetExtendo = Extendo.TargetHeight.AUTO_CONE5;
+            case 1:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE5;
                 break;
-            case 2: targetExtendo = Extendo.TargetHeight.AUTO_CONE4;
+            case 2:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE4;
                 break;
-            case 3: targetExtendo = Extendo.TargetHeight.AUTO_CONE3;
+            case 3:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE3;
                 break;
-            case 4: targetExtendo = Extendo.TargetHeight.AUTO_CONE2;
+            case 4:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE2;
                 break;
-            case 5: targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+            case 5:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
                 break;
-            default: targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+            default:
+                targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
         }
         return targetExtendo;
     }
-    private Intake.ArmPosition getintakeArmPosition (int i) {
+
+    private Intake.ArmPosition getintakeArmPosition(int i) {
         Intake.ArmPosition targetPosition;
         switch (i) {
-            case 1: targetPosition = Intake.ArmPosition.CONE_5;
+            case 1:
+                targetPosition = Intake.ArmPosition.CONE_5;
                 break;
-            case 2: targetPosition = Intake.ArmPosition.CONE_4;
+            case 2:
+                targetPosition = Intake.ArmPosition.CONE_4;
                 break;
-            case 3: targetPosition = Intake.ArmPosition.CONE_3;
+            case 3:
+                targetPosition = Intake.ArmPosition.CONE_3;
                 break;
-            case 4: targetPosition = Intake.ArmPosition.CONE_2;
+            case 4:
+                targetPosition = Intake.ArmPosition.CONE_2;
                 break;
-            case 5: targetPosition = Intake.ArmPosition.CONE_1;
+            case 5:
+                targetPosition = Intake.ArmPosition.CONE_1;
                 break;
-            case 6: targetPosition = Intake.ArmPosition.VERTICAL;
+            case 6:
+                targetPosition = Intake.ArmPosition.VERTICAL;
                 break;
-            default: targetPosition = Intake.ArmPosition.CONE_1;
+            default:
+                targetPosition = Intake.ArmPosition.CONE_1;
         }
         return targetPosition;
     }
