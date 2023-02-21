@@ -58,7 +58,7 @@ public class MecanumUtil {
      * @return
      */
     public static double applyCurve(double x) {
-        return x * x;
+        return x * x * Math.signum(x);
     }
 
     /**
