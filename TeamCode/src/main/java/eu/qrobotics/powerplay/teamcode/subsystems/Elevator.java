@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @Config
 public class Elevator implements Subsystem {
 
@@ -132,6 +134,12 @@ public class Elevator implements Subsystem {
         motorLeft.setPower(power);
         motorRight.setPower(power);
     }
+
+    public double leftPowah, rightPowah;
+    private void getEnergy() {
+        leftPowah = motorLeft.getCurrent(CurrentUnit.AMPS);
+        rightPowah = motorRight.getCurrent(CurrentUnit.AMPS);
+    }
     public static boolean IS_DISABLED = false;
     @Override
     public void update() {
@@ -140,6 +148,7 @@ public class Elevator implements Subsystem {
             return;
 
         updateEncoder();
+        getEnergy();
 
         if (elevatorMode == ElevatorMode.DOWN) {
             offsetPosition = 0;

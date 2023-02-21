@@ -320,6 +320,8 @@ public class TeleOP extends OpMode {
         telemetry.addData("Elevator Encoder: ", robot.elevator.getEncoder());
         telemetry.addData("Elevator Target Encoder: ", robot.elevator.getTargetEncoder());
         telemetry.addData("Extendo Encoder: ", robot.extendo.getEncoder());
+        telemetry.addData("Left power", robot.elevator.leftPowah);
+        telemetry.addData("Right power", robot.elevator.rightPowah);
         addStatistics();
         telemetry.update();
         //endregion
