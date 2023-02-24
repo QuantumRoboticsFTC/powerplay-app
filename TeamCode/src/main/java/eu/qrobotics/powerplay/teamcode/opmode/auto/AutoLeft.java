@@ -156,7 +156,7 @@ public class AutoLeft extends LinearOpMode {
             return;
         }
 
-        camera.closeCameraDeviceAsync(null);
+        camera.closeCameraDeviceAsync(() -> {});
 
         List<Trajectory> trajectories = TrajectoriesLeft.getTrajectories(readFromCamera);
         telemetry.addData("camera tag", readFromCamera);
@@ -193,6 +193,8 @@ public class AutoLeft extends LinearOpMode {
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;
         robot.sleep(0.3);
         // Drop cone
+        telemetry.addData("outtake x", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS));
+        telemetry.update();
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         // "slam"
         robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
@@ -244,7 +246,7 @@ public class AutoLeft extends LinearOpMode {
             robot.sleep(0.2);
             robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
             robot.intake.armPosition = Intake.ArmPosition.CONE_5; // go a little bit :sus: so that you go down when transfering instead of going up
-            robot.sleep(0.2);
+            robot.sleep(0.4);
             robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
 //            robot.sleep(0.3);
             robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
@@ -277,6 +279,9 @@ public class AutoLeft extends LinearOpMode {
             robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
             robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
             robot.sleep(0.3);
+
+            telemetry.addData("outtake x", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_HIGH_POS));
+            telemetry.update();
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
             robot.sleep(0.2);
 //            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;

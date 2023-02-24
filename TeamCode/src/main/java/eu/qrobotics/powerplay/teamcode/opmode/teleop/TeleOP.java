@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.MovingStatistics;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
+import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
 import eu.qrobotics.powerplay.teamcode.subsystems.Intake;
@@ -55,8 +56,6 @@ public class TeleOP extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = new Robot(this, false);
-
-
         stickyGamepad1 = new StickyGamepad(gamepad1);
         stickyGamepad2 = new StickyGamepad(gamepad2);
         driveMode = DriveMode.NORMAL;
@@ -72,6 +71,7 @@ public class TeleOP extends OpMode {
     @Override
     public void start() {
         robot.start();
+        robot.drive.setPoseEstimate(TrajectoriesLeft.START_POSE);
     }
 
     @Override
@@ -80,7 +80,6 @@ public class TeleOP extends OpMode {
         stickyGamepad2.update();
 
         //region Driver 1 controls
-
         if (!robot.drive.isBusy()) {
             switch (driveMode) {
                 case NORMAL:
@@ -300,6 +299,7 @@ public class TeleOP extends OpMode {
         //endregion
 
         //region Telemetry
+        telemetry.addData("outtake heading error", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS));
         telemetry.addData("Elevator Encoder: ", robot.elevator.getEncoder());
         telemetry.addData("Elevator Target Encoder: ", robot.elevator.getTargetEncoder());
         telemetry.addData("Extendo Encoder: ", robot.extendo.getEncoder());

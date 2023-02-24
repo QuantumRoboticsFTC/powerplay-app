@@ -122,7 +122,7 @@ public class Elevator implements Subsystem {
 
     public int getTargetEncoder() {
         if(elevatorMode == ElevatorMode.DOWN) {
-            return 0;
+            return 0; // TODO: ar tb downPosition nu 0
         }
         return targetPosition.getEncoderPosition();
     }

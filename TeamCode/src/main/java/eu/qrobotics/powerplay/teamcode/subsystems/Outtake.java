@@ -1,16 +1,25 @@
 package eu.qrobotics.powerplay.teamcode.subsystems;
 
+import android.graphics.Point;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.Vector;
+
 import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
 
 @Config
 public class Outtake implements Subsystem {
+    public static final Vector2d OUTTAKE_ROBOT_POS = new Vector2d(0, 5.6);
+    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
+    public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
 
     public enum TurretMode {
         TRANSFER,
@@ -56,14 +65,15 @@ public class Outtake implements Subsystem {
     public static double SERVO_OFFSET = 0;
 
     public double manualOffset = 0;
+
     public double armManualOffset = 0;
 
-    public static double TURRET_LEFT_POSITION = 0.05;
-    public static double TURRET_RIGHT_POSITION = 0.95;
-    public static double TURRET_CENTER_POSITION = 0.485;
+    public static double TURRET_LEFT_POSITION = 0.02;
+    public static double TURRET_RIGHT_POSITION = 0.92;
+    public static double TURRET_CENTER_POSITION = 0.45;
 
-    public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.09;
-    public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.91;
+    public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.18;
+    public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.92;
 
     public static double ARM_TRANSFER_POSITION = 0.28;
     public static double ARM_UP_POSITION = 0.62;
@@ -89,7 +99,11 @@ public class Outtake implements Subsystem {
 
     public double turretManualPosition = 0.5;
 
-    public Outtake(HardwareMap hardwareMap) {
+    private Robot robot;
+
+    public Outtake(HardwareMap hardwareMap, Robot robot) {
+        this.robot = robot;
+
         turretServoLeft = new CachingServo(hardwareMap.get(Servo.class, "turretServoLeft"));
         turretServoRight = new CachingServo(hardwareMap.get(Servo.class, "turretServoRight"));
         outtakeArmServoLeft = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoLeft"));
@@ -143,8 +157,8 @@ public class Outtake implements Subsystem {
                         turretServoRight.setPosition(TURRET_RIGHT_AUTO_SCORE_POSITION);
                         break;
                     case MANUAL:
-                        turretServoLeft.setPosition(manualOffset + SERVO_OFFSET);
-                        turretServoRight.setPosition(manualOffset);
+                        turretServoLeft.setPosition(approximateToThreeDecimals(manualOffset) + SERVO_OFFSET);
+                        turretServoRight.setPosition(approximateToThreeDecimals(manualOffset));
                     default:
                         break;
                 }
@@ -246,7 +260,22 @@ public class Outtake implements Subsystem {
         }
     }
 
+
     public boolean hasCone() {
         return outtakeSensor.getDistance(DistanceUnit.MM) < 28;
+    }
+
+    public static double approximateToThreeDecimals(double d) {
+        return Math.round(d * 1000.0) / 1000.0;
+    }
+
+
+    public double getTargetTurretAngle(Vector2d targetPosition) {
+        double outtakeX = robot.drive.getPoseEstimate().getX() - (double) 5.51 * Math.cos(robot.drive.getPoseEstimate().getHeading());
+        double outtakeY = robot.drive.getPoseEstimate().getY() + (double) 5.51 * Math.sin(robot.drive.getPoseEstimate().getHeading());
+
+        double slope = Math.atan((outtakeX - targetPosition.getX()) / (outtakeY - targetPosition.getY()));
+        double ans = -90.0 + Math.toDegrees(robot.drive.getPoseEstimate().getHeading()) - slope + 135;
+        return ans;
     }
 }

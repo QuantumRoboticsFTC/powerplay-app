@@ -125,7 +125,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
             Log.w(TAG, e);
         }
         try {
-            outtake = new Outtake(opMode.hardwareMap);
+            outtake = new Outtake(opMode.hardwareMap, this);
             subsystems.add(outtake);
         } catch (Exception e) {
             Log.w(TAG, "Failed to initialize outtake: " + e.getMessage());

@@ -8,10 +8,10 @@ import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.util.Encoder;
+
 import java.util.Arrays;
 import java.util.List;
-
-import eu.qrobotics.powerplay.teamcode.util.Encoder;
 
 /*
  * Sample tracking wheel localizer implementation assuming the standard configuration:
@@ -29,7 +29,7 @@ import eu.qrobotics.powerplay.teamcode.util.Encoder;
 @Config
 public class Odometry extends ThreeTrackingWheelLocalizer {
     public static double TICKS_PER_REV = 8192;
-    public static double WHEEL_RADIUS = 0.689; // in
+    public static double WHEEL_RADIUS = 0.692; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 11.1;
@@ -57,7 +57,7 @@ public class Odometry extends ThreeTrackingWheelLocalizer {
 
         rightEncoder.setDirection(Encoder.Direction.REVERSE);
 //        rearEncoder.setDirection(Encoder.Direction.REVERSE);
-        leftEncoder.setDirection(Encoder.Direction.REVERSE);
+//        leftEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {
@@ -67,20 +67,28 @@ public class Odometry extends ThreeTrackingWheelLocalizer {
     @NonNull
     @Override
     public List<Double> getWheelPositions() {
+        int leftPos = leftEncoder.getCurrentPosition();
+        int rightPos = rightEncoder.getCurrentPosition();
+        int frontPos = rearEncoder.getCurrentPosition();
+
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition()) * Y_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER,
-                encoderTicksToInches(rearEncoder.getCurrentPosition()) * Y_MULTIPLIER
+                encoderTicksToInches(leftPos),
+                encoderTicksToInches(rightPos),
+                encoderTicksToInches(frontPos)
         );
     }
 
     @NonNull
     @Override
     public List<Double> getWheelVelocities() {
+        int leftVel = (int) leftEncoder.getCorrectedVelocity();
+        int rightVel = (int) rightEncoder.getCorrectedVelocity();
+        int frontVel = (int) rearEncoder.getCorrectedVelocity();
+
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * Y_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(rearEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
+                encoderTicksToInches(leftVel),
+                encoderTicksToInches(rightVel),
+                encoderTicksToInches(frontVel)
         );
     }
 }

@@ -40,7 +40,7 @@ public class TrajectoriesLeft {
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineToSplineHeading(new Pose2d(-36, -28, Math.toRadians(270)))
-                .splineToSplineHeading(new Pose2d(-37, -14, Math.toRadians(227)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-36, -12, Math.toRadians(227)), Math.toRadians(90))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(227), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
@@ -48,39 +48,39 @@ public class TrajectoriesLeft {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-10, -15))
+                .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-33, -14))
+                .lineToConstantHeading(new Vector2d(-34, -12))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-10, -15))
+                .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-33, -15))
+                .lineToConstantHeading(new Vector2d(-34, -12))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-10, -15))
+                .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-33, -16))
+                .lineToConstantHeading(new Vector2d(-34, -12))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-10, -15))
+                .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-33, -14))
+                .lineToConstantHeading(new Vector2d(-34, -12))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-10, -15))
+                .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
         );
 
