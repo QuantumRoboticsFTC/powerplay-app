@@ -270,16 +270,52 @@ public class Outtake implements Subsystem {
     }
 
     public static Pose2d TURRET_ROBOT_POSE = new Pose2d(-5.51, 0, Math.toRadians(180));
+    public static double TURRET_ARM_LENGTH = 11.789;
 
     public double getTargetTurretAngle(Vector2d targetPosition) {
         Pose2d robotPose = robot.drive.getPoseEstimate();
         Pose2d turretWorldPose = new Pose2d(robotPose.vec().plus(TURRET_ROBOT_POSE.vec().rotated(robotPose.getHeading())), robotPose.getHeading() + TURRET_ROBOT_POSE.getHeading());
 
-        double turretAngle = targetPosition.minus(turretWorldPose.vec()).angle() - robotPose.getHeading();
+        double turretAngle = targetPosition.minus(turretWorldPose.vec()).angle() - turretWorldPose.getHeading();
         while(turretAngle > Math.PI)
             turretAngle -= 2 * Math.PI;
         while(turretAngle < -Math.PI)
             turretAngle += 2 * Math.PI;
         return turretAngle;
+    }
+
+    public double getTargetArmAngle(Vector2d targetPosition) {
+        Pose2d robotPose = robot.drive.getPoseEstimate();
+        Pose2d turretWorldPose = new Pose2d(robotPose.vec().plus(TURRET_ROBOT_POSE.vec().rotated(robotPose.getHeading())), robotPose.getHeading() + TURRET_ROBOT_POSE.getHeading());
+
+        double armAngle = Math.acos(targetPosition.distTo(turretWorldPose.vec()) / TURRET_ARM_LENGTH);
+        while(armAngle > Math.PI)
+            armAngle -= 2 * Math.PI;
+        while(armAngle < -Math.PI)
+            armAngle += 2 * Math.PI;
+        return armAngle;
+    }
+
+
+
+    public double getTargetTurretServoPosition(Vector2d targetPosition) {
+        double turretAngle = getTargetTurretAngle(targetPosition);
+
+        // gearing: 4/6
+        // 270 servo = 180 turret
+
+        // pos (x + 0.5 - TURRET_CENTER) = x * 180 deg - 90 deg
+        // x = (turretAngle + 90)/180 - 0.5 + TURRET_CENTER
+
+        return (turretAngle + Math.toRadians(90))/Math.toRadians(180) - 0.5 + TURRET_CENTER_POSITION;
+    }
+
+    public double getTargetArmServoPosition(Vector2d targetPosition) {
+        double turretAngle = Math.PI / 2 - getTargetArmAngle(targetPosition);
+
+        // vertical = 0.652
+        // pos (x-0.652) = (x-0.652)*270
+
+        return turretAngle/Math.toRadians(270) + 0.652;
     }
 }

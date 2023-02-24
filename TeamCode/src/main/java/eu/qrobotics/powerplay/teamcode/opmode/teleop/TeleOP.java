@@ -1,14 +1,19 @@
 package eu.qrobotics.powerplay.teamcode.opmode.teleop;
 
+import static eu.qrobotics.powerplay.teamcode.subsystems.Outtake.TURRET_ROBOT_POSE;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
@@ -267,6 +272,7 @@ public class TeleOP extends OpMode {
             if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
                 robot.outtake.manualOffset = robot.outtake.getTurretPosition();
             }
+            // TODO: robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
             if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
                 robot.outtake.manualOffset = 1;
             else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
@@ -280,6 +286,7 @@ public class TeleOP extends OpMode {
             if (robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
                 robot.outtake.armManualOffset = robot.outtake.getArmPosition();
             }
+            // TODO: robot.outtake.armManualOffset = Range.clip(robot.outtake.getTargetArmServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
             if (robot.outtake.armManualOffset + gamepad2.left_stick_y * 0.005 > 1)
                 robot.outtake.armManualOffset = 1;
             else if (robot.outtake.manualOffset + gamepad2.left_stick_y * 0.005 < -1)
@@ -299,10 +306,10 @@ public class TeleOP extends OpMode {
         //endregion
 
         //region Telemetry
-        telemetry.addData("outtake heading error", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS));
-        telemetry.addData("Elevator Encoder: ", robot.elevator.getEncoder());
-        telemetry.addData("Elevator Target Encoder: ", robot.elevator.getTargetEncoder());
-        telemetry.addData("Extendo Encoder: ", robot.extendo.getEncoder());
+        telemetry.addData("outtake heading error", Math.toDegrees(robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS)) );
+        telemetry.addData("Elevator Encoder", robot.elevator.getEncoder());
+        telemetry.addData("Elevator Target Encoder", robot.elevator.getTargetEncoder());
+        telemetry.addData("Extendo Encoder", robot.extendo.getEncoder());
         telemetry.addData("Left power", robot.elevator.leftPowah);
         telemetry.addData("Right power", robot.elevator.rightPowah);
         addStatistics();
@@ -312,8 +319,17 @@ public class TeleOP extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
         Canvas fieldOverlay = packet.fieldOverlay();
 
+        Pose2d robotPose = robot.drive.getPoseEstimate();
+        Pose2d turretWorldPose = new Pose2d(robotPose.vec().plus(TURRET_ROBOT_POSE.vec().rotated(robotPose.getHeading())), robotPose.getHeading() + TURRET_ROBOT_POSE.getHeading());
+        double turretAngle = robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS);
+        Vector2d turretVector = new Vector2d(10, 0).rotated(turretAngle).rotated(turretWorldPose.getHeading());
+
         fieldOverlay.setStroke("#3F51B5");
-        DashboardUtil.drawRobot(fieldOverlay, robot.drive.getPoseEstimate());
+        DashboardUtil.drawRobot(fieldOverlay, robotPose);
+        fieldOverlay.setStroke("#4CAF50");
+        fieldOverlay.fillCircle(Outtake.OUTTAKE_AUTO_PRELOAD_POS.getX(), Outtake.OUTTAKE_AUTO_PRELOAD_POS.getY(), 3);
+        fieldOverlay.setStroke("#FF9800");
+        fieldOverlay.strokeLine(turretWorldPose.getX(), turretWorldPose.getY(), turretWorldPose.getX() + turretVector.getX(), turretWorldPose.getY() + turretVector.getY());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
 
