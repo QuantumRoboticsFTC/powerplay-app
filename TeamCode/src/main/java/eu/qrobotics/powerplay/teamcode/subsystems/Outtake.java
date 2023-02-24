@@ -269,13 +269,17 @@ public class Outtake implements Subsystem {
         return Math.round(d * 1000.0) / 1000.0;
     }
 
+    public static Pose2d TURRET_ROBOT_POSE = new Pose2d(-5.51, 0, Math.toRadians(180));
 
     public double getTargetTurretAngle(Vector2d targetPosition) {
-        double outtakeX = robot.drive.getPoseEstimate().getX() - (double) 5.51 * Math.cos(robot.drive.getPoseEstimate().getHeading());
-        double outtakeY = robot.drive.getPoseEstimate().getY() + (double) 5.51 * Math.sin(robot.drive.getPoseEstimate().getHeading());
+        Pose2d robotPose = robot.drive.getPoseEstimate();
+        Pose2d turretWorldPose = new Pose2d(robotPose.vec().plus(TURRET_ROBOT_POSE.vec().rotated(robotPose.getHeading())), robotPose.getHeading() + TURRET_ROBOT_POSE.getHeading());
 
-        double slope = Math.atan((outtakeX - targetPosition.getX()) / (outtakeY - targetPosition.getY()));
-        double ans = -90.0 + Math.toDegrees(robot.drive.getPoseEstimate().getHeading()) - slope + 135;
-        return ans;
+        double turretAngle = targetPosition.minus(turretWorldPose.vec()).angle() - robotPose.getHeading();
+        while(turretAngle > Math.PI)
+            turretAngle -= 2 * Math.PI;
+        while(turretAngle < -Math.PI)
+            turretAngle += 2 * Math.PI;
+        return turretAngle;
     }
 }
