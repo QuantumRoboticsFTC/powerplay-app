@@ -1,6 +1,7 @@
 package eu.qrobotics.powerplay.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,14 +11,14 @@ import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 @Config
 public class Extendo implements Subsystem {
 
-    public static int THRESHOLD_DOWN = 15;
-    public static int THRESHOLD_DOWN_LEVEL_1 = 30;
-    public static int THRESHOLD_DOWN_LEVEL_2 = 60;
-    public static int THRESHOLD_DOWN_LEVEL_3 = 100;
-    public static int THRESHOLD = 20;
-    public static int THRESHOLD_LEVEL_1 = 10;
-    public static int THRESHOLD_LEVEL_2 = 100;
-    public static int THRESHOLD_LEVEL_3 = 250;
+    public static double THRESHOLD_DOWN = 0.5;
+    public static double THRESHOLD_DOWN_LEVEL_1 = 0.75;
+    public static double THRESHOLD_DOWN_LEVEL_2 = 1.5;
+    public static double THRESHOLD_DOWN_LEVEL_3 = 2.5;
+    public static double THRESHOLD = 0.5;
+    public static double THRESHOLD_LEVEL_1 = 0.25;
+    public static double THRESHOLD_LEVEL_2 = 2.5;
+    public static double THRESHOLD_LEVEL_3 = 6.5;
     public static double DOWN_POWER_1 = -1;
     public static double DOWN_POWER_2 = -1;
     public static double DOWN_POWER_3 = -1;
@@ -31,6 +32,13 @@ public class Extendo implements Subsystem {
     public static double FAST_SPEED_MULTIPLIER = 1;
     public static double SLOW_SPEED_MULTIPLIER = 0.5;
 
+    public static double SPOOL_RADIUS = 1.5748;
+    private static final double TICKS_PER_REV = 384.5;
+
+    private static double encoderTicksToInches(double ticks) {
+        return SPOOL_RADIUS * 2 * Math.PI * ticks / TICKS_PER_REV;
+    }
+
     public enum ExtendoMode {
         DISABLED,
         RETRACTED,
@@ -43,59 +51,49 @@ public class Extendo implements Subsystem {
         SLOW
     }
 
-    public enum TargetHeight {
-        AUTO_CONE5(553) {
+    public enum TargetCone {
+        AUTO_CONE5(1.9) {
             @Override
-            public Extendo.TargetHeight previous() {
+            public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE4(815) {
+        AUTO_CONE4(0.9) {
             @Override
-            public Extendo.TargetHeight previous() {
+            public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE3(815) {
+        AUTO_CONE3(0.2) {
             @Override
-            public Extendo.TargetHeight previous() {
+            public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE2(807) {
+        AUTO_CONE2(0) {
             @Override
-            public Extendo.TargetHeight previous() {
+            public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE1(805) {
+        AUTO_CONE1(0) {
             @Override
-            public Extendo.TargetHeight previous() {
-                return this;
-            }
-        },
-        HIGH(750){
-            @Override
-            public Extendo.TargetHeight next() {
+            public TargetCone previous() {
                 return this;
             }
         };
 
-        private final int encoderPosition;
+        private final double offset;
 
-        TargetHeight(int encoderPosition) {
-            this.encoderPosition = encoderPosition;
+        TargetCone(double offset) {
+            this.offset = offset;
         }
 
-        public int getEncoderPosition() {
-            return encoderPosition;
-        }
-
-        public Extendo.TargetHeight previous() {
+        public TargetCone previous() {
             return values()[ordinal() - 1];
         }
 
-        public Extendo.TargetHeight next() {
+        public TargetCone next() {
             return values()[ordinal() + 1];
         }
     }
@@ -103,7 +101,8 @@ public class Extendo implements Subsystem {
     private int downPosition;
     private int lastEncoder;
     public double offsetPosition;
-    public TargetHeight targetPosition;
+    public TargetCone targetCone;
+    public double targetLength;
     public double manualPower;
 
     public ExtendoMode extendoMode;
@@ -111,7 +110,8 @@ public class Extendo implements Subsystem {
     private CachingDcMotorEx motor;
     private Robot robot;
 
-    Extendo(HardwareMap hardwareMap) {
+    Extendo(HardwareMap hardwareMap, Robot robot) {
+        this.robot = robot;
 
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "intakeMotor"));
 
@@ -125,11 +125,11 @@ public class Extendo implements Subsystem {
         //targetPosition = TargetHeight.AUTO;
     }
 
-    public int getRawEncoder() {
+    private int getRawEncoder() {
         return motor.getCurrentPosition();
     }
 
-    public int updateEncoder() {
+    private int updateEncoder() {
         lastEncoder = getRawEncoder() - downPosition;
         return lastEncoder;
     }
@@ -138,23 +138,19 @@ public class Extendo implements Subsystem {
         return lastEncoder;
     }
 
-    public int getLastEncoder() {
-        return lastEncoder;
-    }
-
-    public int getTargetEncoder() {
-        if(extendoMode == ExtendoMode.RETRACTED) {
+    public double getTargetLength() {
+        if (extendoMode == ExtendoMode.RETRACTED) {
             return 0;
         }
-        return targetPosition.getEncoderPosition();
+        return targetLength + targetCone.offset;
     }
 
-    public int getDistanceLeft() {
-        return getTargetEncoder() - lastEncoder + (int) offsetPosition;
+    public double getCurrentLength() {
+        return encoderTicksToInches(getEncoder());
     }
 
-    public TargetHeight getTargetPosition() {
-        return targetPosition;
+    public double getDistanceLeft() {
+        return getTargetLength() - getCurrentLength() + offsetPosition;
     }
 
     private void setPower(double power) {
@@ -171,18 +167,18 @@ public class Extendo implements Subsystem {
 
         if (extendoMode == ExtendoMode.RETRACTED) {
             offsetPosition = 0;
-            if (getEncoder() <= THRESHOLD_DOWN)
+            if (getCurrentLength() <= THRESHOLD_DOWN)
                 setPower(0);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_1)
+            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
                 setPower(DOWN_POWER_1);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_2)
+            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_2)
                 setPower(DOWN_POWER_2);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_3)
+            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_3)
                 setPower(DOWN_POWER_3);
             else
                 setPower(DOWN_POWER_4);
         } else if (extendoMode == ExtendoMode.UP) {
-            int distanceLeft = targetPosition.getEncoderPosition() - getEncoder() + (int) offsetPosition;
+            double distanceLeft = getDistanceLeft();
             if (Math.abs(distanceLeft) <= THRESHOLD)
                 setPower(HOLD_POWER );
             else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_1)
@@ -204,12 +200,7 @@ public class Extendo implements Subsystem {
         }
     }
 
-
-//    public void nextStone() {
-//        targetPosition = targetPosition.next();
-//    }
-//
-//    public void previousStone() {
-//        targetPosition = targetPosition.previous();
-//    }
+    public double calculateTargetLength(Vector2d targetPosition) {
+        return robot.drive.getPoseEstimate().vec().distTo(targetPosition) - 18.5;
+    }
 }

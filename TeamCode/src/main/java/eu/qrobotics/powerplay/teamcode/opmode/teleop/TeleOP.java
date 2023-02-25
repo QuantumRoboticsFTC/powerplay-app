@@ -309,7 +309,7 @@ public class TeleOP extends OpMode {
         telemetry.addData("outtake heading error", Math.toDegrees(robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS)) );
         telemetry.addData("Elevator Encoder", robot.elevator.getEncoder());
         telemetry.addData("Elevator Target Encoder", robot.elevator.getTargetEncoder());
-        telemetry.addData("Extendo Encoder", robot.extendo.getEncoder());
+        telemetry.addData("Extendo Length", robot.extendo.getCurrentLength());
         telemetry.addData("Left power", robot.elevator.leftPowah);
         telemetry.addData("Right power", robot.elevator.rightPowah);
         addStatistics();
@@ -378,7 +378,7 @@ public class TeleOP extends OpMode {
     }
 
     private void updateConeDropTimer() {
-        if (!startedTransfer && robot.intake.armPosition == Intake.ArmPosition.TRANSFER && robot.extendo.getEncoder() < 10) {
+        if (!startedTransfer && robot.intake.armPosition == Intake.ArmPosition.TRANSFER && robot.extendo.getCurrentLength() < 0.25) {
 //            robot.intake.clawMode = Intake.ClawMode.OPEN;
             coneDropTimer.reset();
             startedTransfer = true;

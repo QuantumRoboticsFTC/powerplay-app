@@ -111,7 +111,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
             Log.w(TAG, e);
         }
         try {
-            extendo = new Extendo(opMode.hardwareMap);
+            extendo = new Extendo(opMode.hardwareMap, this);
             subsystems.add(extendo);
         } catch (Exception e) {
             Log.w(TAG, "Failed to initialize extendo: " + e.getMessage());

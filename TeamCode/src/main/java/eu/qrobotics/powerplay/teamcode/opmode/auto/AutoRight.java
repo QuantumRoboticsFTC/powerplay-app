@@ -42,7 +42,7 @@ public class AutoRight extends LinearOpMode {
     //    public static Point TOP_LEFT = new Point(500, 250);
 //    public static Point BOTTOM_RIGHT = new Point(775, 500);
     public static double ELEVATOR_THRESHOLD = 2;
-    public static double EXTENDO_THRESHOLD = 15;
+    public static double EXTENDO_THRESHOLD = 0.38;
 
     private ElapsedTime transferTimer = new ElapsedTime(270);
 
@@ -116,7 +116,7 @@ public class AutoRight extends LinearOpMode {
 
         while (!isStarted() && !isStopRequested()) {
             robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
-            robot.extendo.targetPosition = Extendo.TargetHeight.AUTO_CONE5;
+            robot.extendo.targetCone = Extendo.TargetCone.AUTO_CONE5;
             robot.outtake.turretMode = Outtake.TurretMode.SCORE;
             robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
 //            robot.intake.clawMode = Intake.ClawMode.OPEN;
@@ -236,7 +236,7 @@ public class AutoRight extends LinearOpMode {
         int trajectoryIndex = 2;
         for(int i=1;i <= 5;i++){ // i = cycul
             /// extendo target switch
-            robot.extendo.targetPosition = getExtendoLevel(i); /// /// CHANGE CONE NR
+            robot.extendo.targetCone = getExtendoLevel(i); /// /// CHANGE CONE NR
 
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
             if(i!=1) {
@@ -268,7 +268,7 @@ public class AutoRight extends LinearOpMode {
             robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
             robot.drive.followTrajectory(trajectories.get(trajectoryIndex++));
             transferTimer.reset();
-            while (robot.extendo.getEncoder() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
+            while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
                 robot.sleep(0.01);
             }
             robot.sleep(0.25);
@@ -319,20 +319,20 @@ public class AutoRight extends LinearOpMode {
 
         robot.stop();
     }
-    private Extendo.TargetHeight getExtendoLevel (int i) {
-        Extendo.TargetHeight targetExtendo;
+    private Extendo.TargetCone getExtendoLevel (int i) {
+        Extendo.TargetCone targetExtendo;
         switch (i) {
-            case 1: targetExtendo = Extendo.TargetHeight.AUTO_CONE5;
+            case 1: targetExtendo = Extendo.TargetCone.AUTO_CONE5;
                 break;
-            case 2: targetExtendo = Extendo.TargetHeight.AUTO_CONE4;
+            case 2: targetExtendo = Extendo.TargetCone.AUTO_CONE4;
                 break;
-            case 3: targetExtendo = Extendo.TargetHeight.AUTO_CONE3;
+            case 3: targetExtendo = Extendo.TargetCone.AUTO_CONE3;
                 break;
-            case 4: targetExtendo = Extendo.TargetHeight.AUTO_CONE2;
+            case 4: targetExtendo = Extendo.TargetCone.AUTO_CONE2;
                 break;
-            case 5: targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+            case 5: targetExtendo = Extendo.TargetCone.AUTO_CONE1;
                 break;
-            default: targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+            default: targetExtendo = Extendo.TargetCone.AUTO_CONE1;
         }
         return targetExtendo;
     }

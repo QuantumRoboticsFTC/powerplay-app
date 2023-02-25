@@ -88,7 +88,7 @@ public class Outtake implements Subsystem {
     public static double ALIGNER_RETRACTED_POSITION = 0.55;
     public static double ALIGNER_DEPLOYED_POSITION = 0.47;
 
-    private CachingServo turretServoLeft;
+    public CachingServo turretServoLeft;
     private CachingServo turretServoRight;
     private CachingServo outtakeArmServoLeft;
     private CachingServo outtakeArmServoRight;
@@ -159,6 +159,7 @@ public class Outtake implements Subsystem {
                     case MANUAL:
                         turretServoLeft.setPosition(approximateToThreeDecimals(manualOffset) + SERVO_OFFSET);
                         turretServoRight.setPosition(approximateToThreeDecimals(manualOffset));
+                        break;
                     default:
                         break;
                 }
@@ -255,6 +256,8 @@ public class Outtake implements Subsystem {
                 return ARM_UP_POSITION;
             case AUTO_INIT:
                 return ARM_AUTO_INIT_POSITION;
+            case SCORE_TILTED:
+                return ARM_SCORE_TILTED_POSITION;
             default:
                 return ARM_UP_POSITION;
         }

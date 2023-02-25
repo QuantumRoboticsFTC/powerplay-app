@@ -64,7 +64,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
     private MotionProfile turnProfile;
     private double turnStart;
 
-    private TrajectoryFollower follower;
+    public TrajectoryFollower follower;
 
     private LinkedList<Pose2d> poseHistory;
 
@@ -99,7 +99,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
 
         if(isAutonomous) {
             follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                    new Pose2d(0.25, 0.25, Math.toRadians(0.0)), 1.0);
+                    new Pose2d(0.25, 0.25, Math.toRadians(0.0)), 1.5);
         }
         motorPowers = new double[]{0.0, 0.0, 0.0, 0.0};
 
@@ -250,7 +250,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
 
         switch (mode) {
             case IDLE:
-                // do nothing
+                setDriveSignal(follower.update(currentPose, getPoseVelocity()));
                 break;
             case TURN: {
                 double t = clock.seconds() - turnStart;
@@ -279,9 +279,10 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
             case FOLLOW_TRAJECTORY: {
                 setDriveSignal(follower.update(currentPose, getPoseVelocity()));
 
-                if (!follower.isFollowing()) {
+//                if (!follower.isFollowing()) {
+                if (follower.elapsedTime() >= follower.getTrajectory().duration()) {
                     mode = Mode.IDLE;
-                    setDriveSignal(new DriveSignal());
+//                    setDriveSignal(new DriveSignal());
                 }
 
                 break;

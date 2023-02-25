@@ -29,7 +29,7 @@ public class DriveConstants {
     public static double MAX_ACCEL = 40;
 
     public static TrajectoryVelocityConstraint BASE_VEL_CONSTRAINT = new MecanumVelocityConstraint(60, TRACK_WIDTH, LATERAL_MULTIPLIER);
-    public static TrajectoryAccelerationConstraint BASE_ACCEL_CONSTRAINT = new ProfileAccelerationConstraint(40);
+    public static TrajectoryAccelerationConstraint BASE_ACCEL_CONSTRAINT = new ProfileAccelerationConstraint(60);
 
     public static TrajectoryVelocityConstraint NORMAL_VEL_CONSTRAINT = new MecanumVelocityConstraint(40, TRACK_WIDTH, LATERAL_MULTIPLIER);
     public static TrajectoryAccelerationConstraint NORMAL_ACCEL_CONSTRAINT = new ProfileAccelerationConstraint(40);

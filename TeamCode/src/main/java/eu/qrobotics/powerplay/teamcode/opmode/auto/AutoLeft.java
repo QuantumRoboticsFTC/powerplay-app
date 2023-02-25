@@ -1,10 +1,12 @@
 package eu.qrobotics.powerplay.teamcode.opmode.auto;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
@@ -28,7 +30,8 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Autonomous
 public class AutoLeft extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
-    public static double EXTENDO_THRESHOLD = 15;
+    public static double EXTENDO_THRESHOLD = 0.38;
+    public static Vector2d CONE_STACK = new Vector2d(-70, -12);
 
     private ElapsedTime transferTimer = new ElapsedTime(0);
 
@@ -39,7 +42,7 @@ public class AutoLeft extends LinearOpMode {
         Robot robot = new Robot(this, true);
         robot.drive.setPoseEstimate(TrajectoriesLeft.START_POSE);
         robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
-        robot.extendo.targetPosition = Extendo.TargetHeight.AUTO_CONE5;
+        robot.extendo.targetCone = Extendo.TargetCone.AUTO_CONE5;
         robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
         robot.start();
@@ -166,7 +169,7 @@ public class AutoLeft extends LinearOpMode {
         // Go to preload junction
         robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         robot.drive.followTrajectory(trajectories.get(0));
-        robot.outtake.armPosition = Outtake.ArmPosition.UP;
+
         robot.sleep(0.4);
 
         // Put elevator up
@@ -185,15 +188,26 @@ public class AutoLeft extends LinearOpMode {
         // Fucking inertia
         robot.sleep(0.2);
 
+        robot.outtake.armPosition = Outtake.ArmPosition.UP;
+        robot.sleep(0.2);
+
+        // Set turret target position
+        robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
+        robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         // Move outtake to scoring position
         robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
         // Move intake outside of the robot
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;
+        // Set turret target position
+        robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
+        robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         robot.sleep(0.3);
         // Drop cone
-        telemetry.addData("outtake x", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS));
+        telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS)));
+        telemetry.addData("outtake servo pops", robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS));
+        telemetry.addData("outtake servo pops actual", robot.outtake.turretServoLeft.getPosition());
         telemetry.update();
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         // "slam"
@@ -216,7 +230,7 @@ public class AutoLeft extends LinearOpMode {
         int trajectoryIndex = 2;
         for (int i = 1; i <= 5; i++) { // i = cycul
             /// extendo target switch
-            robot.extendo.targetPosition = getExtendoLevel(i); /// CHANGE CONE NR
+            robot.extendo.targetCone = getExtendoLevel(i); /// CHANGE CONE NR
 
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
             if (i != 1) {
@@ -230,17 +244,24 @@ public class AutoLeft extends LinearOpMode {
             robot.intake.armPosition = getintakeArmPosition(i); /// CHANGE CONE NR
 
 
+//            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+            robot.extendo.targetLength = 18;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             robot.extendo.extendoMode = Extendo.ExtendoMode.UP;
             while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
+                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+                telemetry.addData("extendo target", robot.extendo.getTargetLength());
+                telemetry.addData("extendo actual", robot.extendo.getCurrentLength());
+                telemetry.update();
                 robot.sleep(0.01);
             }
             robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
             // Wait for movement
-            robot.sleep(0.3);
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
+                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
                 robot.sleep(0.01);
             }
+            robot.sleep(0.2);
 
             robot.intake.clawMode = Intake.ClawMode.CLOSED;
             robot.sleep(0.2);
@@ -252,7 +273,7 @@ public class AutoLeft extends LinearOpMode {
             robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
             robot.drive.followTrajectory(trajectories.get(trajectoryIndex++));
             transferTimer.reset();
-            while (robot.extendo.getEncoder() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
+            while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
                 robot.sleep(0.01);
             }
             robot.sleep(0.25);
@@ -273,14 +294,19 @@ public class AutoLeft extends LinearOpMode {
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
             }
+
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+            robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_HIGH_POS), 0, 1);
+            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
             robot.sleep(0.3);
 //            robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
             robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
             robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
+            robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_HIGH_POS), 0, 1);
+            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
             robot.sleep(0.3);
 
-            telemetry.addData("outtake x", robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_HIGH_POS));
+            telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_HIGH_POS)));
             telemetry.update();
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
             robot.sleep(0.2);
@@ -305,26 +331,26 @@ public class AutoLeft extends LinearOpMode {
         robot.stop();
     }
 
-    private Extendo.TargetHeight getExtendoLevel(int i) {
-        Extendo.TargetHeight targetExtendo;
+    private Extendo.TargetCone getExtendoLevel(int i) {
+        Extendo.TargetCone targetExtendo;
         switch (i) {
             case 1:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE5;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE5;
                 break;
             case 2:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE4;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE4;
                 break;
             case 3:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE3;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE3;
                 break;
             case 4:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE2;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE2;
                 break;
             case 5:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE1;
                 break;
             default:
-                targetExtendo = Extendo.TargetHeight.AUTO_CONE1;
+                targetExtendo = Extendo.TargetCone.AUTO_CONE1;
         }
         return targetExtendo;
     }
