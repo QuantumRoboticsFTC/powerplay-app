@@ -17,9 +17,6 @@ import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
 
 @Config
 public class Outtake implements Subsystem {
-    public static final Vector2d OUTTAKE_ROBOT_POS = new Vector2d(0, 5.6);
-    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
-    public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
 
     public enum TurretMode {
         TRANSFER,

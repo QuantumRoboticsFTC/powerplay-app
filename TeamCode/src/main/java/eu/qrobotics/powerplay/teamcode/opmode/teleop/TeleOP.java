@@ -306,7 +306,6 @@ public class TeleOP extends OpMode {
         //endregion
 
         //region Telemetry
-        telemetry.addData("outtake heading error", Math.toDegrees(robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS)) );
         telemetry.addData("Elevator Encoder", robot.elevator.getEncoder());
         telemetry.addData("Elevator Target Encoder", robot.elevator.getTargetEncoder());
         telemetry.addData("Extendo Length", robot.extendo.getCurrentLength());
@@ -319,10 +318,14 @@ public class TeleOP extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
         Canvas fieldOverlay = packet.fieldOverlay();
 
+        /*
+        Turret drawing thing - but OUTTAKE_AUTO_PRELOAD_POS are dumb idfk i didnt want to delete
+
         Pose2d robotPose = robot.drive.getPoseEstimate();
         Pose2d turretWorldPose = new Pose2d(robotPose.vec().plus(TURRET_ROBOT_POSE.vec().rotated(robotPose.getHeading())), robotPose.getHeading() + TURRET_ROBOT_POSE.getHeading());
-        double turretAngle = robot.outtake.getTargetTurretAngle(Outtake.OUTTAKE_AUTO_PRELOAD_POS);
+        double turretAngle = robot.outtake.getTargetTurretAngle(OUTTAKE_AUTO_PRELOAD_POS);
         Vector2d turretVector = new Vector2d(10, 0).rotated(turretAngle).rotated(turretWorldPose.getHeading());
+
 
         fieldOverlay.setStroke("#3F51B5");
         DashboardUtil.drawRobot(fieldOverlay, robotPose);
@@ -331,6 +334,7 @@ public class TeleOP extends OpMode {
         fieldOverlay.setStroke("#FF9800");
         fieldOverlay.strokeLine(turretWorldPose.getX(), turretWorldPose.getY(), turretWorldPose.getX() + turretVector.getX(), turretWorldPose.getY() + turretVector.getY());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
+         */
 
 
     }
