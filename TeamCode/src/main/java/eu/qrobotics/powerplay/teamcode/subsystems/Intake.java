@@ -109,6 +109,7 @@ public class Intake implements Subsystem {
     public static double CLAW_CLOSED_POSITION = 0.67;
 
     public static double SENSOR_TRESHOLD = 40;
+    public static double armServoOffset = -0.02;
 
     public ArmPosition armPosition;
     public ArmRotate armRotate;
@@ -143,39 +144,39 @@ public class Intake implements Subsystem {
         switch (armPosition) {
             case LOW_POLE:
                 intakeArmServoLeft.setPosition(ARM_LOW_POLE_POSITION);
-                intakeArmServoRight.setPosition(ARM_LOW_POLE_POSITION);
+                intakeArmServoRight.setPosition(ARM_LOW_POLE_POSITION + armServoOffset);
                 break;
             case CONE_1:
                 intakeArmServoLeft.setPosition(ARM_CONE_1_POSITION);
-                intakeArmServoRight.setPosition(ARM_CONE_1_POSITION);
+                intakeArmServoRight.setPosition(ARM_CONE_1_POSITION + armServoOffset);
                 break;
             case CONE_2:
                 intakeArmServoLeft.setPosition(ARM_CONE_2_POSITION);
-                intakeArmServoRight.setPosition(ARM_CONE_2_POSITION);
+                intakeArmServoRight.setPosition(ARM_CONE_2_POSITION + armServoOffset);
                 break;
             case CONE_3:
                 intakeArmServoLeft.setPosition(ARM_CONE_3_POSITION);
-                intakeArmServoRight.setPosition(ARM_CONE_3_POSITION);
+                intakeArmServoRight.setPosition(ARM_CONE_3_POSITION + armServoOffset);
                 break;
             case CONE_4:
                 intakeArmServoLeft.setPosition(ARM_CONE_4_POSITION);
-                intakeArmServoRight.setPosition(ARM_CONE_4_POSITION);
+                intakeArmServoRight.setPosition(ARM_CONE_4_POSITION + armServoOffset);
                 break;
             case CONE_5:
                 intakeArmServoLeft.setPosition(ARM_CONE_5_POSITION);
-                intakeArmServoRight.setPosition(ARM_CONE_5_POSITION);
+                intakeArmServoRight.setPosition(ARM_CONE_5_POSITION + armServoOffset);
                 break;
             case TRANSFER:
                 intakeArmServoLeft.setPosition(ARM_TRANSFER_POSITION);
-                intakeArmServoRight.setPosition(ARM_TRANSFER_POSITION);
+                intakeArmServoRight.setPosition(ARM_TRANSFER_POSITION + armServoOffset);
                 break;
             case VERTICAL:
                 intakeArmServoLeft.setPosition(ARM_VERTICAL_POSITION);
-                intakeArmServoRight.setPosition(ARM_VERTICAL_POSITION);
+                intakeArmServoRight.setPosition(ARM_VERTICAL_POSITION + armServoOffset);
                 break;
             case AUTOPARK:
                 intakeArmServoLeft.setPosition(ARM_AUTOPARK_POSITION);
-                intakeArmServoRight.setPosition(ARM_AUTOPARK_POSITION);
+                intakeArmServoRight.setPosition(ARM_AUTOPARK_POSITION + armServoOffset);
                 break;
             case FULL_1:
                 intakeArmServoLeft.setPosition(1);
