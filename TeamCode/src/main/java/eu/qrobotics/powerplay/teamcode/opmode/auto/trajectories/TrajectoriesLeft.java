@@ -92,7 +92,7 @@ public class TrajectoriesLeft {
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-38, -14, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(-35, -14, Math.toRadians(180)))
                     .build()
             );
         } else if (readFromCamera == 1) {

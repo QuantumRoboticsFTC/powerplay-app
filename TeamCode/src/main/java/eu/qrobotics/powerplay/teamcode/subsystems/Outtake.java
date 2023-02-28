@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -20,7 +21,8 @@ public class Outtake implements Subsystem {
 
     public enum TurretMode {
         TRANSFER,
-        SCORE
+        SCORE,
+        FOLLOWING
     }
 
     public enum TurretPosition {
@@ -29,7 +31,7 @@ public class Outtake implements Subsystem {
         CENTER,
         MANUAL,
         AUTO_LEFT_SCORE,
-        AUTO_RIGHT_SCORE
+        AUTO_RIGHT_SCORE,
     }
 
     public enum ArmPosition {
@@ -65,6 +67,8 @@ public class Outtake implements Subsystem {
 
     public double armManualOffset = 0;
 
+    public Vector2d followingPosition = new Vector2d(0, 0);
+
     public static double TURRET_LEFT_POSITION = 0.02;
     public static double TURRET_RIGHT_POSITION = 0.92;
     public static double TURRET_CENTER_POSITION = 0.45;
@@ -72,7 +76,7 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.18;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.92;
 
-    public static double ARM_TRANSFER_POSITION = 0.28;
+    public static double ARM_TRANSFER_POSITION = 0.25;
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
@@ -95,6 +99,7 @@ public class Outtake implements Subsystem {
     private ColorRangeSensor outtakeSensor;
 
     public double turretManualPosition = 0.5;
+    public double armManualPosition = 0.5;
 
     private Robot robot;
 
@@ -166,9 +171,21 @@ public class Outtake implements Subsystem {
                 turretServoLeft.setPosition(TURRET_CENTER_POSITION + SERVO_OFFSET);
                 turretServoRight.setPosition(TURRET_CENTER_POSITION);
                 break;
-
+            case FOLLOWING:
+                // set turret position to follow the target
+                turretManualPosition = Range.clip(getTargetTurretServoPosition(followingPosition), 0, 1);
+                turretServoLeft.setPosition(turretManualPosition + SERVO_OFFSET);
+                turretServoRight.setPosition(turretManualPosition);
+                break;
         }
 
+        /*
+        if (turretMode == TurretMode.FOLLOWING) {
+            // set arm position to follow the target
+            armManualPosition = Range.clip(getTargetArmServoPosition(followingPosition), 0, 1);
+            outtakeArmServoLeft.setPosition(armManualPosition + SERVO_OFFSET);
+            outtakeArmServoRight.setPosition(armManualPosition);
+        } else {*/
         switch (armPosition) {
             case TRANSFER:
                 outtakeArmServoLeft.setPosition(ARM_TRANSFER_POSITION);
@@ -202,6 +219,7 @@ public class Outtake implements Subsystem {
                 break;
 
         }
+        //}
 
         switch (clawMode) {
             case OPEN:

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
+import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeftMid;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
@@ -28,13 +29,9 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Config
 @Autonomous
 public class AutoMidLeft extends LinearOpMode {
-
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
     public static Vector2d CONE_STACK = new Vector2d(-70, -12);
-
-    public static final Vector2d OUTTAKE_ROBOT_POS = new Vector2d(0, 5.6);
-    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
     public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(-24, -24);
     public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
 
@@ -197,11 +194,9 @@ public class AutoMidLeft extends LinearOpMode {
         robot.sleep(0.2);
 
         // Set turret target position
-        robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
-        robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
-        // Move outtake to scoring position
-        robot.outtake.armManualOffset = Range.clip(robot.outtake.getTargetArmServoPosition(OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
-        robot.outtake.armPosition = Outtake.ArmPosition.MANUAL;
+
+        robot.outtake.followingPosition = OUTTAKE_AUTO_PRELOAD_POS;
+        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
         // Move intake outside of the robot
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
@@ -209,39 +204,40 @@ public class AutoMidLeft extends LinearOpMode {
         // Set turret target position
         robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
         robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
-        robot.sleep(0.3);
-        // Drop cone
-        telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(OUTTAKE_AUTO_PRELOAD_POS)));
-        telemetry.addData("outtake servo pops", robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS));
-        telemetry.addData("outtake servo pops actual", robot.outtake.turretServoLeft.getPosition());
-        telemetry.update();
-        robot.outtake.clawMode = Outtake.ClawMode.OPEN;
-        // "slam"
-        robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
+        robot.sleep(0.2);
+//        telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(OUTTAKE_AUTO_PRELOAD_POS)));
+//        telemetry.addData("outtake servo pops", robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS));
+//        telemetry.addData("outtake servo pops actual", robot.outtake.turretServoLeft.getPosition());
+//        telemetry.update();
 
-        robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP_MID;
+        // Drop cone
+        // "slam"
+//        robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
         robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
+        robot.sleep(0.2);
+        robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.3);
         // Retract outtake
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         // Move to colleting position
         robot.drive.followTrajectorySync(trajectories.get(1));
+        robot.sleep(0.2);
+        robot.drive.followTrajectorySync(trajectories.get(2));
         robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
         robot.elevator.targetPosition = Elevator.TargetHeight.MID;
-        robot.sleep(0.1);
+        robot.sleep(0.2);
         // Move outtake to tranfer position
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         // Wait for movement to stop
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
-        robot.drive.followTrajectorySync(trajectories.get(2));
-        robot.sleep(0.1);
 
         for (int i = 1; i <= 5; i++) { // i = cycul
             /// extendo target switch
             robot.extendo.targetCone = getExtendoLevel(i); /// CHANGE CONE NR
 
+            robot.outtake.turretMode = Outtake.TurretMode.SCORE;
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
 
             // Start collecting process
@@ -252,7 +248,7 @@ public class AutoMidLeft extends LinearOpMode {
 
 
 //            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
-            robot.extendo.targetLength = 13;
+            robot.extendo.targetLength = 15;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             robot.extendo.extendoMode = Extendo.ExtendoMode.UP;
             while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
@@ -284,17 +280,19 @@ public class AutoMidLeft extends LinearOpMode {
             }
             robot.sleep(0.25);
             robot.intake.clawMode = Intake.ClawMode.OPEN;
-            robot.sleep(0.15);
+            robot.sleep(0.25);
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+            robot.elevator.targetPosition = Elevator.TargetHeight.MID;
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
 
             robot.intake.armPosition = getintakeArmPosition(i + 1); /// CHANGE CONE NR
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;/// CHANGE CONE NR
 
-            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+//            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
             robot.sleep(0.1);
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.sleep(0.4);
+
             robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
             robot.sleep(0.35);
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
@@ -302,16 +300,14 @@ public class AutoMidLeft extends LinearOpMode {
             }
 
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
-            robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_MID_POS), 0, 1);
-            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
-            robot.sleep(0.3);
+            robot.sleep(0.1);
+            robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
+            robot.outtake.followingPosition = OUTTAKE_AUTO_MID_POS;
+
 //            robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
-            robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP_MID;
-            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
-            robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_MID_POS), 0, 1);
-            robot.outtake.armPosition = Outtake.ArmPosition.MANUAL;
-            robot.outtake.armManualOffset = Range.clip(robot.outtake.getTargetArmServoPosition(OUTTAKE_AUTO_MID_POS), 0, 1);
-            robot.sleep(0.3);
+            robot.sleep(0.5);
+//            robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
+//            robot.sleep(0.3);
 
             telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(OUTTAKE_AUTO_MID_POS)));
             telemetry.update();
@@ -321,18 +317,21 @@ public class AutoMidLeft extends LinearOpMode {
 //            robot.sleep(0.5);
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
-            robot.elevator.targetPosition = Elevator.TargetHeight.MID;
 //            robot.sleep(0.3);
 //            robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
 //            robot.sleep(0.5);
 
 //            robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         }
-        robot.sleep(0.3);
+        robot.sleep(0.2);
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
-
+        robot.drive.followTrajectory(trajectories.get(3));
+        robot.sleep(0.6);
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
+        robot.sleep(0.4);
 
         robot.stop();
     }

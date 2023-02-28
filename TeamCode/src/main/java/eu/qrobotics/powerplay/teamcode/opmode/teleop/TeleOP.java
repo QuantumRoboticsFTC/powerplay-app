@@ -108,7 +108,7 @@ public class TeleOP extends OpMode {
 
         if (gamepad1.right_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
-            robot.extendo.manualPower = gamepad1.right_trigger;
+            robot.extendo.manualPower = gamepad1.right_trigger * gamepad1.right_trigger;
             if (robot.intake.armPosition != Intake.ArmPosition.CONE_1 &&
                     robot.intake.armPosition != Intake.ArmPosition.CONE_2 &&
                     robot.intake.armPosition != Intake.ArmPosition.CONE_3 &&
@@ -209,7 +209,7 @@ public class TeleOP extends OpMode {
         } else if (stickyGamepad2.dpad_left) {
             robot.elevator.targetPosition = Elevator.TargetHeight.MID_TILTED;
         } else if (stickyGamepad2.dpad_down) {
-            robot.elevator.targetPosition = Elevator.TargetHeight.LOW_TILTED;
+            robot.elevator.targetPosition = Elevator.TargetHeight.LOW;
         }
 //        }
         if (stickyGamepad2.dpad_right) {
@@ -221,6 +221,7 @@ public class TeleOP extends OpMode {
         if (stickyGamepad2.right_bumper) {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
             robot.intake.clawMode = Intake.ClawMode.OPEN;
+            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             startedTransfer = false;
             outtakeGrabTimer.reset();
         } else if (stickyGamepad2.left_bumper) {
@@ -231,9 +232,9 @@ public class TeleOP extends OpMode {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
             turretCenterTimer.reset();
         }
-//        if(robot.elevator.elevatorMode == Elevator.ElevatorMode.UP && robot.elevator.getDistanceLeft() < ELEVATOR_ARM_THRESHOLD && robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
-//            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
-//        }
+        if(robot.elevator.targetPosition == Elevator.TargetHeight.LOW && robot.elevator.elevatorMode == Elevator.ElevatorMode.UP &&  robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
+            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+        }
 
         if (gamepad2.right_trigger > 0.1) {
             if (robot.elevator.elevatorMode != Elevator.ElevatorMode.MANUAL)
@@ -353,20 +354,16 @@ public class TeleOP extends OpMode {
     }
 
     private void updateOuttakeGrabTimer() {
-        if (0.05 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.15) {
-            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-//            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
-        }
-        if (0.5 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.65) {
+        if (0.15 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.3) {
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.intake.armPosition = Intake.ArmPosition.VERTICAL;
             robot.intake.armRotate = Intake.ArmRotate.STRAIGHT;
         }
-        if (0.9 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 1.05) {
+        if (0.45 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.6) {
             robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         }
-        if (1 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 1.15) {
+        if (0.6 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.7) {
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE_TILTED;
         }
     }
@@ -376,9 +373,9 @@ public class TeleOP extends OpMode {
             if (robot.outtake.hasCone())
                 outtakeSensorTimer.reset();
 //            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
-        if (0.15 < outtakeSensorTimer.seconds() && outtakeSensorTimer.seconds() < 0.2) {
-            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
-        }
+//        if (0.15 < outtakeSensorTimer.seconds() && outtakeSensorTimer.seconds() < 0.2) {
+//            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+//        }
     }
 
     private void updateConeDropTimer() {

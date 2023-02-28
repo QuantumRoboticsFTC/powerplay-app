@@ -52,7 +52,7 @@ public class Extendo implements Subsystem {
     }
 
     public enum TargetCone {
-        AUTO_CONE5(1.9) {
+        AUTO_CONE5(1.6) {
             @Override
             public TargetCone previous() {
                 return this;
@@ -70,13 +70,13 @@ public class Extendo implements Subsystem {
                 return this;
             }
         },
-        AUTO_CONE2(0) {
+        AUTO_CONE2(-0.2) {
             @Override
             public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE1(0) {
+        AUTO_CONE1(-0.7) {
             @Override
             public TargetCone previous() {
                 return this;
