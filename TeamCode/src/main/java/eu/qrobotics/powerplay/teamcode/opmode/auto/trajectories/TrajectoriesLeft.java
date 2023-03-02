@@ -47,38 +47,16 @@ public class TrajectoriesLeft {
                 .splineToLinearHeading(new Pose2d(-39.5, -11, Math.toRadians(180)), Math.toRadians(270))
                 .build()
         );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-12, -18))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-30, -11))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-12, -18))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-30, -11))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-12, -18))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-30, -11))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-12, -18))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(-30, -11))
-                .build()
-        );
+        for (int i = 1; i <= 4; i++) {
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+                    .lineToConstantHeading(new Vector2d(-11.5, -17.5))
+                    .build()
+            );
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineToConstantHeading(new Vector2d(-30, -11))
+                    .build()
+            );
+        }
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                 .lineToConstantHeading(new Vector2d(-12, -18))
                 .build()
@@ -87,7 +65,7 @@ public class TrajectoriesLeft {
 //         park
         if (readFromCamera == 3) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-14, -12, Math.toRadians(180)))
+                    .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {

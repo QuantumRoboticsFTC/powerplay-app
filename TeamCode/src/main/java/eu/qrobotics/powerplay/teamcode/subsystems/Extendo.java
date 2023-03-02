@@ -64,19 +64,19 @@ public class Extendo implements Subsystem {
                 return this;
             }
         },
-        AUTO_CONE3(0.2) {
+        AUTO_CONE3(0.1) {
             @Override
             public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE2(-0.2) {
+        AUTO_CONE2(-0.6) {
             @Override
             public TargetCone previous() {
                 return this;
             }
         },
-        AUTO_CONE1(-0.7) {
+        AUTO_CONE1(-0.8) {
             @Override
             public TargetCone previous() {
                 return this;

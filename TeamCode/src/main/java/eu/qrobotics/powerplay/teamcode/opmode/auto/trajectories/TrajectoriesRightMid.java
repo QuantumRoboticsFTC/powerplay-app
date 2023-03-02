@@ -1,7 +1,9 @@
 package eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories;
 
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_ACCEL_CONSTRAINT;
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_VEL_CONSTRAINT;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
@@ -10,9 +12,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.*;
+public class TrajectoriesRightMid {
 
-public class TrajectoriesRight {
     public static Pose2d START_POSE = new Pose2d(36, -65, Math.toRadians(270));
 
     public static int CYCLE_COUNT = 7;
@@ -28,53 +29,43 @@ public class TrajectoriesRight {
     }
 
     private static TrajectoryBuilder makeTrajectoryBuilder(List<Trajectory> trajectories, double startTangent) {
-        return new TrajectoryBuilder(getTrajectorySequenceEndPose(trajectories), startTangent, BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT);
+        return new TrajectoryBuilder(getTrajectorySequenceEndPose(trajectories), startTangent, NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT);
     }
 
     private static TrajectoryBuilder makeTrajectoryBuilder(Pose2d pose, double startTangent) {
-        return new TrajectoryBuilder(pose, startTangent, BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT);
+        return new TrajectoryBuilder(pose, startTangent, NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT);
     }
 
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
 
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                 .lineToSplineHeading(new Pose2d(36, -28, Math.toRadians(270)))
                 .splineToSplineHeading(new Pose2d(36, -12, Math.toRadians(313)), Math.toRadians(90))
                 .build()
         );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(313), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(39.5, -11, Math.toRadians(0)), Math.toRadians(270))
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(313), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+                .splineToLinearHeading(new Pose2d(35, -11, Math.toRadians(0)), Math.toRadians(270))
                 .build()
         );
-        for (int i = 1; i <= 4; i++) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                    .lineToConstantHeading(new Vector2d(12.5, -18))
-                    .build()
-            );
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToConstantHeading(new Vector2d(30, -11))
-                    .build()
-            );
-        }
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(12, -18))
+                .lineToLinearHeading(new Pose2d(36, -16, Math.toRadians(7)))
                 .build()
         );
 
 //         park
         if (readFromCamera == 1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(0)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(7), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+                    .lineToLinearHeading(new Pose2d(11.5, -12, Math.toRadians(0)))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(35, -14, Math.toRadians(0)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+                    .lineToLinearHeading(new Pose2d(38, -14, Math.toRadians(0)))
                     .build()
             );
         } else if (readFromCamera == 3) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(7), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                     .lineToLinearHeading(new Pose2d(62, -14, Math.toRadians(0)))
                     .build()
             );

@@ -214,9 +214,11 @@ public class AutoMidLeft extends LinearOpMode {
         // "slam"
 //        robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
         robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
-        robot.sleep(0.2);
+        robot.sleep(0.5);
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.3);
+        robot.outtake.turretMode = Outtake.TurretMode.SCORE;
+        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         // Retract outtake
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         // Move to colleting position

@@ -52,7 +52,7 @@ public class TrajectoriesLeftMid {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(-34.5, -16, Math.toRadians(177)))
+                .lineToLinearHeading(new Pose2d(-36, -16, Math.toRadians(177)))
                 .build()
         );
 

@@ -25,7 +25,6 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Intake;
 import eu.qrobotics.powerplay.teamcode.subsystems.Outtake;
 import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 
-
 @Config
 @Autonomous
 public class AutoLeft extends LinearOpMode {
@@ -202,8 +201,6 @@ public class AutoLeft extends LinearOpMode {
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;
         // Set turret target position
-        robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
-        robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         robot.sleep(0.2);
 //        telemetry.addData("outtake x", Math.toDegrees(robot.outtake.getTargetTurretAngle(OUTTAKE_AUTO_PRELOAD_POS)));
 //        telemetry.addData("outtake servo pops", robot.outtake.getTargetTurretServoPosition(OUTTAKE_AUTO_PRELOAD_POS));
@@ -214,10 +211,12 @@ public class AutoLeft extends LinearOpMode {
         // "slam"
 //        robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
         robot.outtake.armPosition = Outtake.ArmPosition.PUSH;
-        robot.sleep(0.2);
+        robot.sleep(0.5);
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.3);
         // Retract outtake
+        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         // Move to colleting position
         robot.drive.followTrajectorySync(trajectories.get(1));
@@ -325,14 +324,15 @@ public class AutoLeft extends LinearOpMode {
 
 //            robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         }
-        robot.sleep(0.3);
-        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+        robot.sleep(0.2);
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
+        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
-        robot.drive.followTrajectorySync(trajectories.get(trajectoryIndex++));
-
+        robot.drive.followTrajectory(trajectories.get(trajectoryIndex++));
+        robot.sleep(0.6);
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
+        robot.sleep(0.4);
 
         robot.stop();
     }

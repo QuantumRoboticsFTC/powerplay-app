@@ -34,6 +34,11 @@ public class TeleOP extends OpMode {
         SUPER_SLOW
     }
 
+    public static final Vector2d OUTTAKE_HIGH_POS = new Vector2d(0, -24);
+
+    public static double staccOffset = 0;
+    public static double turretTarget = 0;
+
     public static double ELEVATOR_ARM_THRESHOLD = 15;
 
     private Elevator.ElevatorMode prevElevatorMode;
@@ -52,7 +57,6 @@ public class TeleOP extends OpMode {
     DriveMode driveMode;
     StickyGamepad stickyGamepad1 = null;
     StickyGamepad stickyGamepad2 = null;
-
     MultipleTelemetry telemetry;
 
     private VoltageSensor batteryVoltageSensor;
@@ -258,6 +262,13 @@ public class TeleOP extends OpMode {
             }
         }
 
+        // in staccMode (stackMode), daca apesi butonu pune automat autoaim pe high-ul de aproape -> very cool big shusta
+        if (staccMode && (stickyGamepad2.left_stick_button || stickyGamepad2.right_stick_button)) {
+            turretTarget = Range.clip(robot.outtake.getTargetTurretServoPosition(OUTTAKE_HIGH_POS), 0, 1);
+            robot.outtake.manualOffset = staccOffset + turretTarget;
+            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
+        }
+
         if (stickyGamepad2.x) {
             robot.outtake.turretPosition = Outtake.TurretPosition.RIGHT;
         } else if (stickyGamepad2.y) {
@@ -269,18 +280,29 @@ public class TeleOP extends OpMode {
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
             outtakeConeDropTimer.reset();
         }
+
         if (Math.abs(gamepad2.right_stick_x) > 0.1) {
-            if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
-                robot.outtake.manualOffset = robot.outtake.getTurretPosition();
+            if (staccMode) {
+                if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
+                    staccOffset = 1 - turretTarget;
+                else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
+                    staccOffset = turretTarget - 1;
+                else
+                    staccOffset -= gamepad2.right_stick_x * 0.005;
+                robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
+                robot.outtake.manualOffset = turretTarget + staccOffset;
+            } else {
+                if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
+                    robot.outtake.manualOffset = robot.outtake.getTurretPosition();
+                }
+                if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
+                    robot.outtake.manualOffset = 1;
+                else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
+                    robot.outtake.manualOffset = -1;
+                else
+                    robot.outtake.manualOffset -= gamepad2.right_stick_x * 0.005;
+                robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
             }
-            // TODO: robot.outtake.manualOffset = Range.clip(robot.outtake.getTargetTurretServoPosition(Outtake.OUTTAKE_AUTO_PRELOAD_POS), 0, 1);
-            if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
-                robot.outtake.manualOffset = 1;
-            else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
-                robot.outtake.manualOffset = -1;
-            else
-                robot.outtake.manualOffset -= gamepad2.right_stick_x * 0.005;
-            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         }
 
         if (Math.abs(gamepad2.left_stick_y) > 0.1) {

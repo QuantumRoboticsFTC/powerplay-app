@@ -115,18 +115,18 @@ public class Intake implements Subsystem {
     public ArmRotate armRotate;
     public ClawMode clawMode;
 
-    private CachingServo intakeArmServoLeft;
-    private CachingServo intakeArmServoRight;
-    private CachingServo intakeRotateServo;
-    private CachingServo intakeClawServo;
+    private Servo intakeArmServoLeft;
+    private Servo intakeArmServoRight;
+    private Servo intakeRotateServo;
+    private Servo intakeClawServo;
 
     private ColorRangeSensor intakeSensor;
 
     public Intake(HardwareMap hardwareMap, Robot robot) {
-        intakeArmServoLeft = new CachingServo(hardwareMap.get(Servo.class, "intakeArmServoLeft"));
-        intakeArmServoRight = new CachingServo(hardwareMap.get(Servo.class, "intakeArmServoRight"));
-        intakeRotateServo = new CachingServo(hardwareMap.get(Servo.class, "intakeRotateServo"));
-        intakeClawServo = new CachingServo(hardwareMap.get(Servo.class, "intakeClawServo"));
+        intakeArmServoLeft = hardwareMap.get(Servo.class, "intakeArmServoLeft");
+        intakeArmServoRight = hardwareMap.get(Servo.class, "intakeArmServoRight");
+        intakeRotateServo = hardwareMap.get(Servo.class, "intakeRotateServo");
+        intakeClawServo = hardwareMap.get(Servo.class, "intakeClawServo");
         intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakeSensor");
 
         intakeArmServoRight.setDirection(Servo.Direction.REVERSE);
