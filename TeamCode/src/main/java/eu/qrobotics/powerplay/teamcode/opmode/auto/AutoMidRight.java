@@ -32,7 +32,7 @@ public class AutoMidRight extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
     public static Vector2d CONE_STACK = new Vector2d(71, -12);
-    public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(24, -24);
+    public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(25, -24);
     public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(24, 0);
 
     private ElapsedTime transferTimer = new ElapsedTime(0);

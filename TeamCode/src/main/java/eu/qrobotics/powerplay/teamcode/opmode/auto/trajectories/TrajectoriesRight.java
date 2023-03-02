@@ -58,7 +58,7 @@ public class TrajectoriesRight {
             );
         }
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(12, -18))
+                .lineToConstantHeading(new Vector2d(12.5, -18))
                 .build()
         );
 
