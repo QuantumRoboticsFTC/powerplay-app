@@ -32,7 +32,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 public class AutoRight extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
-    public static Vector2d CONE_STACK = new Vector2d(71.5, -12);
+    public static Vector2d CONE_STACK = new Vector2d(70.5, -12);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(1.5, -25);
     public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(25, -2);
 

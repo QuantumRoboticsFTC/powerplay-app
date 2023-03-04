@@ -278,11 +278,17 @@ public class TeleOP extends OpMode {
         }
 
         if (stickyGamepad2.x) {
-            robot.outtake.turretPosition = Outtake.TurretPosition.RIGHT;
+            if(!staccMode)
+                robot.outtake.turretPosition = Outtake.TurretPosition.RIGHT;
+            else
+                robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_RIGHT_SCORE;
         } else if (stickyGamepad2.y) {
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         } else if (stickyGamepad2.b) {
-            robot.outtake.turretPosition = Outtake.TurretPosition.LEFT;
+            if(!staccMode)
+                robot.outtake.turretPosition = Outtake.TurretPosition.LEFT;
+            else
+                robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
         }
         if (stickyGamepad2.a) {
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
@@ -290,27 +296,16 @@ public class TeleOP extends OpMode {
         }
 
         if (Math.abs(gamepad2.right_stick_x) > 0.1) {
-            if (staccMode) {
-                if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
-                    staccOffset = 1 - turretTarget;
-                else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
-                    staccOffset = turretTarget - 1;
-                else
-                    staccOffset -= gamepad2.right_stick_x * 0.005;
-                robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
-                robot.outtake.manualOffset = turretTarget + staccOffset;
-            } else {
-                if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
-                    robot.outtake.manualOffset = robot.outtake.getTurretPosition();
-                }
-                if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 > 1)
-                    robot.outtake.manualOffset = 1;
-                else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.005 < -1)
-                    robot.outtake.manualOffset = -1;
-                else
-                    robot.outtake.manualOffset -= gamepad2.right_stick_x * 0.005;
-                robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
+            if (robot.outtake.turretPosition != Outtake.TurretPosition.MANUAL) {
+                robot.outtake.manualOffset = robot.outtake.getTurretPosition();
             }
+            if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.01 > 1)
+                robot.outtake.manualOffset = 1;
+            else if (robot.outtake.manualOffset - gamepad2.right_stick_x * 0.01 < -1)
+                robot.outtake.manualOffset = -1;
+            else
+                robot.outtake.manualOffset -= gamepad2.right_stick_x * 0.01;
+            robot.outtake.turretPosition = Outtake.TurretPosition.MANUAL;
         }
 
         if (Math.abs(gamepad2.left_stick_y) > 0.1) {
@@ -426,7 +421,7 @@ public class TeleOP extends OpMode {
 //            robot.outtake.armPosition= Outtake.ArmPosition.AUTO_INIT;
 //        }
         if (0.9 < coneDropTimer.seconds() && coneDropTimer.seconds() < 1.05) {
-            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+//            robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
     }
 

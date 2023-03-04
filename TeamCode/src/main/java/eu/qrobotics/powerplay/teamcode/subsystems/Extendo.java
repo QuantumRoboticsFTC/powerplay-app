@@ -70,7 +70,7 @@ public class Extendo implements Subsystem {
                 return this;
             }
         },
-        AUTO_CONE2(-0.6) {
+        AUTO_CONE2(-0.2) {
             @Override
             public TargetCone previous() {
                 return this;

@@ -4,6 +4,7 @@ import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_A
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_VEL_CONSTRAINT;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
@@ -45,11 +46,11 @@ public class TrajectoriesRightMid {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(313), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(35, -11, Math.toRadians(0)), Math.toRadians(270))
+                .splineToLinearHeading(new Pose2d(35, -12.5, Math.toRadians(0)), Math.toRadians(270))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(36, -16, Math.toRadians(7)))
+                .lineToConstantHeading(new Vector2d(30, -12.5))
                 .build()
         );
 

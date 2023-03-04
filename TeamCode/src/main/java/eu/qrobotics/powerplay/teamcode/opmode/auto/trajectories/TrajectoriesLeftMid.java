@@ -48,11 +48,11 @@ public class TrajectoriesLeftMid {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(227), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(-35, -11, Math.toRadians(180)), Math.toRadians(270))
+                .splineToLinearHeading(new Pose2d(-35, -12.5, Math.toRadians(180)), Math.toRadians(270))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(-36, -16, Math.toRadians(177)))
+                .lineToConstantHeading(new Vector2d(-30, -12.5))
                 .build()
         );
 

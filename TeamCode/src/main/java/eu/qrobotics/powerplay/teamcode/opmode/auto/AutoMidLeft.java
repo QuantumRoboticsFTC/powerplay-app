@@ -31,7 +31,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 public class AutoMidLeft extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
-    public static Vector2d CONE_STACK = new Vector2d(-70, -12);
+    public static Vector2d CONE_STACK = new Vector2d(-70.5, -12);
     public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(-24, -24);
     public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
 
@@ -269,10 +269,10 @@ public class AutoMidLeft extends LinearOpMode {
             robot.sleep(0.2);
 
             robot.intake.clawMode = Intake.ClawMode.CLOSED;
-            robot.sleep(0.2);
+            robot.sleep(0.4);
             robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
             robot.intake.armPosition = Intake.ArmPosition.CONE_5; // go a little bit :sus: so that you go down when transfering instead of going up
-            robot.sleep(0.4);
+            robot.sleep(0.6);
             robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
 //            robot.sleep(0.3);
             robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
@@ -295,7 +295,9 @@ public class AutoMidLeft extends LinearOpMode {
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.sleep(0.4);
 
-            robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
+//            robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
+            robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
+            robot.outtake.followingPosition = OUTTAKE_AUTO_MID_POS;
             robot.sleep(0.35);
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
@@ -303,8 +305,6 @@ public class AutoMidLeft extends LinearOpMode {
 
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
             robot.sleep(0.1);
-            robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
-            robot.outtake.followingPosition = OUTTAKE_AUTO_MID_POS;
 
 //            robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
             robot.sleep(0.5);
