@@ -97,9 +97,9 @@ public class Intake implements Subsystem {
     public static double ARM_TRANSFER_POSITION = 0.8;
     public static double ARM_AUTOPARK_POSITION = 0.6;
 
-    public static double ROTATE_PARALLEL_POSITION = 0.73;
+    public static double ROTATE_PARALLEL_POSITION = 0.78;
     public static double ROTATE_STRAIGHT_POSITION = 0.47;
-    public static double ROTATE_TRANSFER_POSITION = 0.225;
+    public static double ROTATE_TRANSFER_POSITION = 0.275;
     public static double ROTATE_PARALLEL_CONE5_POSITION = 0.45;
     public static double ROTATE_PARALLEL_CONE4_POSITION = 0.71;
     public static double ROTATE_LOW_POLE_POSITION = 0.53;
