@@ -32,8 +32,13 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 public class BeleauaMTI extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
-    public static Vector2d CONE_STACK = new Vector2d(-70.5, -12);
-    public static Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
+    public static Vector2d CONE_STACK_LEFT = new Vector2d(-71, -12);
+
+    public static Vector2d CONE_STACK_RIGHT = new Vector2d(70, -12);
+
+    public static Vector2d JUNCTION_LEFT = new Vector2d(-24, 0);
+
+    public static Vector2d JUNCTION_RIGHT = new Vector2d(24, 0);
 
     private ElapsedTime transferTimer = new ElapsedTime(0);
 
@@ -199,7 +204,7 @@ public class BeleauaMTI extends LinearOpMode {
 
             // Set turret target position
 
-            robot.outtake.followingPosition = OUTTAKE_AUTO_PRELOAD_POS;
+            robot.outtake.followingPosition = JUNCTION_LEFT;
             robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
             while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
@@ -225,7 +230,7 @@ public class BeleauaMTI extends LinearOpMode {
             //Perform Extendo Gang shit
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             robot.extendo.targetCone = getExtendoLevel(i);
-            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK_LEFT);
             robot.extendo.extendoMode = Extendo.ExtendoMode.UP;
             robot.sleep(0.3);
             // Retract turret
@@ -235,7 +240,7 @@ public class BeleauaMTI extends LinearOpMode {
             robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
             while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
-                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK_LEFT);
                 telemetry.addData("extendo target", robot.extendo.getTargetLength());
                 telemetry.addData("extendo actual", robot.extendo.getCurrentLength());
                 telemetry.update();
@@ -265,6 +270,10 @@ public class BeleauaMTI extends LinearOpMode {
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
         }
 
+        robot.drive.followTrajectory(trajectories.get(1));
+        while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
+            robot.sleep(0.01);
+        }
         robot.drive.followTrajectory(trajectories.get(2));
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
@@ -273,11 +282,7 @@ public class BeleauaMTI extends LinearOpMode {
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
-        robot.drive.followTrajectory(trajectories.get(4));
-        while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
-            robot.sleep(0.01);
-        }
-        for(int i=1;i<=5;++i) {
+        for(int i=1;i<=6;++i) {
 
             robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
             robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
@@ -286,7 +291,7 @@ public class BeleauaMTI extends LinearOpMode {
 
             // Set turret target position
 
-            robot.outtake.followingPosition = OUTTAKE_AUTO_PRELOAD_POS;
+            robot.outtake.followingPosition = JUNCTION_RIGHT;
             robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
             while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
@@ -312,7 +317,7 @@ public class BeleauaMTI extends LinearOpMode {
             //Perform Extendo Gang shit
             robot.intake.clawMode = Intake.ClawMode.OPEN;
             robot.extendo.targetCone = getExtendoLevel(i);
-            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+            robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK_RIGHT);
             robot.extendo.extendoMode = Extendo.ExtendoMode.UP;
             robot.sleep(0.3);
             // Retract turret
@@ -322,7 +327,7 @@ public class BeleauaMTI extends LinearOpMode {
             robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
             robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
             while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
-                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
+                robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK_RIGHT);
                 telemetry.addData("extendo target", robot.extendo.getTargetLength());
                 telemetry.addData("extendo actual", robot.extendo.getCurrentLength());
                 telemetry.update();
@@ -358,7 +363,7 @@ public class BeleauaMTI extends LinearOpMode {
         robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
-        robot.drive.followTrajectory(trajectories.get(5));
+        robot.drive.followTrajectory(trajectories.get(4));
         robot.sleep(0.6);
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
         robot.sleep(0.4);
