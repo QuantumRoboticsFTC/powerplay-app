@@ -263,14 +263,19 @@ public class BeleauaMTI extends LinearOpMode {
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
         robot.intake.armPosition = Intake.ArmPosition.CONE_5;
 
+
         // Maybe put the teeth aligner
         // robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED
         // Wait for moving to stop
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
+
         // Fucking inertia
         robot.sleep(0.2);
+
+        robot.outtake.followingPosition = JUNCTION_LEFT;
+        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
 
         for(int i=1;i<=5;++i) {
             cycle(robot, i, JUNCTION_LEFT, CONE_STACK_LEFT);

@@ -58,7 +58,7 @@ public class TrajectoriesBeleaua {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), ZOOM_VEL_CONSTRAINT, ZOOM_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(39, -10, Math.toRadians(353)))
+                .lineToLinearHeading(new Pose2d(38, -10, Math.toRadians(353)))
                 .build()
         );
 
