@@ -43,11 +43,11 @@ public class TrajectoriesBeleaua {
         List<Trajectory> trajectories = new ArrayList<>();
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToSplineHeading(new Pose2d(-36, -28, Math.toRadians(270)))
-                .splineToSplineHeading(new Pose2d(-36, -8, Math.toRadians(183)), Math.toRadians(90))
+                .lineToSplineHeading(new Pose2d(-38, -20, Math.toRadians(270)))
+                .splineToSplineHeading(new Pose2d(-38, -6, Math.toRadians(187)), Math.toRadians(90))
                 .build()
         );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(183), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(187), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineToLinearHeading(new Pose2d(-36, -12, Math.toRadians(0)))
                 .build()
         );
@@ -56,7 +56,7 @@ public class TrajectoriesBeleaua {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(36, -8, Math.toRadians(357)))
+                .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(0)))
                 .build()
         );
 
