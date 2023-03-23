@@ -4,6 +4,8 @@ import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_ACC
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_VEL_CONSTRAINT;
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_ACCEL_CONSTRAINT;
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_VEL_CONSTRAINT;
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.ZOOM_ACCEL_CONSTRAINT;
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.ZOOM_VEL_CONSTRAINT;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -42,7 +44,7 @@ public class TrajectoriesBeleaua {
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
 
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineToSplineHeading(new Pose2d(-38, -20, Math.toRadians(270)))
                 .splineToSplineHeading(new Pose2d(-38, -6, Math.toRadians(187)), Math.toRadians(90))
                 .build()
@@ -55,8 +57,8 @@ public class TrajectoriesBeleaua {
                 .lineToConstantHeading(new Vector2d(36, -12))
                 .build()
         );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(0)))
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), ZOOM_VEL_CONSTRAINT, ZOOM_ACCEL_CONSTRAINT)
+                .lineToLinearHeading(new Pose2d(39, -10, Math.toRadians(353)))
                 .build()
         );
 

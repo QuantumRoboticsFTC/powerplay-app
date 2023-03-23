@@ -52,9 +52,10 @@ public class BeleauaMTI extends LinearOpMode {
 
         robot.outtake.followingPosition = JUNCTION;
         robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
-        while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
-            robot.sleep(0.01);
-        }
+        robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
+//        while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
+//            robot.sleep(0.01);
+//        }
         // Wait for da elevator shit
         // Move intake outside of the robot
 //        robot.intake.clawMode = Intake.ClawMode.CLOSED;
@@ -67,6 +68,9 @@ public class BeleauaMTI extends LinearOpMode {
         robot.extendo.targetCone = getExtendoLevel(stackPosition);
         robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
         robot.extendo.extendoMode = Extendo.ExtendoMode.UP;
+        if(stackPosition == 6) {
+            robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+        }
         while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             robot.extendo.targetLength = robot.extendo.calculateTargetLength(CONE_STACK);
             telemetry.addData("extendo target", robot.extendo.getTargetLength());
@@ -79,7 +83,6 @@ public class BeleauaMTI extends LinearOpMode {
 //        telemetry.addData("outtake servo pops actual", robot.outtake.turretServoLeft.getPosition());
 //        telemetry.update();
 
-//        robot.elevator.targetPosition = Elevator.TargetHeight.AUTO_DROP;
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.15);
 
@@ -257,6 +260,8 @@ public class BeleauaMTI extends LinearOpMode {
         while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
+        robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
+        robot.intake.armPosition = Intake.ArmPosition.CONE_5;
 
         // Maybe put the teeth aligner
         // robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED
@@ -283,20 +288,20 @@ public class BeleauaMTI extends LinearOpMode {
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
-        for(int i=1;i<=5;++i) {
+        for(int i=1;i<=6;++i) {
             cycle(robot, i, JUNCTION_RIGHT, CONE_STACK_RIGHT);
         }
 
 
-        robot.sleep(0.2);
-        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
-        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
-        robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
-        robot.drive.followTrajectory(trajectories.get(4));
-        robot.sleep(0.6);
-        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-        robot.sleep(0.4);
+//        robot.sleep(0.2);
+//        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+//        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+//        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
+//        robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
+//        robot.drive.followTrajectory(trajectories.get(4));
+//        robot.sleep(0.6);
+//        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
+//        robot.sleep(0.4);
 
         robot.stop();
     }
