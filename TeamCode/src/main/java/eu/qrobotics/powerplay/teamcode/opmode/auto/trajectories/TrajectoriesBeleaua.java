@@ -46,7 +46,7 @@ public class TrajectoriesBeleaua {
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineToSplineHeading(new Pose2d(-38, -20, Math.toRadians(270)))
-                .splineToSplineHeading(new Pose2d(-38, -6, Math.toRadians(187)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-38, -8, Math.toRadians(187)), Math.toRadians(90))
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(187), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
@@ -58,23 +58,23 @@ public class TrajectoriesBeleaua {
                 .build()
         );
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), ZOOM_VEL_CONSTRAINT, ZOOM_ACCEL_CONSTRAINT)
-                .lineToLinearHeading(new Pose2d(38, -10, Math.toRadians(353)))
+                .lineToLinearHeading(new Pose2d(34, -11, Math.toRadians(353)))
                 .build()
         );
 
 //         park
         if (readFromCamera == 3) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(357), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(353), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                     .lineToLinearHeading(new Pose2d(11.5, -12, Math.toRadians(0)))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(357), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(353), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                     .lineToLinearHeading(new Pose2d(38, -12, Math.toRadians(0)))
                     .build()
             );
         } else if (readFromCamera == 1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(357), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(353), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
                     .lineToLinearHeading(new Pose2d(62, -12, Math.toRadians(0)))
                     .build()
             );

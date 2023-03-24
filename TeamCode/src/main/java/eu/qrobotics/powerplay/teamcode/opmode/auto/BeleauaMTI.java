@@ -34,11 +34,11 @@ public class BeleauaMTI extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.38;
     public static Vector2d CONE_STACK_LEFT = new Vector2d(-69.5, -12);
 
-    public static Vector2d CONE_STACK_RIGHT = new Vector2d(70.5, -12);
+    public static Vector2d CONE_STACK_RIGHT = new Vector2d(70, -12);
 
-    public static Vector2d JUNCTION_LEFT = new Vector2d(-24, 0);
+    public static Vector2d JUNCTION_LEFT = new Vector2d(-24, -1);
 
-    public static Vector2d JUNCTION_RIGHT = new Vector2d(24, 0);
+    public static Vector2d JUNCTION_RIGHT = new Vector2d(24, -1);
 
     private ElapsedTime transferTimer = new ElapsedTime(0);
 
@@ -298,7 +298,7 @@ public class BeleauaMTI extends LinearOpMode {
         }
 
 
-//        robot.sleep(0.2);
+        robot.sleep(0.2);
 //        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
 //        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
 //        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
