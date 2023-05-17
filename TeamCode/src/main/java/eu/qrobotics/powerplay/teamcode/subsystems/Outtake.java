@@ -1,7 +1,5 @@
 package eu.qrobotics.powerplay.teamcode.subsystems;
 
-import android.graphics.Point;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -11,8 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-import java.util.Vector;
 
 import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
 
@@ -58,65 +54,56 @@ public class Outtake implements Subsystem {
     public TurretPosition turretPosition;
     public ArmPosition armPosition;
     public ClawMode clawMode;
-
     public AlignerMode alignerMode;
 
-    public static double SERVO_OFFSET = 0;
-
     public double manualOffset = 0;
-
     public double armManualOffset = 0;
 
     public Vector2d followingPosition = new Vector2d(0, 0);
 
-    public static double TURRET_LEFT_POSITION = 0.02;
-    public static double TURRET_RIGHT_POSITION = 0.92;
-    public static double TURRET_CENTER_POSITION = 0.45;
+    public static double TURRET_LEFT_POSITION = 0.4;
+    public static double TURRET_RIGHT_POSITION = 1;
+    public static double TURRET_CENTER_POSITION = 0.72;
 
-    public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.18;
-    public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 0.92;
+    public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
+    public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.25;
+    public static double ARM_TRANSFER_POSITION = 0.27;
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
     public static double ARM_SCORE_TILTED_POSITION = 0.83;
     public static double ARM_PUSH_POSITION = 0.95;
 
-    public static double CLAW_OPEN_POSITION = 0.305;
+    public static double CLAW_OPEN_POSITION = 0.32;
     public static double CLAW_CLOSE_POSITION = 0.18;
 
     public static double ALIGNER_RETRACTED_POSITION = 0.55;
     public static double ALIGNER_DEPLOYED_POSITION = 0.47;
 
-    public CachingServo turretServoLeft;
-    private CachingServo turretServoRight;
-    private CachingServo outtakeArmServoLeft;
-    private CachingServo outtakeArmServoRight;
-    private CachingServo outtakeClawServo;
-    private CachingServo outtakeAlignerServo;
+    private CachingServo turretServo;
+    private CachingServo armServoLeft;
+    private CachingServo armServoRight;
+    private CachingServo clawServo;
+    private CachingServo alignerServo;
 
     private ColorRangeSensor outtakeSensor;
 
     public double turretManualPosition = 0.5;
-    public double armManualPosition = 0.5;
 
     private Robot robot;
 
     public Outtake(HardwareMap hardwareMap, Robot robot) {
         this.robot = robot;
 
-        turretServoLeft = new CachingServo(hardwareMap.get(Servo.class, "turretServoLeft"));
-        turretServoRight = new CachingServo(hardwareMap.get(Servo.class, "turretServoRight"));
-        outtakeArmServoLeft = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoLeft"));
-        outtakeArmServoRight = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoRight"));
-        outtakeClawServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeClawServo"));
-        outtakeAlignerServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeAlignerServo"));
-        outtakeSensor = hardwareMap.get(ColorRangeSensor.class, "outtakeSensor");
+        turretServo = new CachingServo(hardwareMap.get(Servo.class, "turretServo"));
+        armServoLeft = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoLeft"));
+        armServoRight = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoRight"));
+        clawServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeClawServo"));
+        alignerServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeAlignerServo"));
 
-        outtakeArmServoRight.setDirection(Servo.Direction.REVERSE);
-        turretServoLeft.setDirection(Servo.Direction.REVERSE);
-        turretServoRight.setDirection(Servo.Direction.REVERSE);
+        armServoRight.setDirection(Servo.Direction.REVERSE);
+        turretServo.setDirection(Servo.Direction.REVERSE);
 
         clawMode = ClawMode.OPEN;
         armPosition = ArmPosition.TRANSFER;
@@ -135,32 +122,26 @@ public class Outtake implements Subsystem {
                 switch (turretPosition) {
                     case LEFT:
                         turretManualPosition = TURRET_LEFT_POSITION;
-                        turretServoLeft.setPosition(TURRET_LEFT_POSITION + SERVO_OFFSET);
-                        turretServoRight.setPosition(TURRET_LEFT_POSITION);
+                        turretServo.setPosition(TURRET_LEFT_POSITION);
                         break;
                     case RIGHT:
                         turretManualPosition = TURRET_RIGHT_POSITION;
-                        turretServoLeft.setPosition(TURRET_RIGHT_POSITION + SERVO_OFFSET);
-                        turretServoRight.setPosition(TURRET_RIGHT_POSITION);
+                        turretServo.setPosition(TURRET_RIGHT_POSITION);
                         break;
                     case CENTER:
                         turretManualPosition = TURRET_CENTER_POSITION;
-                        turretServoLeft.setPosition(TURRET_CENTER_POSITION + SERVO_OFFSET);
-                        turretServoRight.setPosition(TURRET_CENTER_POSITION);
+                        turretServo.setPosition(TURRET_CENTER_POSITION);
                         break;
                     case AUTO_LEFT_SCORE:
                         turretManualPosition = TURRET_LEFT_AUTO_SCORE_POSITION;
-                        turretServoLeft.setPosition(TURRET_LEFT_AUTO_SCORE_POSITION + SERVO_OFFSET);
-                        turretServoRight.setPosition(TURRET_LEFT_AUTO_SCORE_POSITION);
+                        turretServo.setPosition(TURRET_LEFT_AUTO_SCORE_POSITION);
                         break;
                     case AUTO_RIGHT_SCORE:
                         turretManualPosition = TURRET_RIGHT_AUTO_SCORE_POSITION;
-                        turretServoLeft.setPosition(TURRET_RIGHT_AUTO_SCORE_POSITION + SERVO_OFFSET);
-                        turretServoRight.setPosition(TURRET_RIGHT_AUTO_SCORE_POSITION);
+                        turretServo.setPosition(TURRET_RIGHT_AUTO_SCORE_POSITION);
                         break;
                     case MANUAL:
-                        turretServoLeft.setPosition(approximateToThreeDecimals(manualOffset) + SERVO_OFFSET);
-                        turretServoRight.setPosition(approximateToThreeDecimals(manualOffset));
+                        turretServo.setPosition(approximateToThreeDecimals(manualOffset));
                         break;
                     default:
                         break;
@@ -168,14 +149,12 @@ public class Outtake implements Subsystem {
                 break;
             case TRANSFER:
                 turretManualPosition = TURRET_CENTER_POSITION;
-                turretServoLeft.setPosition(TURRET_CENTER_POSITION + SERVO_OFFSET);
-                turretServoRight.setPosition(TURRET_CENTER_POSITION);
+                turretServo.setPosition(TURRET_CENTER_POSITION);
                 break;
             case FOLLOWING:
                 // set turret position to follow the target
                 turretManualPosition = Range.clip(getTargetTurretServoPosition(followingPosition), 0, 1);
-                turretServoLeft.setPosition(turretManualPosition + SERVO_OFFSET);
-                turretServoRight.setPosition(turretManualPosition);
+                turretServo.setPosition(turretManualPosition);
                 break;
         }
 
@@ -188,32 +167,32 @@ public class Outtake implements Subsystem {
         } else {*/
         switch (armPosition) {
             case TRANSFER:
-                outtakeArmServoLeft.setPosition(ARM_TRANSFER_POSITION);
-                outtakeArmServoRight.setPosition(ARM_TRANSFER_POSITION);
+                armServoLeft.setPosition(ARM_TRANSFER_POSITION);
+                armServoRight.setPosition(ARM_TRANSFER_POSITION);
                 break;
             case SCORE:
-                outtakeArmServoLeft.setPosition(ARM_SCORE_POSITION);
-                outtakeArmServoRight.setPosition(ARM_SCORE_POSITION);
+                armServoLeft.setPosition(ARM_SCORE_POSITION);
+                armServoRight.setPosition(ARM_SCORE_POSITION);
                 break;
             case SCORE_TILTED:
-                outtakeArmServoLeft.setPosition(ARM_SCORE_TILTED_POSITION);
-                outtakeArmServoRight.setPosition(ARM_SCORE_TILTED_POSITION);
+                armServoLeft.setPosition(ARM_SCORE_TILTED_POSITION);
+                armServoRight.setPosition(ARM_SCORE_TILTED_POSITION);
                 break;
             case PUSH:
-                outtakeArmServoLeft.setPosition(ARM_PUSH_POSITION);
-                outtakeArmServoRight.setPosition(ARM_PUSH_POSITION);
+                armServoLeft.setPosition(ARM_PUSH_POSITION);
+                armServoRight.setPosition(ARM_PUSH_POSITION);
                 break;
             case UP:
-                outtakeArmServoLeft.setPosition(ARM_UP_POSITION);
-                outtakeArmServoRight.setPosition(ARM_UP_POSITION);
+                armServoLeft.setPosition(ARM_UP_POSITION);
+                armServoRight.setPosition(ARM_UP_POSITION);
                 break;
             case AUTO_INIT:
-                outtakeArmServoLeft.setPosition(ARM_AUTO_INIT_POSITION);
-                outtakeArmServoRight.setPosition(ARM_AUTO_INIT_POSITION);
+                armServoLeft.setPosition(ARM_AUTO_INIT_POSITION);
+                armServoRight.setPosition(ARM_AUTO_INIT_POSITION);
                 break;
             case MANUAL:
-                outtakeArmServoLeft.setPosition(armManualOffset);
-                outtakeArmServoRight.setPosition(armManualOffset);
+                armServoLeft.setPosition(armManualOffset);
+                armServoRight.setPosition(armManualOffset);
                 break;
             default:
                 break;
@@ -223,20 +202,20 @@ public class Outtake implements Subsystem {
 
         switch (clawMode) {
             case OPEN:
-                outtakeClawServo.setPosition(CLAW_OPEN_POSITION);
+                clawServo.setPosition(CLAW_OPEN_POSITION);
                 break;
             case CLOSED:
-                outtakeClawServo.setPosition(CLAW_CLOSE_POSITION);
+                clawServo.setPosition(CLAW_CLOSE_POSITION);
                 break;
             default:
                 break;
         }
         switch (alignerMode) {
             case DEPLOYED:
-                outtakeAlignerServo.setPosition(ALIGNER_DEPLOYED_POSITION);
+                alignerServo.setPosition(ALIGNER_DEPLOYED_POSITION);
                 break;
             case RETRACTED:
-                outtakeAlignerServo.setPosition(ALIGNER_RETRACTED_POSITION);
+                alignerServo.setPosition(ALIGNER_RETRACTED_POSITION);
                 break;
             default:
                 break;
@@ -276,11 +255,6 @@ public class Outtake implements Subsystem {
             default:
                 return ARM_UP_POSITION;
         }
-    }
-
-
-    public boolean hasCone() {
-        return outtakeSensor.getDistance(DistanceUnit.MM) < 28;
     }
 
     public static double approximateToThreeDecimals(double d) {

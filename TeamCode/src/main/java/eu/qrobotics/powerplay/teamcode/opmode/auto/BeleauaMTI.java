@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
@@ -19,7 +18,6 @@ import java.util.List;
 
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesBeleaua;
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeftMid;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;

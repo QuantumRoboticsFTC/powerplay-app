@@ -8,19 +8,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
-
-import org.openftc.apriltag.AprilTagDetection;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesRight;
+import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
+import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesPastLeft;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
 import eu.qrobotics.powerplay.teamcode.subsystems.Intake;
@@ -29,12 +26,12 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 
 @Config
 @Autonomous
-public class AutoRight extends LinearOpMode {
+public class PastAutoLeft extends LinearOpMode {
     public static double ELEVATOR_THRESHOLD = 2;
     public static double EXTENDO_THRESHOLD = 0.38;
-    public static Vector2d CONE_STACK = new Vector2d(70.5, -12);
-    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(1.5, -25);
-    public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(25, -2);
+    public static Vector2d CONE_STACK = new Vector2d(-70, -12);
+    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
+    public static final Vector2d OUTTAKE_AUTO_PRELOAD_POS = new Vector2d(-24, 0);
 
     private ElapsedTime transferTimer = new ElapsedTime(0);
 
@@ -43,7 +40,7 @@ public class AutoRight extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 //        telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         Robot robot = new Robot(this, true);
-        robot.drive.setPoseEstimate(TrajectoriesRight.START_POSE);
+        robot.drive.setPoseEstimate(TrajectoriesPastLeft.START_POSE);
         robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetCone = Extendo.TargetCone.AUTO_CONE5;
         robot.outtake.turretMode = Outtake.TurretMode.SCORE;
@@ -164,7 +161,7 @@ public class AutoRight extends LinearOpMode {
 
         camera.closeCameraDeviceAsync(() -> {});
 
-        List<Trajectory> trajectories = TrajectoriesRight.getTrajectories(readFromCamera);
+        List<Trajectory> trajectories = TrajectoriesPastLeft.getTrajectories(readFromCamera);
         telemetry.addData("camera tag", readFromCamera);
         telemetry.update();
 
@@ -296,8 +293,7 @@ public class AutoRight extends LinearOpMode {
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             robot.sleep(0.4);
 
-            robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
-            robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
+            robot.outtake.turretPosition = Outtake.TurretPosition.AUTO_LEFT_SCORE;
             robot.sleep(0.35);
             while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
                 robot.sleep(0.01);
@@ -305,6 +301,8 @@ public class AutoRight extends LinearOpMode {
 
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
             robot.sleep(0.1);
+            robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
+            robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
 
 //            robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
             robot.sleep(0.5);

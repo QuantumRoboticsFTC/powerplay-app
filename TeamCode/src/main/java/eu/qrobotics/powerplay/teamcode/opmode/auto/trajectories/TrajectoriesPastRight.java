@@ -12,7 +12,7 @@ import java.util.List;
 
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.*;
 
-public class TrajectoriesRight {
+public class TrajectoriesPastRight {
     public static Pose2d START_POSE = new Pose2d(36, -65, Math.toRadians(270));
 
     public static int CYCLE_COUNT = 7;

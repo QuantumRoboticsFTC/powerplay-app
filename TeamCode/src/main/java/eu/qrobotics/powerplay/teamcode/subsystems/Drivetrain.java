@@ -81,6 +81,8 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
 
     private Pose2d lastPoseOnTurn;
 
+    public double rotateScale = 0.8;
+
     public boolean fieldCentric = false;
 
     Drivetrain(HardwareMap hardwareMap, Robot robot, boolean isAutonomous) {
@@ -197,8 +199,15 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
     }
 
     public void setMotorPowersFromGamepad(Gamepad gg, double scale, boolean reverseFront) {
-        MecanumUtil.Motion motion = MecanumUtil.joystickToMotion(gg.left_stick_x, gg.left_stick_y,
-                gg.right_stick_x, gg.right_stick_y, reverseFront, true);
+        MecanumUtil.Motion motion;
+
+        double left_stick_x = gg.left_stick_x;
+        double left_stick_y = gg.left_stick_y;
+        double right_stick_x = rotateScale * gg.right_stick_x;
+        double right_stick_y = rotateScale * gg.right_stick_y;
+
+        motion = MecanumUtil.joystickToMotion(left_stick_x, left_stick_y,
+                right_stick_x, right_stick_y, reverseFront, true);
         if (fieldCentric) {
             motion = motion.toFieldCentricMotion(getPoseEstimate().getHeading());
         }

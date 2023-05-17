@@ -11,7 +11,7 @@ import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 @Config
 public class Extendo implements Subsystem {
 
-    public static double THRESHOLD_DOWN = 0.5;
+    public static double THRESHOLD_DOWN = 1.5;
     public static double THRESHOLD_DOWN_LEVEL_1 = 0.75;
     public static double THRESHOLD_DOWN_LEVEL_2 = 1.5;
     public static double THRESHOLD_DOWN_LEVEL_3 = 2.5;
@@ -19,6 +19,8 @@ public class Extendo implements Subsystem {
     public static double THRESHOLD_LEVEL_1 = 0.25;
     public static double THRESHOLD_LEVEL_2 = 2.5;
     public static double THRESHOLD_LEVEL_3 = 6.5;
+    public static double DOWN_ZERO_BEHAVIOUR = -0.1;
+
     public static double DOWN_POWER_1 = -1;
     public static double DOWN_POWER_2 = -1;
     public static double DOWN_POWER_3 = -1;
@@ -168,7 +170,7 @@ public class Extendo implements Subsystem {
         if (extendoMode == ExtendoMode.RETRACTED) {
             offsetPosition = 0;
             if (getCurrentLength() <= THRESHOLD_DOWN)
-                setPower(0);
+                setPower(DOWN_ZERO_BEHAVIOUR);
             else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
                 setPower(DOWN_POWER_1);
             else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_2)
@@ -180,7 +182,7 @@ public class Extendo implements Subsystem {
         } else if (extendoMode == ExtendoMode.UP) {
             double distanceLeft = getDistanceLeft();
             if (Math.abs(distanceLeft) <= THRESHOLD)
-                setPower(HOLD_POWER );
+                setPower(HOLD_POWER);
             else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_1)
                 setPower(LEVEL_1_POWER * Math.signum(distanceLeft));
             else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_2)

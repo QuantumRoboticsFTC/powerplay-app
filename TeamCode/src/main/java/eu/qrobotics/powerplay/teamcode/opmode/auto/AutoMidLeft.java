@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeft;
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeftMid;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;

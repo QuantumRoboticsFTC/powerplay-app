@@ -39,7 +39,7 @@ public class Elevator implements Subsystem {
     }
 
     public enum TargetHeight {
-        LOW(30) {
+        LOW(90) {
             @Override
             public TargetHeight previous() {
                 return this;
@@ -54,7 +54,7 @@ public class Elevator implements Subsystem {
         },
         LOW_TILTED(30),
         MID_TILTED(220),
-        HIGH_TILTED(580),
+        HIGH_TILTED(635),
         AUTO_DROP_MID(320),
         AUTO_DROP(680);
 

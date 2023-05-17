@@ -12,7 +12,6 @@ import eu.qrobotics.powerplay.teamcode.hardware.CachingServo;
 @Config
 public class Intake implements Subsystem {
 
-
     public enum ArmPosition {
         LOW_POLE {
             @Override
@@ -88,16 +87,16 @@ public class Intake implements Subsystem {
     }
 
     public static double ARM_LOW_POLE_POSITION = 0.63;
-    public static double ARM_CONE_1_POSITION = 0.96;
-    public static double ARM_CONE_2_POSITION = 0.92;
-    public static double ARM_CONE_3_POSITION = 0.87;
-    public static double ARM_CONE_4_POSITION = 0.83;
-    public static double ARM_CONE_5_POSITION = 0.78;
-    public static double ARM_VERTICAL_POSITION = 0.7;
-    public static double ARM_TRANSFER_POSITION = 0.8;
-    public static double ARM_AUTOPARK_POSITION = 0.6;
+    public static double ARM_CONE_1_POSITION = 1;
+    public static double ARM_CONE_2_POSITION = 0.96;
+    public static double ARM_CONE_3_POSITION = 0.91;
+    public static double ARM_CONE_4_POSITION = 0.87;
+    public static double ARM_CONE_5_POSITION = 0.82;
+    public static double ARM_VERTICAL_POSITION = 0.74;
+    public static double ARM_TRANSFER_POSITION = 0.77;
+    public static double ARM_AUTOPARK_POSITION = 0.64;
 
-    public static double ROTATE_PARALLEL_POSITION = 0.78;
+    public static double ROTATE_PARALLEL_POSITION = 0.8;
     public static double ROTATE_STRAIGHT_POSITION = 0.52;
     public static double ROTATE_TRANSFER_POSITION = 0.275;
     public static double ROTATE_PARALLEL_CONE5_POSITION = 0.5;
@@ -106,7 +105,7 @@ public class Intake implements Subsystem {
     public static double ROTATE_LOW_POLE_DROP_POSITION = 0.65;
 
     public static double CLAW_OPEN_POSITION = 0.44;
-    public static double CLAW_CLOSED_POSITION = 0.67;
+    public static double CLAW_CLOSED_POSITION = 0.705;
 
     public static double SENSOR_TRESHOLD = 40;
     public static double armServoOffset = -0.02;

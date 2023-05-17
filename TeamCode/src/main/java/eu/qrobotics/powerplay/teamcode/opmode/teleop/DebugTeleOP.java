@@ -23,7 +23,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 import eu.qrobotics.powerplay.teamcode.util.StickyGamepad;
 
 @TeleOp
-public class TeleOP extends OpMode {
+public class DebugTeleOP extends OpMode {
     enum DriveMode {
         NORMAL,
         SLOW,
@@ -91,7 +91,6 @@ public class TeleOP extends OpMode {
             }
 
         }
-
         if (stickyGamepad1.left_bumper) {
             driveMode = DriveMode.SUPER_SLOW;
         }
