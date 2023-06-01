@@ -41,7 +41,7 @@ public class BeleauaMTI extends LinearOpMode {
     private ElapsedTime transferTimer = new ElapsedTime(0);
 
     public void cycle (Robot robot, int stackPosition, Vector2d JUNCTION, Vector2d CONE_STACK) {
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.armPosition = Outtake.ArmPosition.UP;
         robot.sleep(0.15);
@@ -94,7 +94,8 @@ public class BeleauaMTI extends LinearOpMode {
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+        robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
 
         while (robot.elevator.getDistanceLeft() > 200 && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
@@ -249,7 +250,7 @@ public class BeleauaMTI extends LinearOpMode {
         robot.sleep(0.1);
 
         // Put elevator up
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
 
         robot.drive.followTrajectory(trajectories.get(0));

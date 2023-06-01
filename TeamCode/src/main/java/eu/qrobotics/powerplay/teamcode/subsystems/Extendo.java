@@ -2,14 +2,21 @@ package eu.qrobotics.powerplay.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 
 @Config
 public class Extendo implements Subsystem {
+
+    public static double ZERO_BEHAVIOUR = -0.15;
 
     public static double THRESHOLD_DOWN = 1.5;
     public static double THRESHOLD_DOWN_LEVEL_1 = 0.75;
@@ -31,9 +38,6 @@ public class Extendo implements Subsystem {
     public static double LEVEL_3_POWER = 0.75;
     public static double LEVEL_4_POWER = 1;
 
-    public static double FAST_SPEED_MULTIPLIER = 1;
-    public static double SLOW_SPEED_MULTIPLIER = 0.5;
-
     public static double SPOOL_RADIUS = 1.5748;
     private static final double TICKS_PER_REV = 384.5;
 
@@ -45,6 +49,7 @@ public class Extendo implements Subsystem {
         DISABLED,
         RETRACTED,
         UP,
+        BRAKE,
         MANUAL
     }
 
@@ -112,15 +117,17 @@ public class Extendo implements Subsystem {
     private CachingDcMotorEx motor;
     private Robot robot;
 
-    Extendo(HardwareMap hardwareMap, Robot robot) {
-        this.robot = robot;
+    public double powah;
 
+//    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
+//    private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
+
+    Extendo(HardwareMap hardwareMap, Robot robot) {
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "intakeMotor"));
 
         motor.setDirection(DcMotor.Direction.REVERSE);
 
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //motorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         downPosition = getRawEncoder();
 
@@ -159,19 +166,25 @@ public class Extendo implements Subsystem {
         motor.setPower(power);
     }
     public static boolean IS_DISABLED = false;
+
     @Override
     public void update() {
+        powah = motor.getCurrent(CurrentUnit.AMPS);
+
         if(IS_DISABLED) return;
         if (extendoMode == ExtendoMode.DISABLED)
             return;
 
         updateEncoder();
 
-        if (extendoMode == ExtendoMode.RETRACTED) {
+        if (extendoMode == ExtendoMode.BRAKE) {
+            setPower(ZERO_BEHAVIOUR);
+        } else if (extendoMode == ExtendoMode.RETRACTED) {
             offsetPosition = 0;
-            if (getCurrentLength() <= THRESHOLD_DOWN)
+            if (getCurrentLength() <= THRESHOLD_DOWN) {
                 setPower(DOWN_ZERO_BEHAVIOUR);
-            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
+                extendoMode = ExtendoMode.BRAKE;
+            } else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
                 setPower(DOWN_POWER_1);
             else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_2)
                 setPower(DOWN_POWER_2);

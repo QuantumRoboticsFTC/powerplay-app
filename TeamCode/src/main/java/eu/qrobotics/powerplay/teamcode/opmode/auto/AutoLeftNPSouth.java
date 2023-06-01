@@ -80,7 +80,7 @@ public class AutoLeftNPSouth extends LinearOpMode {
 
     void score(Robot robot, int i, Vector2d targetPosition) {
         robot.elevator.targetPosition = Elevator.TargetHeight.HIGH;
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.sleep(0.1);
 
         robot.outtake.armPosition = Outtake.ArmPosition.UP;
@@ -104,7 +104,8 @@ public class AutoLeftNPSouth extends LinearOpMode {
 //            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         robot.outtake.armPosition = Outtake.ArmPosition.UP;
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+        robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.sleep(0.1);
     }
 

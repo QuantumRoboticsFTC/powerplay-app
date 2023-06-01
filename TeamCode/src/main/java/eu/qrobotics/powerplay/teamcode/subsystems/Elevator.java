@@ -1,6 +1,8 @@
 package eu.qrobotics.powerplay.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,12 +35,12 @@ public class Elevator implements Subsystem {
 
     public enum ElevatorMode {
         DISABLED,
-        DOWN,
-        UP,
+        AUTOMATIC,
         MANUAL
     }
 
     public enum TargetHeight {
+        GROUND(0),
         LOW(90) {
             @Override
             public TargetHeight previous() {
@@ -52,13 +54,13 @@ public class Elevator implements Subsystem {
                 return this;
             }
         },
-        LOW_TILTED(30),
-        MID_TILTED(220),
-        HIGH_TILTED(635),
+        LOW_TILTED(0),
+        MID_TILTED(380),
+        HIGH_TILTED(740),
         AUTO_DROP_MID(320),
         AUTO_DROP(680);
 
-        private final int encoderPosition;
+        public final int encoderPosition;
 
         TargetHeight(int encoderPosition) {
             this.encoderPosition = encoderPosition;
@@ -77,19 +79,21 @@ public class Elevator implements Subsystem {
         }
     }
 
+    public static PIDCoefficients coef = new PIDCoefficients(0.012, 0.08, 0.0004);
+    private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
+    public static double f1 = 0.07, f2 = 0.00007;
+
     private int downPosition;
     private int lastEncoder;
     public double offsetPosition;
-    public TargetHeight targetPosition;
+    public TargetHeight targetPosition = TargetHeight.GROUND;
+    public ElevatorMode elevatorMode = ElevatorMode.AUTOMATIC;
     public double manualPower;
 
-    public ElevatorMode elevatorMode;
     private CachingDcMotorEx motorLeft, motorRight;
     private Robot robot;
 
     Elevator(HardwareMap hardwareMap) {
-//        this.robot = robot;
-
         motorLeft = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "elevatorLeft"));
         motorRight = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "elevatorRight"));
 
@@ -99,9 +103,16 @@ public class Elevator implements Subsystem {
         //motorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //motorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        motorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         downPosition = getRawEncoder();
 
-        targetPosition = TargetHeight.LOW;
+        targetPosition = TargetHeight.GROUND;
+        elevatorMode = ElevatorMode.AUTOMATIC;
     }
 
     public int getRawEncoder() {
@@ -122,14 +133,11 @@ public class Elevator implements Subsystem {
     }
 
     public int getTargetEncoder() {
-        if(elevatorMode == ElevatorMode.DOWN) {
-            return 0; // TODO: ar tb downPosition nu 0
-        }
         return targetPosition.getEncoderPosition();
     }
 
     public int getDistanceLeft() {
-        return getTargetEncoder() - lastEncoder + (int) offsetPosition;
+        return getTargetEncoder() - lastEncoder + (int)offsetPosition;
     }
 
     public TargetHeight getTargetPosition() {
@@ -156,32 +164,15 @@ public class Elevator implements Subsystem {
         updateEncoder();
         getEnergy();
 
-        if (elevatorMode == ElevatorMode.DOWN) {
-            offsetPosition = 0;
-            if (getEncoder() <= THRESHOLD_DOWN)
-                setPower(0);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_1)
-                setPower(DOWN_POWER_1);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_2)
-                setPower(DOWN_POWER_2);
-            else if(getEncoder() <= THRESHOLD_DOWN_LEVEL_3)
-                setPower(DOWN_POWER_3);
-            else
-                setPower(DOWN_POWER_4);
-        } else if (elevatorMode == ElevatorMode.UP) {
-            int distanceLeft = targetPosition.getEncoderPosition() - getEncoder() + (int) offsetPosition;
-            if (Math.abs(distanceLeft) <= THRESHOLD)
-                setPower(HOLD_POWER + powerForHeight(getEncoder()) / 3);
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_1)
-                setPower(LEVEL_1_POWER * Math.signum(distanceLeft) + powerForHeight(getEncoder()));
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_2)
-                setPower(LEVEL_2_POWER * Math.signum(distanceLeft) + powerForHeight(getEncoder()));
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_3)
-                setPower(LEVEL_3_POWER * Math.signum(distanceLeft) + powerForHeight(getEncoder()));
-            else
-                setPower(LEVEL_4_POWER * Math.signum(distanceLeft) + powerForHeight(getEncoder()));
-        } else {
+        if (elevatorMode == ElevatorMode.MANUAL) {
             setPower(manualPower);
+        } else {
+            int targetPos = targetPosition.encoderPosition + (int)offsetPosition;
+            int current = motorLeft.getCurrentPosition();
+            pid.setPID(coef.p, coef.i, coef.d);
+            double ff = f1 + f2 * current;
+            double power = pid.calculate(current, targetPos) + ff;
+            setPower(power);
         }
     }
 

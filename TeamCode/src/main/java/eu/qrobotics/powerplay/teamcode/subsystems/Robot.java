@@ -29,7 +29,7 @@ public class Robot implements OpModeManagerNotifier.Notifications, GlobalWarning
 
     public Drivetrain drive;
     public Intake intake;
-    public Extendo  extendo;
+    public Extendo extendo;
     public Elevator elevator;
     public Outtake outtake;
 

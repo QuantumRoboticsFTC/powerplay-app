@@ -174,7 +174,7 @@ public class AutoMidLeft extends LinearOpMode {
         robot.sleep(0.4);
 
         // Put elevator up
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         // Wait for da elevator shit
         while (robot.elevator.getDistanceLeft() > ELEVATOR_THRESHOLD && opModeIsActive() && !isStopRequested()) {
@@ -224,7 +224,8 @@ public class AutoMidLeft extends LinearOpMode {
         robot.drive.followTrajectorySync(trajectories.get(1));
         robot.sleep(0.2);
         robot.drive.followTrajectorySync(trajectories.get(2));
-        robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+        robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+        robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         robot.elevator.targetPosition = Elevator.TargetHeight.MID;
         robot.sleep(0.2);
         // Move outtake to tranfer position
@@ -284,7 +285,8 @@ public class AutoMidLeft extends LinearOpMode {
             robot.sleep(0.25);
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             robot.elevator.targetPosition = Elevator.TargetHeight.MID;
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
+            robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
 
             robot.intake.armPosition = getintakeArmPosition(i + 1); /// CHANGE CONE NR
             robot.intake.armRotate = Intake.ArmRotate.PARALLEL;/// CHANGE CONE NR
@@ -317,7 +319,8 @@ public class AutoMidLeft extends LinearOpMode {
 //            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
 //            robot.sleep(0.5);
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+            robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
 //            robot.sleep(0.3);
 //            robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
 //            robot.sleep(0.5);

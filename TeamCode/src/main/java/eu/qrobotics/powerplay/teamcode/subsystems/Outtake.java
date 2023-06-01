@@ -68,18 +68,19 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.27;
+    public static double ARM_TRANSFER_POSITION = 0.33;
     public static double ARM_UP_POSITION = 0.62;
     public static double ARM_AUTO_INIT_POSITION = 0.4;
     public static double ARM_SCORE_POSITION = 0.93;
-    public static double ARM_SCORE_TILTED_POSITION = 0.83;
+
+    public static double ARM_SCORE_TILTED_POSITION = 0.95;
     public static double ARM_PUSH_POSITION = 0.95;
 
-    public static double CLAW_OPEN_POSITION = 0.32;
-    public static double CLAW_CLOSE_POSITION = 0.18;
+    public static double CLAW_OPEN_POSITION = 0.68;
+    public static double CLAW_CLOSE_POSITION = 0.6;
 
-    public static double ALIGNER_RETRACTED_POSITION = 0.55;
-    public static double ALIGNER_DEPLOYED_POSITION = 0.47;
+    public static double ALIGNER_RETRACTED_POSITION = 1;
+    public static double ALIGNER_DEPLOYED_POSITION = 0.65;
 
     private CachingServo turretServo;
     private CachingServo armServoLeft;
@@ -90,6 +91,9 @@ public class Outtake implements Subsystem {
     private ColorRangeSensor outtakeSensor;
 
     public double turretManualPosition = 0.5;
+
+    public boolean isScoring;
+    public boolean alignerActive; // is aligner active at next cycle
 
     private Robot robot;
 
@@ -110,6 +114,9 @@ public class Outtake implements Subsystem {
         turretMode = TurretMode.TRANSFER;
         turretPosition = TurretPosition.CENTER;
         alignerMode = AlignerMode.RETRACTED;
+
+        isScoring = false;
+        alignerActive = true;
     }
 
     public static boolean IS_DISABLED = false;

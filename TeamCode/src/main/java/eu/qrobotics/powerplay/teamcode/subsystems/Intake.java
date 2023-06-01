@@ -86,23 +86,23 @@ public class Intake implements Subsystem {
         CLOSED
     }
 
-    public static double ARM_LOW_POLE_POSITION = 0.63;
-    public static double ARM_CONE_1_POSITION = 1;
-    public static double ARM_CONE_2_POSITION = 0.96;
-    public static double ARM_CONE_3_POSITION = 0.91;
-    public static double ARM_CONE_4_POSITION = 0.87;
-    public static double ARM_CONE_5_POSITION = 0.82;
-    public static double ARM_VERTICAL_POSITION = 0.74;
-    public static double ARM_TRANSFER_POSITION = 0.77;
-    public static double ARM_AUTOPARK_POSITION = 0.64;
+    public static double ARM_LOW_POLE_POSITION = 0.65;
+    public static double ARM_CONE_1_POSITION = 0.97;
+    public static double ARM_CONE_2_POSITION = 0.93;
+    public static double ARM_CONE_3_POSITION = 0.88;
+    public static double ARM_CONE_4_POSITION = 0.84;
+    public static double ARM_CONE_5_POSITION = 0.8;
+    public static double ARM_VERTICAL_POSITION = 0.76;
+    public static double ARM_TRANSFER_POSITION = 0.82;
+    public static double ARM_AUTOPARK_POSITION = 0.66;
 
-    public static double ROTATE_PARALLEL_POSITION = 0.8;
-    public static double ROTATE_STRAIGHT_POSITION = 0.52;
-    public static double ROTATE_TRANSFER_POSITION = 0.275;
-    public static double ROTATE_PARALLEL_CONE5_POSITION = 0.5;
-    public static double ROTATE_PARALLEL_CONE4_POSITION = 0.76;
-    public static double ROTATE_LOW_POLE_POSITION = 0.58;
-    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.65;
+    public static double ROTATE_PARALLEL_POSITION = 0.5;
+    public static double ROTATE_STRAIGHT_POSITION = 0.32;
+    public static double ROTATE_TRANSFER_POSITION = 0.015;
+    public static double ROTATE_PARALLEL_CONE5_POSITION = 0.2;
+    public static double ROTATE_PARALLEL_CONE4_POSITION = 0.46;
+    public static double ROTATE_LOW_POLE_POSITION = 0.28;
+    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.35;
 
     public static double CLAW_OPEN_POSITION = 0.44;
     public static double CLAW_CLOSED_POSITION = 0.705;
@@ -121,7 +121,9 @@ public class Intake implements Subsystem {
 
     private ColorRangeSensor intakeSensor;
 
-    public Intake(HardwareMap hardwareMap, Robot robot) {
+    private Robot robot;
+
+    public Intake(HardwareMap hardwareMap, Robot _robot) {
         intakeArmServoLeft = hardwareMap.get(Servo.class, "intakeArmServoLeft");
         intakeArmServoRight = hardwareMap.get(Servo.class, "intakeArmServoRight");
         intakeRotateServo = hardwareMap.get(Servo.class, "intakeRotateServo");
@@ -129,6 +131,8 @@ public class Intake implements Subsystem {
         intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakeSensor");
 
         intakeArmServoRight.setDirection(Servo.Direction.REVERSE);
+
+        robot = _robot;
 
 //        armPosition = ArmPosition.TRANSFER;
 //        clawMode = ClawMode.OPEN;
@@ -217,7 +221,8 @@ public class Intake implements Subsystem {
                 intakeClawServo.setPosition(CLAW_OPEN_POSITION);
                 break;
             case CLOSED:
-                intakeClawServo.setPosition(CLAW_CLOSED_POSITION);
+                if (robot.intake.armRotate != ArmRotate.TRANSFER)
+                    intakeClawServo.setPosition(CLAW_CLOSED_POSITION);
                 break;
             default:
                 break;

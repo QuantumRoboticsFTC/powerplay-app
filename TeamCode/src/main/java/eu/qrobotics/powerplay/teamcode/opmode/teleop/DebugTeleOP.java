@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
 import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesPastLeft;
@@ -34,7 +36,8 @@ public class DebugTeleOP extends OpMode {
     private ElapsedTime turretCenterTimer = new ElapsedTime(0);
     private ElapsedTime outtakeGrabTimer = new ElapsedTime(0);
     private ElapsedTime coneDropTimer = new ElapsedTime(0);
-    private ElapsedTime outtakeConeDropTimer = new ElapsedTime(0);
+
+    private NanoClock loopTime;
 
     private boolean careAboutIntakeSensor = true;
     private boolean startedTransfer = false;
@@ -51,6 +54,8 @@ public class DebugTeleOP extends OpMode {
 
     @Override
     public void init() {
+        loopTime = NanoClock.system();
+
         telemetry = new MultipleTelemetry(super.telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = new Robot(this, false);
         stickyGamepad1 = new StickyGamepad(gamepad1);
@@ -73,6 +78,8 @@ public class DebugTeleOP extends OpMode {
 
     @Override
     public void loop() {
+        double timestamp = loopTime.seconds();
+
         stickyGamepad1.update();
         stickyGamepad2.update();
 
@@ -91,6 +98,7 @@ public class DebugTeleOP extends OpMode {
             }
 
         }
+
         if (stickyGamepad1.left_bumper) {
             driveMode = DriveMode.SUPER_SLOW;
         }
@@ -113,9 +121,6 @@ public class DebugTeleOP extends OpMode {
                 robot.intake.clawMode = Intake.ClawMode.OPEN;
                 careAboutIntakeSensor = true;
                 startedTransfer = false;
-            }
-            if (robot.outtake.getArmPosition() == Outtake.ARM_AUTO_INIT_POSITION && robot.elevator.elevatorMode != Elevator.ElevatorMode.UP) {
-                robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
             }
         } else if (gamepad1.left_trigger > 0.1) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
@@ -205,30 +210,44 @@ public class DebugTeleOP extends OpMode {
                 robot.elevator.targetPosition = Elevator.TargetHeight.MID_TILTED;
             }
         } else if (stickyGamepad2.dpad_down) {
-            robot.elevator.targetPosition = Elevator.TargetHeight.LOW;
+            robot.elevator.targetPosition = Elevator.TargetHeight.LOW_TILTED;
         }
 //        }
         if (stickyGamepad2.dpad_right) {
-            if (robot.outtake.alignerMode == Outtake.AlignerMode.DEPLOYED)
-                robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
-            else if (robot.outtake.alignerMode == Outtake.AlignerMode.RETRACTED)
-                robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+            if (robot.outtake.isScoring) {
+                if (robot.outtake.alignerMode == Outtake.AlignerMode.DEPLOYED)
+                    robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
+                else if (robot.outtake.alignerMode == Outtake.AlignerMode.RETRACTED)
+                    robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+            } else {
+                robot.outtake.alignerActive = !robot.outtake.alignerActive;
+            }
         }
         if (stickyGamepad2.right_bumper) {
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.UP;
-            robot.intake.clawMode = Intake.ClawMode.OPEN;
+            robot.outtake.isScoring = true;
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+            robot.sleep(0.1);
+            if (robot.outtake.alignerActive) {
+                robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+            }
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
+            robot.intake.clawMode = Intake.ClawMode.OPEN;
             startedTransfer = false;
             outtakeGrabTimer.reset();
         } else if (stickyGamepad2.left_bumper) {
+            robot.outtake.isScoring = false;
+            robot.outtake.alignerActive = true;
+            robot.outtake.clawMode = Outtake.ClawMode.OPEN;
+            robot.sleep(0.4);
+
             robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
-            robot.outtake.clawMode = Outtake.ClawMode.OPEN;
             robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+            robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
             turretCenterTimer.reset();
         }
-        if(robot.elevator.targetPosition == Elevator.TargetHeight.LOW && robot.elevator.elevatorMode == Elevator.ElevatorMode.UP &&  robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
+        if(robot.elevator.targetPosition == Elevator.TargetHeight.LOW && robot.elevator.elevatorMode == Elevator.ElevatorMode.AUTOMATIC &&  robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
             robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
         }
 
@@ -244,11 +263,7 @@ public class DebugTeleOP extends OpMode {
             robot.elevator.manualPower = gamepad2.left_trigger * (-0.07);
         } else {
             if (robot.elevator.elevatorMode == Elevator.ElevatorMode.MANUAL) {
-                if (prevElevatorMode == Elevator.ElevatorMode.DOWN) {
-//                    robot.elevator.reset();
-                } else {
-                    robot.elevator.offsetPosition = robot.elevator.getEncoder() - robot.elevator.targetPosition.getEncoderPosition();
-                }
+                robot.elevator.offsetPosition = robot.elevator.getEncoder() - robot.elevator.targetPosition.getEncoderPosition();
                 robot.elevator.elevatorMode = prevElevatorMode;
                 prevElevatorMode = null;
             }
@@ -269,7 +284,6 @@ public class DebugTeleOP extends OpMode {
         }
         if (stickyGamepad2.a) {
             robot.outtake.clawMode = Outtake.ClawMode.OPEN;
-            outtakeConeDropTimer.reset();
         }
 
         if (Math.abs(gamepad2.right_stick_x) > 0.1) {
@@ -304,22 +318,39 @@ public class DebugTeleOP extends OpMode {
         updateConeDropTimer();
         updateOuttakeGrabTimer();
         updateTurretCenterTimer();
-        updateOuttakeConeDropTimer();
         //endregion
 
         //region Telemetry
+
+        // INTAKE TELEM
+        telemetry.addData("elevator target position", robot.elevator.targetPosition.encoderPosition);
+        telemetry.addData("current position", robot.elevator.getRawEncoder());
+
+        telemetry.addData("aligner active", robot.outtake.alignerActive);
+        telemetry.addData("isScoring", robot.outtake.isScoring);
+
+        telemetry.addData("armPosition:", robot.intake.armPosition);
+        telemetry.addData("armRotate:", robot.intake.armRotate);
+        telemetry.addData("clawMode:", robot.intake.clawMode);
+
         telemetry.addData("Aligner Mode", robot.outtake.alignerMode);
         telemetry.addData("Elevator Encoder", robot.elevator.getEncoder());
-        telemetry.addData("Elevator Target Encoder", robot.elevator.getTargetEncoder());
         telemetry.addData("Extendo Length", robot.extendo.getCurrentLength());
-        telemetry.addData("Left power", robot.elevator.leftPowah);
-        telemetry.addData("Right power", robot.elevator.rightPowah);
+        telemetry.addData("Elevator Left power", robot.elevator.leftPowah);
+        telemetry.addData("Elevator Right power", robot.elevator.rightPowah);
+
+        telemetry.addData("extendo power", robot.extendo.powah);
+
+        telemetry.addData("extendo encoders", robot.extendo.getEncoder());
+
+        telemetry.addData("loop time", (loopTime.seconds() - timestamp) * 1000.0);
+
         addStatistics();
         telemetry.update();
         //endregion
 
-        TelemetryPacket packet = new TelemetryPacket();
-        Canvas fieldOverlay = packet.fieldOverlay();
+//        TelemetryPacket packet = new TelemetryPacket();
+//        Canvas fieldOverlay = packet.fieldOverlay();
 
         /*
         Turret drawing thing - but OUTTAKE_AUTO_PRELOAD_POS are dumb idfk i didnt want to delete
@@ -342,16 +373,11 @@ public class DebugTeleOP extends OpMode {
 
     }
 
-    private void updateOuttakeConeDropTimer() {
-        if (0.1 < outtakeConeDropTimer.seconds() && outtakeConeDropTimer.seconds() < 0.25) {
-            robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
-        }
-    }
-
     private void updateTurretCenterTimer() {
         if (0.6 < turretCenterTimer.seconds() && turretCenterTimer.seconds() < 0.75) {
             robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
-            robot.elevator.elevatorMode = Elevator.ElevatorMode.DOWN;
+            robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+            robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
         }
     }
 
@@ -359,8 +385,6 @@ public class DebugTeleOP extends OpMode {
         if (0.15 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.3) {
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
-            robot.intake.armPosition = Intake.ArmPosition.VERTICAL;
-            robot.intake.armRotate = Intake.ArmRotate.STRAIGHT;
         }
         if (0.45 < outtakeGrabTimer.seconds() && outtakeGrabTimer.seconds() < 0.6) {
             robot.outtake.turretMode = Outtake.TurretMode.SCORE;
