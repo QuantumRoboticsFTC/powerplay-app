@@ -207,7 +207,8 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
         double right_stick_y = rotateScale * gg.right_stick_y;
 
         motion = MecanumUtil.joystickToMotion(left_stick_x, left_stick_y,
-                right_stick_x, right_stick_y, reverseFront, true);
+                right_stick_x, right_stick_y, reverseFront, false);
+
         if (fieldCentric) {
             motion = motion.toFieldCentricMotion(getPoseEstimate().getHeading());
         }

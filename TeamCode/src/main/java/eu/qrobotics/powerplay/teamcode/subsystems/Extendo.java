@@ -117,6 +117,9 @@ public class Extendo implements Subsystem {
     private CachingDcMotorEx motor;
     private Robot robot;
 
+    public int extendoLimitTicks = 1635;
+    public static int extendoLimitDelta = 100;
+
     public double powah;
 
 //    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
@@ -169,7 +172,7 @@ public class Extendo implements Subsystem {
 
     @Override
     public void update() {
-        powah = motor.getCurrent(CurrentUnit.AMPS);
+//        powah = motor.getCurrent(CurrentUnit.AMPS);
 
         if(IS_DISABLED) return;
         if (extendoMode == ExtendoMode.DISABLED)

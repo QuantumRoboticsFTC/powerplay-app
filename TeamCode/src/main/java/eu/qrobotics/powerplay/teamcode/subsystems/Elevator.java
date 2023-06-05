@@ -15,24 +15,6 @@ import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 @Config
 public class Elevator implements Subsystem {
 
-    public static int THRESHOLD_DOWN = 20;
-    public static int THRESHOLD_DOWN_LEVEL_1 = 10;
-    public static int THRESHOLD_DOWN_LEVEL_2 = 20;
-    public static int THRESHOLD_DOWN_LEVEL_3 = 45;
-    public static int THRESHOLD = 32;
-    public static int THRESHOLD_LEVEL_1 = 15;
-    public static int THRESHOLD_LEVEL_2 = 60;
-    public static int THRESHOLD_LEVEL_3 = 130;
-    public static double DOWN_POWER_1 = -0.35;
-    public static double DOWN_POWER_2 = -0.5;
-    public static double DOWN_POWER_3 = -0.6;
-    public static double DOWN_POWER_4 = -0.7;
-    public static double HOLD_POWER = 0.09;
-    public static double LEVEL_1_POWER = 0.4;
-    public static double LEVEL_2_POWER = 0.7;
-    public static double LEVEL_3_POWER = 0.95;
-    public static double LEVEL_4_POWER = 0.95;
-
     public enum ElevatorMode {
         DISABLED,
         AUTOMATIC,
@@ -87,8 +69,10 @@ public class Elevator implements Subsystem {
     private int lastEncoder;
     public double offsetPosition;
     public TargetHeight targetPosition = TargetHeight.GROUND;
+    public TargetHeight scoringPosition = TargetHeight.GROUND;
     public ElevatorMode elevatorMode = ElevatorMode.AUTOMATIC;
     public double manualPower;
+    public boolean isScoring;
 
     private CachingDcMotorEx motorLeft, motorRight;
     private Robot robot;
@@ -111,7 +95,10 @@ public class Elevator implements Subsystem {
 
         downPosition = getRawEncoder();
 
+        isScoring = false;
+
         targetPosition = TargetHeight.GROUND;
+        scoringPosition = TargetHeight.GROUND;
         elevatorMode = ElevatorMode.AUTOMATIC;
     }
 
@@ -161,18 +148,24 @@ public class Elevator implements Subsystem {
         if (elevatorMode == ElevatorMode.DISABLED)
             return;
 
+        if (isScoring) {
+            targetPosition = scoringPosition;
+        }
+
         updateEncoder();
-        getEnergy();
+//        getEnergy();
 
         if (elevatorMode == ElevatorMode.MANUAL) {
             setPower(manualPower);
         } else {
-            int targetPos = targetPosition.encoderPosition + (int)offsetPosition;
-            int current = motorLeft.getCurrentPosition();
-            pid.setPID(coef.p, coef.i, coef.d);
-            double ff = f1 + f2 * current;
-            double power = pid.calculate(current, targetPos) + ff;
-            setPower(power);
+            if (isScoring || targetPosition.encoderPosition == 0) {
+                int targetPos = targetPosition.encoderPosition + (int) offsetPosition;
+                int current = motorLeft.getCurrentPosition();
+                pid.setPID(coef.p, coef.i, coef.d);
+                double ff = f1 + f2 * current;
+                double power = pid.calculate(current, targetPos) + ff;
+                setPower(power);
+            }
         }
     }
 

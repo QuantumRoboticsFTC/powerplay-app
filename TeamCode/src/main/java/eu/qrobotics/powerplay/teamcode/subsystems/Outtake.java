@@ -68,15 +68,16 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.33;
-    public static double ARM_UP_POSITION = 0.62;
-    public static double ARM_AUTO_INIT_POSITION = 0.4;
-    public static double ARM_SCORE_POSITION = 0.93;
+    public static double ARM_TRANSFER_POSITION = 0.1; //0.33 -> 0.1
+    public static double ARM_UP_POSITION = 0.39;
+    public static double ARM_AUTO_INIT_POSITION = 0.17;
+    public static double ARM_SCORE_POSITION = 0.7;
 
-    public static double ARM_SCORE_TILTED_POSITION = 0.95;
-    public static double ARM_PUSH_POSITION = 0.95;
+    public static double ARM_SCORE_TILTED_POSITION = 0.74;
 
-    public static double CLAW_OPEN_POSITION = 0.68;
+    public static double ARM_PUSH_POSITION = 0.72;
+
+    public static double CLAW_OPEN_POSITION = 0.67;
     public static double CLAW_CLOSE_POSITION = 0.6;
 
     public static double ALIGNER_RETRACTED_POSITION = 1;
