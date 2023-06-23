@@ -194,11 +194,11 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
         throw new AssertionError();
     }
 
-    public void setMotorPowersFromGamepad(Gamepad gg, double scale) {
-        setMotorPowersFromGamepad(gg, scale, true);
+    public void setMotorPowersFromGamepad(Gamepad gg, double scale, boolean customCurve) {
+        setMotorPowersFromGamepad(gg, scale, true, customCurve);
     }
 
-    public void setMotorPowersFromGamepad(Gamepad gg, double scale, boolean reverseFront) {
+    public void setMotorPowersFromGamepad(Gamepad gg, double scale, boolean reverseFront, boolean customCurve) {
         MecanumUtil.Motion motion;
 
         double left_stick_x = gg.left_stick_x;
@@ -207,7 +207,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
         double right_stick_y = rotateScale * gg.right_stick_y;
 
         motion = MecanumUtil.joystickToMotion(left_stick_x, left_stick_y,
-                right_stick_x, right_stick_y, reverseFront, false);
+                right_stick_x, right_stick_y, reverseFront, customCurve);
 
         if (fieldCentric) {
             motion = motion.toFieldCentricMotion(getPoseEstimate().getHeading());

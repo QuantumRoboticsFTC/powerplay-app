@@ -3,7 +3,6 @@ package eu.qrobotics.powerplay.teamcode.opmode.auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeftOnlySouth;
+import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesRightOnlySouth;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
 import eu.qrobotics.powerplay.teamcode.subsystems.Intake;
@@ -26,11 +25,11 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Outtake;
 import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 
 @Config
-@Autonomous(name = "#1 AutoLeftSouth")
-public class AutoLeftOnlySouth extends LinearOpMode {
+@Autonomous(name = "#5 AutoRightSouth")
+public class AutoRightOnlySouth extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.5;
-    public static Vector2d CONE_STACK = new Vector2d(-72, -12);
-    public static Vector2d PRE_CONE_STACK = new Vector2d(-69, -12);
+    public static Vector2d CONE_STACK = new Vector2d(72, -12);
+    public static Vector2d PRE_CONE_STACK = new Vector2d(69, -12);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
 
     //    private double STOP_CYCLE_FOR_PARK_TIME = 3;
@@ -155,7 +154,6 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         return readFromCamera;
     }
 
-
     boolean transferDone;
     ElapsedTime timer = new ElapsedTime(0);
     public static double EXTENDO_SPEED_THRESHOLD = 30;
@@ -217,10 +215,14 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
         robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
         if (!sleepFailsafe(robot, 0.3)) return;
+
         if (i < 6) {
             robot.extendo.targetVector2d = PRE_CONE_STACK;
             robot.extendo.targetPosition = getExtendoLevel(i);
             robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
+            telemetry.addData("extendo target", robot.extendo.getTargetLength());
+            telemetry.addData("extendo actual", robot.extendo.getCurrentLength());
+            telemetry.update();
         }
         if (!sleepFailsafe(robot, 0.4)) return;
 
@@ -232,6 +234,7 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         if (!sleepFailsafe(robot, 0.25)) return;
 
+        robot.outtake.alignerMode = Outtake.AlignerMode.AUTO_PROBLEM;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
         if (!sleepFailsafe(robot, 0.15)) return;
         robot.elevator.isScoring = false;
@@ -240,6 +243,9 @@ public class AutoLeftOnlySouth extends LinearOpMode {
 
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+
+        robot.sleep(0.2);
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
 
         if (i == 6) {
             robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
@@ -279,7 +285,7 @@ public class AutoLeftOnlySouth extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, true);
-        robot.drive.setPoseEstimate(TrajectoriesLeftOnlySouth.START_POSE);
+        robot.drive.setPoseEstimate(TrajectoriesRightOnlySouth.START_POSE);
         robot.elevator.isScoring = false;
         robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE5;
@@ -298,7 +304,7 @@ public class AutoLeftOnlySouth extends LinearOpMode {
 
         autoTimer.reset();
 
-        List<Trajectory> trajectories = TrajectoriesLeftOnlySouth.getTrajectories(readFromCamera);
+        List<Trajectory> trajectories = TrajectoriesRightOnlySouth.getTrajectories(readFromCamera);
         telemetry.addData("camera tag", readFromCamera);
         telemetry.update();
 

@@ -30,15 +30,17 @@ public class Elevator implements Subsystem {
             }
         },
         MID(380),
-        HIGH(755){
+        HIGH(790){
             @Override
             public TargetHeight next() {
                 return this;
             }
         },
         LOW_TILTED(0),
-        MID_TILTED(380),
-        HIGH_TILTED(740),
+        MID_TILTED(395),
+        HIGH_TILTED(788),
+        HIGH_AUTO_DROP(500),
+        MID_AUTO_DROP(100),
         AUTO_DROP_MID(320),
         AUTO_DROP(680);
 
@@ -136,6 +138,8 @@ public class Elevator implements Subsystem {
         motorRight.setPower(power);
     }
 
+    private double lastMotorPower;
+
     public double leftPowah, rightPowah;
     private void getEnergy() {
         leftPowah = motorLeft.getCurrent(CurrentUnit.AMPS);
@@ -155,12 +159,16 @@ public class Elevator implements Subsystem {
         updateEncoder();
 //        getEnergy();
 
+        if (targetPosition == TargetHeight.GROUND) {
+            offsetPosition = 0;
+        }
+
         if (elevatorMode == ElevatorMode.MANUAL) {
             setPower(manualPower);
         } else {
             if (isScoring || targetPosition.encoderPosition == 0) {
                 int targetPos = targetPosition.encoderPosition + (int) offsetPosition;
-                int current = motorLeft.getCurrentPosition();
+                int current = lastEncoder;
                 pid.setPID(coef.p, coef.i, coef.d);
                 double ff = f1 + f2 * current;
                 double power = pid.calculate(current, targetPos) + ff;

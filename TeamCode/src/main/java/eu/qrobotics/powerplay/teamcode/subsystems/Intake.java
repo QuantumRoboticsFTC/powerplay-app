@@ -16,27 +16,29 @@ public class Intake implements Subsystem {
         LOW_POLE {
             @Override
             public ArmPosition previous() {
-                return this;
+                return TRANSFER;
+            }
+
+            @Override
+            public ArmPosition next() {
+                return CONE_1;
+            }
+        },
+        LOW_POLE_WHEN_IN_TRANSFER {
+            @Override
+            public ArmPosition previous() {
+                return TRANSFER;
             }
         },
         CONE_1,
         CONE_2,
         CONE_3,
         CONE_4,
-        CONE_5 {
-            @Override
-            public ArmPosition next() {
-                return this;
-            }
-        },
+        CONE_5,
         TRANSFER{
             @Override
-            public ArmPosition previous() {
-                return this;
-            }
-            @Override
             public ArmPosition next() {
-                return this;
+                return LOW_POLE_WHEN_IN_TRANSFER;
             }
         },
         VERTICAL{
@@ -73,8 +75,6 @@ public class Intake implements Subsystem {
 
     public enum ArmRotate {
         PARALLEL,
-        PARALLEL_CONE5,
-        PARALLEL_CONE4,
         STRAIGHT,
         TRANSFER,
         LOW_POLE,
@@ -87,22 +87,22 @@ public class Intake implements Subsystem {
     }
 
     public static double ARM_LOW_POLE_POSITION = 0.65;
-    public static double ARM_CONE_1_POSITION = 0.97;
-    public static double ARM_CONE_2_POSITION = 0.93;
-    public static double ARM_CONE_3_POSITION = 0.88;
-    public static double ARM_CONE_4_POSITION = 0.84;
+    public static double ARM_CONE_1_POSITION = 0.98;
+    public static double ARM_CONE_2_POSITION = 0.95;
+    public static double ARM_CONE_3_POSITION = 0.9;
+    public static double ARM_CONE_4_POSITION = 0.85;
     public static double ARM_CONE_5_POSITION = 0.8;
     public static double ARM_VERTICAL_POSITION = 0.76;
     public static double ARM_TRANSFER_POSITION = 0.82;
-    public static double ARM_AUTOPARK_POSITION = 0.66;
+    public static double ARM_AUTOPARK_POSITION = 0.85;
 
-    public static double ROTATE_PARALLEL_POSITION = 0.5;
-    public static double ROTATE_STRAIGHT_POSITION = 0.32;
-    public static double ROTATE_TRANSFER_POSITION = 0.015;
-    public static double ROTATE_PARALLEL_CONE5_POSITION = 0.2;
-    public static double ROTATE_PARALLEL_CONE4_POSITION = 0.46;
-    public static double ROTATE_LOW_POLE_POSITION = 0.28;
-    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.35;
+    public static double ROTATE_PARALLEL_POSITION = 0.48;
+    public static double ROTATE_STRAIGHT_POSITION = 0.3;
+    public static double ROTATE_TRANSFER_POSITION = 0; // -0.005
+    public static double ROTATE_PARALLEL_CONE5_POSITION = 0.18;
+    public static double ROTATE_PARALLEL_CONE4_POSITION = 0.44;
+    public static double ROTATE_LOW_POLE_POSITION = 0.26;
+    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.38;
 
     public static double CLAW_OPEN_POSITION = 0.44;
     public static double CLAW_CLOSED_POSITION = 0.705;
@@ -144,7 +144,12 @@ public class Intake implements Subsystem {
     @Override
     public void update() {
         if (IS_DISABLED) return;
+
         switch (armPosition) {
+            case LOW_POLE_WHEN_IN_TRANSFER:
+                intakeArmServoLeft.setPosition(ARM_TRANSFER_POSITION);
+                intakeArmServoRight.setPosition(ARM_TRANSFER_POSITION + armServoOffset);
+                break;
             case LOW_POLE:
                 intakeArmServoLeft.setPosition(ARM_LOW_POLE_POSITION);
                 intakeArmServoRight.setPosition(ARM_LOW_POLE_POSITION + armServoOffset);
@@ -200,12 +205,6 @@ public class Intake implements Subsystem {
                 break;
             case STRAIGHT:
                 intakeRotateServo.setPosition(ROTATE_STRAIGHT_POSITION);
-                break;
-            case PARALLEL_CONE5:
-                intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE5_POSITION);
-                break;
-            case PARALLEL_CONE4:
-                intakeRotateServo.setPosition(ROTATE_PARALLEL_CONE4_POSITION);
                 break;
             case LOW_POLE:
                 intakeRotateServo.setPosition(ROTATE_LOW_POLE_POSITION);

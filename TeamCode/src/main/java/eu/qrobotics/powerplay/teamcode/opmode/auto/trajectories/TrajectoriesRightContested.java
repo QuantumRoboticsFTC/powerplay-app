@@ -2,10 +2,9 @@ package eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories;
 
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_ACCEL_CONSTRAINT;
 import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_VEL_CONSTRAINT;
-import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_ACCEL_CONSTRAINT;
-import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.NORMAL_VEL_CONSTRAINT;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
@@ -14,9 +13,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import java.util.ArrayList;
 import java.util.List;
 
-// No Preload South
-public class TrajectoriesLeftNPSouth {
-    public static Pose2d START_POSE = new Pose2d(-36, -65, Math.toRadians(270));
+public class TrajectoriesRightContested {
+    public static Pose2d START_POSE = new Pose2d(37, -65, Math.toRadians(270));
 
     private static Pose2d getTrajectorySequenceEndPose(List<Trajectory> trajectories) {
         if(trajectories.size() == 0)
@@ -37,32 +35,32 @@ public class TrajectoriesLeftNPSouth {
     }
 
     public static List<Trajectory> getTrajectories(int readFromCamera) {
-        List<Trajectory> trajectories = new ArrayList<>();
+    List<Trajectory> trajectories = new ArrayList<>();
+        double angle = 360 - 3.5;
 
+        // go to high
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToSplineHeading(new Pose2d(-36, -28, Math.toRadians(270)))
-                .splineToSplineHeading(new Pose2d(-36, -10, Math.toRadians(227)), Math.toRadians(90))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(227), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(-12, -18, Math.toRadians(175)), Math.toRadians(300))
+                .lineTo(new Vector2d(34, -31))
+                .splineToSplineHeading(new Pose2d(36, -11, Math.toRadians(angle)), Math.toRadians(90))
                 .build()
         );
 
 //      park
         if (readFromCamera == 3) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-12, -12, Math.toRadians(180)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineTo(new Vector2d(24, -10))
+                    .splineToSplineHeading(new Pose2d(12, -12, Math.toRadians(270)), Math.toRadians(10))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-35, -14, Math.toRadians(180)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(270)))
                     .build()
             );
         } else if (readFromCamera == 1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(180), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-62, -14, Math.toRadians(180)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineTo(new Vector2d(36, -10))
+                    .splineToSplineHeading(new Pose2d(58, -13, Math.toRadians(270)), Math.toRadians(180))
                     .build()
             );
         }

@@ -1,5 +1,8 @@
 package eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories;
 
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_ACCEL_CONSTRAINT;
+import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.BASE_VEL_CONSTRAINT;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -10,12 +13,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.qrobotics.powerplay.teamcode.subsystems.DriveConstants.*;
-
-public class TrajectoriesPastRight {
-    public static Pose2d START_POSE = new Pose2d(36, -65, Math.toRadians(270));
-
-    public static int CYCLE_COUNT = 7;
+public class TrajectoriesLeftMidCtd {
+    public static Pose2d START_POSE = new Pose2d(-37, -65, Math.toRadians(270));
 
     private static Pose2d getTrajectorySequenceEndPose(List<Trajectory> trajectories) {
         if(trajectories.size() == 0)
@@ -38,44 +37,36 @@ public class TrajectoriesPastRight {
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
 
+        // go to preload high
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineToSplineHeading(new Pose2d(36, -28, Math.toRadians(270)))
-                .splineToSplineHeading(new Pose2d(36, -12, Math.toRadians(313)), Math.toRadians(90))
-                .build()
-        );
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(313), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .splineToLinearHeading(new Pose2d(39.5, -11, Math.toRadians(0)), Math.toRadians(270))
-                .build()
-        );
-        for (int i = 1; i <= 4; i++) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                    .lineToConstantHeading(new Vector2d(12.5, -18))
-                    .build()
-            );
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToConstantHeading(new Vector2d(30, -11))
-                    .build()
-            );
-        }
-        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), NORMAL_VEL_CONSTRAINT, NORMAL_ACCEL_CONSTRAINT)
-                .lineToConstantHeading(new Vector2d(12.5, -18))
+                .lineTo(new Vector2d(-34, -35))
+                .splineToSplineHeading(new Pose2d(-31.25, -13.25, Math.toRadians(245)), Math.toRadians(90))
                 .build()
         );
 
-//         park
-        if (readFromCamera == 1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(0)))
+//        // go to mid
+        trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(245), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                .lineToSplineHeading(new Pose2d(-29, -11, Math.toRadians(180)))
+                .splineToSplineHeading(new Pose2d(-38.5, -16, Math.toRadians(176.5)), Math.toRadians(15))
+                .build()
+        );
+
+//      park
+        if (readFromCamera == 3) {
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(176.5), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineTo(new Vector2d(-34, -14))
+                    .splineToSplineHeading(new Pose2d(-12, -12, Math.toRadians(270)), Math.toRadians(90))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(35, -14, Math.toRadians(0)))
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(176.5), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineToLinearHeading(new Pose2d(-39, -14, Math.toRadians(270)))
                     .build()
             );
-        } else if (readFromCamera == 3) {
-            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(0), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(62, -14, Math.toRadians(0)))
+        } else if (readFromCamera == 1) {
+            trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(176.5), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
+                    .lineTo(new Vector2d(-40, -15))
+                    .splineToSplineHeading(new Pose2d(-58, -13, Math.toRadians(270)), Math.toRadians(180))
                     .build()
             );
         }

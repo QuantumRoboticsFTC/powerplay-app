@@ -3,7 +3,6 @@ package eu.qrobotics.powerplay.teamcode.opmode.auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.qrobotics.powerplay.teamcode.AprilTagDetectionPipeline;
-import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesLeftOnlySouth;
+import eu.qrobotics.powerplay.teamcode.opmode.auto.trajectories.TrajectoriesRightMidCtd;
 import eu.qrobotics.powerplay.teamcode.subsystems.Elevator;
 import eu.qrobotics.powerplay.teamcode.subsystems.Extendo;
 import eu.qrobotics.powerplay.teamcode.subsystems.Intake;
@@ -26,18 +25,17 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Outtake;
 import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 
 @Config
-@Autonomous(name = "#1 AutoLeftSouth")
-public class AutoLeftOnlySouth extends LinearOpMode {
+@Autonomous(name = "#8 AutoRightMidContested")
+public class AutoRightMidContested extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.5;
-    public static Vector2d CONE_STACK = new Vector2d(-72, -12);
-    public static Vector2d PRE_CONE_STACK = new Vector2d(-69, -12);
-    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
+    public static Vector2d CONE_STACK = new Vector2d(71, -12);
+    public static Vector2d PRE_CONE_STACK = new Vector2d(66, -12);
+    public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(24, -24);
+    public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(24, 0);
 
-    //    private double STOP_CYCLE_FOR_PARK_TIME = 3;
-    private double STOP_CYCLE_FOR_PARK_TIME = -1000;
-
+    private ElapsedTime trajectoryAlignerTimer = new ElapsedTime(0);
     private ElapsedTime transferTimer = new ElapsedTime(0);
-    private ElapsedTime autoTimer = new ElapsedTime(0);
+
     int useCamera(Robot robot) {
         int readFromCamera = -1;
 
@@ -147,6 +145,9 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         }
 
         if (isStopRequested()) {
+            telemetry.addLine("cplm");
+            telemetry.update();
+            camera.closeCameraDeviceAsync(() -> {});
             robot.stop();
             return -10;
         }
@@ -155,95 +156,36 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         return readFromCamera;
     }
 
-
-    boolean transferDone;
-    ElapsedTime timer = new ElapsedTime(0);
-    public static double EXTENDO_SPEED_THRESHOLD = 30;
-    public static double ticksLimit = 45;
-    // true - continue
-    // false - break
-    boolean sleepFailsafe(Robot robot, double t) {
-        robot.sleep(t);
-        return true;
-//        timer.reset();
-        /*
-        while (timer.seconds() < t) {
-            if (Math.abs(robot.extendo.getEncoder() - robot.extendo.inchesToEncoderTicks(robot.extendo.getTargetLength())) > ticksLimit &&
-                robot.extendo.getVelocity() < EXTENDO_SPEED_THRESHOLD) {
-                telemetry.addLine("Transfer failed xd");
-                telemetry.update();
-                if (transferDone) {
-                    robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
-                    robot.extendo.manualPower = -0.35;
-                    robot.sleep(0.4);
-                    robot.extendo.manualPower = 0;
-                    robot.sleep(0.65);
-                    return true;
-                } else {
-                    robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
-                    robot.extendo.manualPower = 0.6;
-                    robot.sleep(0.3);
-                    robot.extendo.manualPower = -0.8;
-                    robot.sleep(0.7);
-                    robot.extendo.manualPower = 0;
-                    robot.sleep(0.05);
-                    return true;
-                }
-            }
-            if (autoTimer.seconds() + STOP_CYCLE_FOR_PARK_TIME > 30) {
-                return false;
-            }
-            robot.sleep(0.0001);
-        }
-        return true;*/
-    }
-    // grija cand intra sa fie turretPosition pe CETNER
-
-    void cycle(Robot robot, int i) {
-        // OUTTAKE
-
-        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
-        robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
-        robot.elevator.isScoring = true;
-        if (!sleepFailsafe(robot, 0.07)) return;
-
-        robot.intake.armPosition = getintakeArmPosition(i);
+    void preload(Robot robot) {
+        robot.sleep(0.15);
+        robot.intake.armPosition = getintakeArmPosition(1);
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
-        if (i == 1) {
-            robot.intake.clawMode = Intake.ClawMode.OPEN;
-        }
-        if (!sleepFailsafe(robot, 0.1)) return;
-
-        robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
-        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
-        if (!sleepFailsafe(robot, 0.3)) return;
-        if (i < 6) {
-            robot.extendo.targetVector2d = PRE_CONE_STACK;
-            robot.extendo.targetPosition = getExtendoLevel(i);
-            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
-        }
-        if (!sleepFailsafe(robot, 0.4)) return;
+        robot.sleep(0.15);
+        robot.intake.clawMode = Intake.ClawMode.OPEN;
+        robot.sleep(0.2);
 
         robot.outtake.armPosition = Outtake.ArmPosition.SCORE_TILTED;
-        if (!sleepFailsafe(robot, 0.15)) return;
-        robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
-        if (!sleepFailsafe(robot, 0.2)) return;
+        robot.sleep(0.3);
 
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
-        if (!sleepFailsafe(robot, 0.25)) return;
+        robot.sleep(0.15);
 
-        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
-        if (!sleepFailsafe(robot, 0.15)) return;
-        robot.elevator.isScoring = false;
+        robot.outtake.armPosition = Outtake.ArmPosition.SCORE_VERY_DOWN;
+        robot.sleep(0.1);
+
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
-        if (!sleepFailsafe(robot, 0.15)) return;
+        robot.elevator.isScoring = false;
+        robot.sleep(0.25);
+    }
 
-        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
-
-        if (i == 6) {
-            robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
-            return;
+    // grija cand intra sa fie turretPosition pe CETNER
+    void cycle(Robot robot, int i) {
+        if (i == 1) {
+            robot.extendo.targetVector2d = PRE_CONE_STACK;
+            robot.extendo.targetPosition = getExtendoLevel(5);
+            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
+            robot.sleep(0.2);
         }
 
         robot.extendo.targetVector2d = CONE_STACK;
@@ -251,42 +193,77 @@ public class AutoLeftOnlySouth extends LinearOpMode {
             telemetry.addData("extendo target", robot.extendo.getTargetLength());
             telemetry.addData("extendo actual", robot.extendo.getCurrentLength());
             telemetry.update();
-            if (!sleepFailsafe(robot, 0.01)) return;
+            robot.sleep(0.01);
         }
-        if (!sleepFailsafe(robot, 0.1)) return;
+        robot.sleep(0.2);
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
-        if (!sleepFailsafe(robot, 0.2)) return;
+        robot.sleep(0.2);
 
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
-        robot.intake.armPosition = Intake.ArmPosition.TRANSFER; // go a little bit :sus: so that you go down when transfering instead of going up
-        if (!sleepFailsafe(robot, 0.75)) return;
+        robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+        robot.sleep(0.5);
 
-        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+        robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
         transferTimer.reset();
-        transferDone = false;
-        while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
-            if (!sleepFailsafe(robot, 0.01)) return;
+        while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
+            robot.sleep(0.01);
         }
-        transferDone = true;
-        if (!sleepFailsafe(robot, 0.1)) return;
+        robot.sleep(0.1);
         robot.intake.clawMode = Intake.ClawMode.OPEN;
-        if (!sleepFailsafe(robot, 0.3)) return;
+        robot.sleep(0.2);
         robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
-        if (!sleepFailsafe(robot, 0.2)) return;
+        robot.sleep(0.1);
+
+        // OUTTAKE
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+
+        robot.elevator.scoringPosition = Elevator.TargetHeight.MID;
+        robot.elevator.isScoring = true;
+        robot.outtake.bulanVar = 15;
+//        robot.outtake.bulanVar = 0;
+        robot.outtake.followingPosition = OUTTAKE_AUTO_MID_POS;
+        robot.sleep(0.15);
+
+        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
+        if (i < 5) {
+            robot.intake.armPosition = getintakeArmPosition(i + 1);
+            robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
+        }
+        robot.sleep(0.3);
+        if (i < 5) {
+            robot.extendo.targetVector2d = PRE_CONE_STACK;
+            robot.extendo.targetPosition = getExtendoLevel(i + 1);
+            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
+        }
+        robot.sleep(0.2);
+
+        robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+        robot.sleep(0.2);
+
+        robot.outtake.clawMode = Outtake.ClawMode.OPEN;
+        robot.sleep(0.25);
+
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+        robot.sleep(0.1);
+        robot.elevator.isScoring = false;
+        robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
+
+        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
     }
 
     @Override
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, true);
-        robot.drive.setPoseEstimate(TrajectoriesLeftOnlySouth.START_POSE);
+        robot.drive.setPoseEstimate(TrajectoriesRightMidCtd.START_POSE);
         robot.elevator.isScoring = false;
         robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE5;
+        robot.extendo.targetVector2d = CONE_STACK;
         robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-        robot.outtake.bulanVar = 20;
-        transferDone = true;
         robot.start();
 //        PhotonCore.enable();
 
@@ -296,48 +273,54 @@ public class AutoLeftOnlySouth extends LinearOpMode {
             return;
         }
 
-        autoTimer.reset();
-
-        List<Trajectory> trajectories = TrajectoriesLeftOnlySouth.getTrajectories(readFromCamera);
+        List<Trajectory> trajectories = TrajectoriesRightMidCtd.getTrajectories(readFromCamera);
         telemetry.addData("camera tag", readFromCamera);
         telemetry.update();
 
         robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
+
+        trajectoryAlignerTimer.reset();
         robot.drive.followTrajectory(trajectories.get(0));
-        while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
+        while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested() && robot.outtake.alignerMode != Outtake.AlignerMode.DEPLOYED) {
+            if (0.875 < trajectoryAlignerTimer.seconds() && trajectoryAlignerTimer.seconds() < 0.95) {
+                robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+                robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH_TILTED;
+                robot.elevator.isScoring = true;
+            }
+            if (0.925 < trajectoryAlignerTimer.seconds() && trajectoryAlignerTimer.seconds() < 0.95) {
+                robot.outtake.alignerMode = Outtake.AlignerMode.DEPLOYED;
+            }
             robot.sleep(0.01);
         }
         robot.sleep(0.2);
 
-        for (int i = 1; i <= 6; i++) {
-            if (autoTimer.seconds() + STOP_CYCLE_FOR_PARK_TIME > 30) {
-                break;
-            }
-            cycle(robot, i);
-        }
+        preload(robot);
 
-        robot.intake.clawMode = Intake.ClawMode.OPEN;
-        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
-        robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
-        robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
-
-        robot.outtake.clawMode = Outtake.ClawMode.OPEN;
-        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
-        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
-        robot.elevator.isScoring = false;
-        robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
-
-        robot.sleep(0.1);
-        robot.outtake.armPosition = Outtake.ArmPosition.UP;
         robot.drive.followTrajectory(trajectories.get(1));
         while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
             robot.sleep(0.01);
         }
-        while (timer.seconds() < 29.75) {
-            robot.sleep(0.001);
+
+        robot.intake.clawMode = Intake.ClawMode.OPEN;
+        robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
+        robot.sleep(0.2);
+
+        for (int i = 1; i <= 5; i++) {
+            cycle(robot, i);
         }
+
+        robot.sleep(0.2);
+        robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
+        robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
+        robot.intake.armPosition = Intake.ArmPosition.AUTOPARK;
+        robot.drive.followTrajectory(trajectories.get(2));
+        while (robot.drive.isBusy() && opModeIsActive() && !isStopRequested()) {
+            robot.sleep(0.01);
+        }
+        robot.sleep(0.3);
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-        robot.sleep(0.15);
+        robot.sleep(0.3);
 
         robot.stop();
     }

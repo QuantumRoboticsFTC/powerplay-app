@@ -7,11 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
+
 
 @Config
 public class Extendo implements Subsystem {
@@ -26,7 +26,6 @@ public class Extendo implements Subsystem {
     public static double THRESHOLD_LEVEL_1 = 0.25;
     public static double THRESHOLD_LEVEL_2 = 2.5;
     public static double THRESHOLD_LEVEL_3 = 6.5;
-    public static double DOWN_ZERO_BEHAVIOUR = -0.1;
 
     public static double DOWN_POWER_1 = -1;
     public static double DOWN_POWER_2 = -1;
@@ -41,120 +40,148 @@ public class Extendo implements Subsystem {
     public static double SPOOL_RADIUS = 1.5748;
     private static final double TICKS_PER_REV = 384.5;
 
-    private static double encoderTicksToInches(double ticks) {
+    public double encoderTicksToInches(double ticks) {
         return SPOOL_RADIUS * 2 * Math.PI * ticks / TICKS_PER_REV;
+    }
+
+    public double inchesToEncoderTicks(double inches) {
+        return inches * TICKS_PER_REV / Math.PI / 2 / SPOOL_RADIUS;
     }
 
     public enum ExtendoMode {
         DISABLED,
+        AUTOMATIC,
         RETRACTED,
         UP,
         BRAKE,
         MANUAL
     }
 
-    public enum ManualSpeedMode {
-        FAST,
-        SLOW
-    }
-
-    public enum TargetCone {
-        AUTO_CONE5(1.6) {
+    public enum TargetPosition {
+        TRANSFER(0),
+        AUTO_CONE5(1.5) { // 1.6
             @Override
-            public TargetCone previous() {
+            public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE4(0.9) {
+        AUTO_CONE4(1.1) { // 0.9
             @Override
-            public TargetCone previous() {
+            public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE3(0.1) {
+        AUTO_CONE3(0.7) { // 0.1
             @Override
-            public TargetCone previous() {
+            public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE2(-0.2) {
+        AUTO_CONE2(0.4) { // -0.2
             @Override
-            public TargetCone previous() {
+            public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE1(-0.8) {
+        AUTO_CONE1(0) { // -0.8
             @Override
-            public TargetCone previous() {
+            public TargetPosition previous() {
+                return this;
+            }
+        },
+        AUTO_ROTATE_MID(-0.55),
+        AUTO_ROTATE_HIGH(-0.8),
+        CUSTOM(0) {
+            @Override
+            public TargetPosition previous() {
                 return this;
             }
         };
 
         private final double offset;
 
-        TargetCone(double offset) {
+        TargetPosition(double offset) {
             this.offset = offset;
         }
 
-        public TargetCone previous() {
+        public TargetPosition previous() {
             return values()[ordinal() - 1];
         }
 
-        public TargetCone next() {
+        public TargetPosition next() {
             return values()[ordinal() + 1];
         }
     }
 
-    private int downPosition;
-    private int lastEncoder;
+    public Vector2d targetVector2d = new Vector2d(0, 0);
+    private double downPosition;
+    public static double transferDelta = 0;
+    public double teleopDeltaTicks = 0; // substation stuff
+    private double lastEncoder;
     public double offsetPosition;
-    public TargetCone targetCone;
+    public TargetPosition targetPosition = TargetPosition.TRANSFER;
     public double targetLength;
     public double manualPower;
 
     public ExtendoMode extendoMode;
-    public ManualSpeedMode manualSpeedMode;
     private CachingDcMotorEx motor;
     private Robot robot;
 
-    public int extendoLimitTicks = 1635;
-    public static int extendoLimitDelta = 100;
+    public static PIDCoefficients coef = new PIDCoefficients(0.0075, 0.001, 0.0002);
+    private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
+    public static double ff = 0.002;
+    public static double TRANSFER_THRESHOLD = 0.001;
+
+    public double extendoLimitTicks = downPosition + 1635;
+    public static double extendoLimitDelta = 140;
 
     public double powah;
 
-//    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
-//    private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
+    double lastMotorPower;
 
     Extendo(HardwareMap hardwareMap, Robot robot) {
+        this.robot = robot;
         motor = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "intakeMotor"));
-
         motor.setDirection(DcMotor.Direction.REVERSE);
+
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         downPosition = getRawEncoder();
+    }
 
-        //targetPosition = TargetHeight.AUTO;
+    public double motorPos() {
+        return motor.getCurrentPosition();
+    }
+
+    public double getVelocity() {
+        return motor.getVelocity();
     }
 
     private int getRawEncoder() {
         return motor.getCurrentPosition();
     }
 
-    private int updateEncoder() {
+    private double updateEncoder() {
         lastEncoder = getRawEncoder() - downPosition;
         return lastEncoder;
     }
 
-    public int getEncoder() {
+    public void updateTargetLength() {
+        targetLength = calculateTargetLength(targetVector2d);
+    }
+
+    public double getEncoder() {
         return lastEncoder;
     }
 
     public double getTargetLength() {
-        if (extendoMode == ExtendoMode.RETRACTED) {
-            return 0;
+        if (targetPosition == TargetPosition.TRANSFER) {
+            return downPosition - transferDelta;
         }
-        return targetLength + targetCone.offset;
+        return targetLength + targetPosition.offset;
     }
 
     public double getCurrentLength() {
@@ -162,13 +189,24 @@ public class Extendo implements Subsystem {
     }
 
     public double getDistanceLeft() {
-        return getTargetLength() - getCurrentLength() + offsetPosition;
+        double distance = getTargetLength() + teleopDeltaTicks - getCurrentLength();
+        distance = Math.abs(distance) + offsetPosition;
+        return distance;
     }
 
     private void setPower(double power) {
+        if (extendoLimitTicks - getEncoder() <= extendoLimitDelta &&
+            power > 0) {
+            motor.setPower(0);
+            return;
+        }
         motor.setPower(power);
     }
     public static boolean IS_DISABLED = false;
+
+    public double signum(double val) {
+        return (val != 0) ? Math.signum(val) : +1;
+    }
 
     @Override
     public void update() {
@@ -179,13 +217,31 @@ public class Extendo implements Subsystem {
             return;
 
         updateEncoder();
+        if (targetPosition == TargetPosition.AUTO_CONE1 ||
+            targetPosition == TargetPosition.AUTO_CONE2 ||
+            targetPosition == TargetPosition.AUTO_CONE3 ||
+            targetPosition == TargetPosition.AUTO_CONE4 ||
+            targetPosition == TargetPosition.AUTO_CONE5 ||
+            targetPosition == TargetPosition.AUTO_ROTATE_HIGH) {
+            updateTargetLength();
+        }
 
         if (extendoMode == ExtendoMode.BRAKE) {
             setPower(ZERO_BEHAVIOUR);
+        } else if (extendoMode == ExtendoMode.AUTOMATIC) {
+            double targetPos = inchesToEncoderTicks(getTargetLength() + teleopDeltaTicks);
+            double current = getEncoder();
+            pid.setPID(coef.p, coef.i, coef.d);
+            double power = pid.calculate(current, targetPos);
+            power = power + ff * signum(power);
+//            if (targetPosition == TargetPosition.TRANSFER && power <= TRANSFER_THRESHOLD) {
+//                extendoMode = ExtendoMode.BRAKE;
+//            }
+            setPower(power);
         } else if (extendoMode == ExtendoMode.RETRACTED) {
             offsetPosition = 0;
             if (getCurrentLength() <= THRESHOLD_DOWN) {
-                setPower(DOWN_ZERO_BEHAVIOUR);
+                setPower(ZERO_BEHAVIOUR);
                 extendoMode = ExtendoMode.BRAKE;
             } else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
                 setPower(DOWN_POWER_1);
@@ -208,17 +264,11 @@ public class Extendo implements Subsystem {
             else
                 setPower(LEVEL_4_POWER * Math.signum(distanceLeft));
         } else {
-//            switch (manualSpeedMode) {
-//                case FAST:
-//                    setPower(manualPower * FAST_SPEED_MULTIPLIER);
-//                case SLOW:
-//                    setPower(manualPower * SLOW_SPEED_MULTIPLIER);
-//            }
             setPower(manualPower);
         }
     }
 
     public double calculateTargetLength(Vector2d targetPosition) {
-        return robot.drive.getPoseEstimate().vec().distTo(targetPosition) - 18.5;
+        return robot.drive.getPoseEstimate().vec().distTo(targetPosition) - 18;
     }
 }

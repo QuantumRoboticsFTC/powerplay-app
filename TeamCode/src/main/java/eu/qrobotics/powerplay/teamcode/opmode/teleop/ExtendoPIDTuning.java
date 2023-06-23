@@ -2,8 +2,6 @@ package eu.qrobotics.powerplay.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -22,7 +20,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 import eu.qrobotics.powerplay.teamcode.util.StickyGamepad;
 
 @TeleOp
-public class DebugTeleOP extends OpMode {
+public class ExtendoPIDTuning extends OpMode {
     enum DriveMode {
         NORMAL,
         SLOW,
@@ -35,18 +33,11 @@ public class DebugTeleOP extends OpMode {
     private ElapsedTime finishTransferTimer = new ElapsedTime(0);
     private ElapsedTime toggledClawTimer = new ElapsedTime(0);
 
-    // for some fed up reason the y needs to be positive? prob cuz dt is reversed but sussy
-    private Pose2d SUBSTATION_CONE_LEFT_DT = new Pose2d(-12, -12, Math.toRadians(270));
-    private Pose2d SUBSTATION_CONE_RIGHT_DT = new Pose2d(+12, -12, Math.toRadians(270));
-    private Vector2d SUBSTATION_CONE_LEFT = new Vector2d(-12, -70);
-    private Vector2d SUBSTATION_CONE_RIGHT = new Vector2d(+12, 70);
-
     private NanoClock loopTime;
 
     private boolean haveConeIntake = false;
     private boolean haveConeOuttake = false;
     private boolean pushOuttake = false;
-    private boolean scoringWithIntake = false;
     private boolean intakeTransferStarted = false;
 
     Intake.ClawMode pastClawMode;
@@ -82,7 +73,6 @@ public class DebugTeleOP extends OpMode {
     public void start() {
         robot.start();
         robot.drive.setPoseEstimate(TrajectoriesLeftMid.START_POSE);
-//        PhotonCore.enable();
     }
 
     @Override
@@ -92,26 +82,54 @@ public class DebugTeleOP extends OpMode {
         stickyGamepad1.update();
         stickyGamepad2.update();
 
-        boolean customCurve = false;
-        if (scoringWithIntake &&
-            robot.extendo.extendoMode == Extendo.ExtendoMode.RETRACTED) {
-            customCurve = true;
-        }
-
         //region Driver 1 controls
         if (!robot.drive.isBusy()) {
             switch (driveMode) {
                 case NORMAL:
-                    robot.drive.setMotorPowersFromGamepad(gamepad1, 1, customCurve);
+                    robot.drive.setMotorPowersFromGamepad(gamepad1, 1, false);
                     break;
                 case SLOW:
-                    robot.drive.setMotorPowersFromGamepad(gamepad1, 0.7, customCurve);
+                    robot.drive.setMotorPowersFromGamepad(gamepad1, 0.7, false);
                     break;
                 case SUPER_SLOW:
-                    robot.drive.setMotorPowersFromGamepad(gamepad1, 0.5, customCurve);
+                    robot.drive.setMotorPowersFromGamepad(gamepad1, 0.5, false);
                     break;
             }
 
+        }
+
+        // EXTENDO PID SECTION
+
+        if (gamepad1.y) {
+            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
+            if (gamepad1.x) {
+                robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
+            }
+            if (gamepad1.dpad_left) {
+                robot.extendo.targetPosition = Extendo.TargetPosition.CUSTOM;
+                robot.extendo.targetLength = robot.extendo.encoderTicksToInches(robot.extendo.extendoLimitTicks);
+            }
+        }
+
+        telemetry.addData("extendo val", robot.extendo.inchesToEncoderTicks(robot.extendo.encoderTicksToInches(robot.extendo.extendoLimitTicks)));
+        telemetry.addData("extendo targetlen", robot.extendo.getTargetLength());
+        telemetry.addData("extendo speed", robot.extendo.getVelocity());
+        telemetry.addData("extendo target len", robot.extendo.inchesToEncoderTicks(robot.extendo.getTargetLength()));
+        telemetry.addData("extendo current len", robot.extendo.motorPos());
+
+        // EZTENDO PID SECTION CLOSE
+
+
+
+        if (stickyGamepad1.dpad_up) {
+            switch (driveMode) {
+                case SUPER_SLOW:
+                    driveMode = DriveMode.NORMAL;
+                    break;
+                case NORMAL:
+                    driveMode = DriveMode.SUPER_SLOW;
+                    break;
+            }
         }
 
         if (gamepad1.right_trigger > 0.1) {
@@ -151,7 +169,7 @@ public class DebugTeleOP extends OpMode {
         if (stickyGamepad1.left_bumper) {
             robot.intake.armPosition = robot.intake.armPosition.previous();
             if (robot.intake.armPosition == Intake.ArmPosition.LOW_POLE ||
-                robot.intake.armPosition == Intake.ArmPosition.LOW_POLE_WHEN_IN_TRANSFER) {
+                    robot.intake.armPosition == Intake.ArmPosition.LOW_POLE_WHEN_IN_TRANSFER) {
                 robot.intake.armRotate = Intake.ArmRotate.LOW_POLE;
             } else {
                 robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
@@ -160,25 +178,27 @@ public class DebugTeleOP extends OpMode {
         if (stickyGamepad1.right_bumper) {
             robot.intake.armPosition = robot.intake.armPosition.next();
             if (robot.intake.armPosition == Intake.ArmPosition.LOW_POLE ||
-                robot.intake.armPosition == Intake.ArmPosition.LOW_POLE_WHEN_IN_TRANSFER) {
+                    robot.intake.armPosition == Intake.ArmPosition.LOW_POLE_WHEN_IN_TRANSFER) {
                 robot.intake.armRotate = Intake.ArmRotate.LOW_POLE;
             } else {
                 robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
             }
         }
 
-        if (!scoringWithIntake &&
-            robot.intake.clawMode == Intake.ClawMode.CLOSED &&
-            (robot.intake.armPosition == Intake.ArmPosition.CONE_1 ||
-            robot.intake.armPosition == Intake.ArmPosition.CONE_2 ||
-            robot.intake.armPosition == Intake.ArmPosition.CONE_3 ||
-            robot.intake.armPosition == Intake.ArmPosition.CONE_4 ||
-            robot.intake.armPosition == Intake.ArmPosition.CONE_5) &&
+        if (!haveConeIntake &&
+                robot.intake.clawMode == Intake.ClawMode.CLOSED &&
+                (robot.intake.armPosition == Intake.ArmPosition.CONE_1 ||
+                        robot.intake.armPosition == Intake.ArmPosition.CONE_2 ||
+                        robot.intake.armPosition == Intake.ArmPosition.CONE_3 ||
+                        robot.intake.armPosition == Intake.ArmPosition.CONE_4 ||
+                        robot.intake.armPosition == Intake.ArmPosition.CONE_5) &&
                 (Math.abs(gamepad1.left_stick_x) > 0.1 ||
-                Math.abs(gamepad1.left_stick_y) > 0.1 ||
-                Math.abs(gamepad1.right_stick_x) > 0.1 ||
-                Math.abs(gamepad1.right_stick_y) > 0.1)) {
-            retract();
+                        Math.abs(gamepad1.left_stick_y) > 0.1 ||
+                        Math.abs(gamepad1.right_stick_x) > 0.1 ||
+                        Math.abs(gamepad1.right_stick_y) > 0.1)) {
+            robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+            robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+            robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         }
 
         // aici la close cand e pe low sa *censored* lowul
@@ -187,67 +207,15 @@ public class DebugTeleOP extends OpMode {
             toggledClawTimer.reset();
         }
 
-        // ez backdoors backrooms DPAD region gen
-        if (stickyGamepad1.dpad_left) {
-            robot.drive.setPoseEstimate(SUBSTATION_CONE_LEFT_DT);
-            robot.extendo.targetVector2d = SUBSTATION_CONE_LEFT;
-            if (robot.intake.armPosition == Intake.ArmPosition.TRANSFER) {
-                robot.intake.armPosition = Intake.ArmPosition.CONE_1;
-                robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
-            }
-            if (!haveConeIntake) {
-                robot.intake.clawMode = Intake.ClawMode.OPEN;
-            }
-            robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE1;
-            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
-        }
-        if (stickyGamepad1.dpad_right) {
-            robot.drive.setPoseEstimate(SUBSTATION_CONE_RIGHT_DT);
-            robot.extendo.targetVector2d = SUBSTATION_CONE_RIGHT;
-            if (robot.intake.armPosition == Intake.ArmPosition.TRANSFER) {
-                robot.intake.armPosition = Intake.ArmPosition.CONE_1;
-                robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
-            }
-            if (!haveConeIntake) {
-                robot.intake.clawMode = Intake.ClawMode.OPEN;
-            }
-            robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE1;
-            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
-        }
-        if (stickyGamepad1.y) {
-            if (robot.intake.armPosition == Intake.ArmPosition.TRANSFER) {
-                robot.intake.armPosition = Intake.ArmPosition.CONE_1;
-                robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
-            }
-            if (!haveConeIntake) {
-                robot.intake.clawMode = Intake.ClawMode.OPEN;
-            }
-            robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE1;
-            robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
-        }
-
-        telemetry.addData("dt getX", robot.drive.getPoseEstimate().getX());
-        telemetry.addData("dt getY", robot.drive.getPoseEstimate().getY());
-        telemetry.addData("dt heading", robot.drive.getPoseEstimate().headingVec());
-
-        if (stickyGamepad1.dpad_up) {
-            switch (driveMode) {
-                case SUPER_SLOW:
-                    driveMode = DriveMode.NORMAL;
-                    break;
-                case NORMAL:
-                    driveMode = DriveMode.SUPER_SLOW;
-                    break;
-            }
-        }
-
+        // ez backdoors gen
         if (stickyGamepad1.dpad_down) {
-            retract();
+            robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+            robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+            robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         }
-
-        if (stickyGamepad1.b &&
-            robot.intake.armPosition == Intake.ArmPosition.TRANSFER &&
-            robot.outtake.armPosition == Outtake.ArmPosition.TRANSFER) {
+        if (stickyGamepad1.dpad_right &&
+                robot.intake.armPosition == Intake.ArmPosition.TRANSFER &&
+                robot.outtake.armPosition == Outtake.ArmPosition.TRANSFER) {
             intakeTransferStarted = true;
         }
 
@@ -285,7 +253,6 @@ public class DebugTeleOP extends OpMode {
                 robot.outtake.alignerActive = !robot.outtake.alignerActive;
             }
         }
-
         if (stickyGamepad2.right_bumper) {
             pushOuttake = true;
         } else if (stickyGamepad2.left_bumper) {
@@ -304,10 +271,9 @@ public class DebugTeleOP extends OpMode {
             robot.elevator.elevatorMode = Elevator.ElevatorMode.AUTOMATIC;
             turretCenterTimer.reset();
         }
-
-        if(robot.elevator.targetPosition == Elevator.TargetHeight.LOW && robot.elevator.elevatorMode == Elevator.ElevatorMode.AUTOMATIC &&  robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
-            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
-        }
+//        if(robot.elevator.targetPosition == Elevator.TargetHeight.LOW && robot.elevator.elevatorMode == Elevator.ElevatorMode.AUTOMATIC &&  robot.outtake.armPosition != Outtake.ArmPosition.MANUAL) {
+//            robot.outtake.armPosition = Outtake.ArmPosition.SCORE;
+//        }
 
         if (gamepad2.right_trigger > 0.1) {
             if (robot.elevator.elevatorMode != Elevator.ElevatorMode.MANUAL)
@@ -431,23 +397,11 @@ public class DebugTeleOP extends OpMode {
 
     }
 
-    private void retract() {
-        if (robot.intake.clawMode == Intake.ClawMode.CLOSED) {
-            scoringWithIntake = true;
-        }
-        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
-        robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
-        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
-    }
-
     private void updateToggleClawTimer() {
         if (pastClawMode == Intake.ClawMode.OPEN) {
             if (toggledClawTimer.seconds() < 0.1) {
                 robot.intake.clawMode = Intake.ClawMode.CLOSED;
                 haveConeIntake = true;
-                if (robot.extendo.extendoMode == Extendo.ExtendoMode.AUTOMATIC) {
-                    robot.extendo.teleopDeltaTicks = robot.extendo.getEncoder() - robot.extendo.getTargetLength();
-                }
             }
 
             if (0.15 < toggledClawTimer.seconds() && toggledClawTimer.seconds() < 0.25) {
@@ -460,7 +414,7 @@ public class DebugTeleOP extends OpMode {
             }
         } else {
             if (robot.intake.armRotate == Intake.ArmRotate.LOW_POLE ||
-                robot.intake.armRotate == Intake.ArmRotate.LOW_POLE_DROP) {
+                    robot.intake.armRotate == Intake.ArmRotate.LOW_POLE_DROP) {
                 if (toggledClawTimer.seconds() < 0.15) {
                     robot.intake.armRotate = Intake.ArmRotate.LOW_POLE_DROP;
                 }
@@ -471,14 +425,10 @@ public class DebugTeleOP extends OpMode {
                     robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
                     robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
                     robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
-                    scoringWithIntake = false;
                 }
             } else {
                 if (toggledClawTimer.seconds() < 0.1) {
                     robot.intake.clawMode = Intake.ClawMode.OPEN;
-                    if (robot.extendo.targetPosition == Extendo.TargetPosition.TRANSFER) {
-                        scoringWithIntake = false;
-                    }
                 }
             }
         }
@@ -504,8 +454,8 @@ public class DebugTeleOP extends OpMode {
 
     private void finishTransfer() {
         if (intakeTransferStarted &&
-            robot.extendo.extendoMode == Extendo.ExtendoMode.BRAKE &&
-            finishTransferTimer.seconds() > 0.9) {
+                robot.extendo.extendoMode == Extendo.ExtendoMode.BRAKE &&
+                finishTransferTimer.seconds() > 0.9) {
             finishTransferTimer.reset();
         }
         if (0.15 < finishTransferTimer.seconds() && finishTransferTimer.seconds() < 0.25) {
@@ -518,10 +468,10 @@ public class DebugTeleOP extends OpMode {
             robot.outtake.armPosition = Outtake.ArmPosition.UP;
             intakeTransferStarted = false;
             haveConeIntake = false;
-            scoringWithIntake = false;
             haveConeOuttake = true;
         }
     }
+
 
     private void updateTurretCenterTimer() {
         if (0.1 < turretCenterTimer.seconds() && turretCenterTimer.seconds() < 0.2) {

@@ -34,9 +34,12 @@ public class Outtake implements Subsystem {
         TRANSFER,
         SCORE,
         SCORE_TILTED,
+        SCORE_VERY_DOWN,
         PUSH,
         AUTO_INIT,
+        FOLLOWING,
         UP,
+        AUTO_VERTICAL,
         MANUAL
     }
 
@@ -47,7 +50,8 @@ public class Outtake implements Subsystem {
 
     public enum AlignerMode {
         DEPLOYED,
-        RETRACTED
+        RETRACTED,
+        AUTO_PROBLEM
     }
 
     public TurretMode turretMode;
@@ -63,24 +67,25 @@ public class Outtake implements Subsystem {
 
     public static double TURRET_LEFT_POSITION = 0.4;
     public static double TURRET_RIGHT_POSITION = 1;
-    public static double TURRET_CENTER_POSITION = 0.72;
+    public static double TURRET_CENTER_POSITION = 0.745;
 
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.1; //0.33 -> 0.1
-    public static double ARM_UP_POSITION = 0.39;
-    public static double ARM_AUTO_INIT_POSITION = 0.17;
-    public static double ARM_SCORE_POSITION = 0.7;
-
-    public static double ARM_SCORE_TILTED_POSITION = 0.74;
-
-    public static double ARM_PUSH_POSITION = 0.72;
+    public static double ARM_TRANSFER_POSITION = 0.1;
+    public static double ARM_UP_POSITION = 0.485;
+    public static double ARM_AUTO_INIT_POSITION = 0.22;
+    public static double ARM_SCORE_VERY_DOWN_POS  = 0.87;
+    public static double ARM_SCORE_POSITION = 0.83;
+    public static double ARM_SCORE_TILTED_POSITION = 0.76;
+    public static double ARM_PUSH_POSITION = 0.64;
+    public static double ARM_AUTO_VERTICAL_POSITION = 0.59;
 
     public static double CLAW_OPEN_POSITION = 0.67;
-    public static double CLAW_CLOSE_POSITION = 0.6;
+    public static double CLAW_CLOSE_POSITION = 0.56;
 
     public static double ALIGNER_RETRACTED_POSITION = 1;
+    public static double ALIGNER_AUTO_PROB_POSITION = 0.84;
     public static double ALIGNER_DEPLOYED_POSITION = 0.65;
 
     private CachingServo turretServo;
@@ -91,7 +96,8 @@ public class Outtake implements Subsystem {
 
     private ColorRangeSensor outtakeSensor;
 
-    public double turretManualPosition = 0.5;
+    public double turretManualPosition = TURRET_CENTER_POSITION;
+    public double armManualPosition = ARM_UP_POSITION;
 
     public boolean isScoring;
     public boolean alignerActive; // is aligner active at next cycle
@@ -118,6 +124,10 @@ public class Outtake implements Subsystem {
 
         isScoring = false;
         alignerActive = true;
+    }
+
+    public double getTurretServoPosition() {
+        return turretServo.getPosition();
     }
 
     public static boolean IS_DISABLED = false;
@@ -166,17 +176,20 @@ public class Outtake implements Subsystem {
                 break;
         }
 
-        /*
-        if (turretMode == TurretMode.FOLLOWING) {
-            // set arm position to follow the target
-            armManualPosition = Range.clip(getTargetArmServoPosition(followingPosition), 0, 1);
-            outtakeArmServoLeft.setPosition(armManualPosition + SERVO_OFFSET);
-            outtakeArmServoRight.setPosition(armManualPosition);
-        } else {*/
         switch (armPosition) {
+            case FOLLOWING:
+                // set arm to follow the target
+                armManualPosition = Range.clip(getTargetArmServoPosition(followingPosition), 0, 1);
+                armServoLeft.setPosition(armManualPosition);
+                armServoRight.setPosition(armManualPosition);
+                break;
             case TRANSFER:
                 armServoLeft.setPosition(ARM_TRANSFER_POSITION);
                 armServoRight.setPosition(ARM_TRANSFER_POSITION);
+                break;
+            case SCORE_VERY_DOWN:
+                armServoLeft.setPosition(ARM_SCORE_VERY_DOWN_POS);
+                armServoRight.setPosition(ARM_SCORE_VERY_DOWN_POS);
                 break;
             case SCORE:
                 armServoLeft.setPosition(ARM_SCORE_POSITION);
@@ -198,13 +211,16 @@ public class Outtake implements Subsystem {
                 armServoLeft.setPosition(ARM_AUTO_INIT_POSITION);
                 armServoRight.setPosition(ARM_AUTO_INIT_POSITION);
                 break;
+            case AUTO_VERTICAL:
+                armServoLeft.setPosition(ARM_AUTO_VERTICAL_POSITION);
+                armServoRight.setPosition(ARM_AUTO_VERTICAL_POSITION);
+                break;
             case MANUAL:
                 armServoLeft.setPosition(armManualOffset);
                 armServoRight.setPosition(armManualOffset);
                 break;
             default:
                 break;
-
         }
         //}
 
@@ -224,6 +240,9 @@ public class Outtake implements Subsystem {
                 break;
             case RETRACTED:
                 alignerServo.setPosition(ALIGNER_RETRACTED_POSITION);
+                break;
+            case AUTO_PROBLEM:
+                alignerServo.setPosition(ALIGNER_AUTO_PROB_POSITION);
                 break;
             default:
                 break;
@@ -271,6 +290,7 @@ public class Outtake implements Subsystem {
 
     public static Pose2d TURRET_ROBOT_POSE = new Pose2d(-5.51, 0, Math.toRadians(180));
     public static double TURRET_ARM_LENGTH = 11.789;
+    public double bulanVar = 0;
 
     public double getTargetTurretAngle(Vector2d targetPosition) {
         Pose2d robotPose = robot.drive.getPoseEstimate();
@@ -281,7 +301,8 @@ public class Outtake implements Subsystem {
             turretAngle -= 2 * Math.PI;
         while(turretAngle < -Math.PI)
             turretAngle += 2 * Math.PI;
-        return turretAngle;
+        return turretAngle
+                + Math.toRadians(bulanVar) * Math.signum(turretAngle);
     }
 
     public double getTargetArmAngle(Vector2d targetPosition) {
@@ -297,25 +318,24 @@ public class Outtake implements Subsystem {
     }
 
 
-
     public double getTargetTurretServoPosition(Vector2d targetPosition) {
         double turretAngle = getTargetTurretAngle(targetPosition);
 
-        // gearing: 4/6
-        // 270 servo = 180 turret
+        // gearing: 1:1
+        // 300 servo = 300 turret
 
-        // pos (x + 0.5 - TURRET_CENTER) = x * 180 deg - 90 deg
-        // x = (turretAngle + 90)/180 - 0.5 + TURRET_CENTER
+        // pos (x + 0.5 - TURRET_CENTER) = x * 300 deg - 150 deg
+        // x = (turretAngle + 150)/300 - 0.5 + TURRET_CENTER
 
-        return (turretAngle + Math.toRadians(90))/Math.toRadians(180) - 0.5 + TURRET_CENTER_POSITION;
+        return (turretAngle + Math.toRadians(150))/Math.toRadians(300) - 0.5 + TURRET_CENTER_POSITION;
     }
 
     public double getTargetArmServoPosition(Vector2d targetPosition) {
         double turretAngle = Math.PI / 2 - getTargetArmAngle(targetPosition);
 
-        // vertical = 0.652
-        // pos (x-0.652) = (x-0.652)*270
+        // vertical (UP) = ARM_UP_POSITION
+        // pos (x-UP) = (x-UP)*270
 
-        return turretAngle/Math.toRadians(270) + 0.652;
+        return turretAngle/Math.toRadians(270) + ARM_UP_POSITION;
     }
 }
