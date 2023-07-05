@@ -28,7 +28,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Autonomous(name = "#5 AutoRightSouth")
 public class AutoRightOnlySouth extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.5;
-    public static Vector2d CONE_STACK = new Vector2d(72, -12);
+    public static Vector2d CONE_STACK = new Vector2d(71.5, -12);
     public static Vector2d PRE_CONE_STACK = new Vector2d(69, -12);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
 
@@ -252,6 +252,7 @@ public class AutoRightOnlySouth extends LinearOpMode {
             return;
         }
 
+        robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
         robot.extendo.targetVector2d = CONE_STACK;
         while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             telemetry.addData("extendo target", robot.extendo.getTargetLength());
@@ -263,10 +264,14 @@ public class AutoRightOnlySouth extends LinearOpMode {
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         if (!sleepFailsafe(robot, 0.2)) return;
 
+        robot.extendo.manualPower = Extendo.autonomousGoBackAfterStack;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
+        if (!sleepFailsafe(robot, 0.15)) return;
+
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.TRANSFER; // go a little bit :sus: so that you go down when transfering instead of going up
-        if (!sleepFailsafe(robot, 0.75)) return;
+        if (!sleepFailsafe(robot, 0.2)) return;
 
         robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         transferTimer.reset();
@@ -286,6 +291,7 @@ public class AutoRightOnlySouth extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, true);
         robot.drive.setPoseEstimate(TrajectoriesRightOnlySouth.START_POSE);
+        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         robot.elevator.isScoring = false;
         robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE5;

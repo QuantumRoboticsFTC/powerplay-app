@@ -36,29 +36,29 @@ public class TrajectoriesRightOnlySouth {
 
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
-        double angle = 2;
+        double angle = 2.5;
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineTo(new Vector2d(24, -63))
                 .splineToSplineHeading(new Pose2d(9, -15, Math.toRadians(0)), Math.toRadians(90))
-                .splineToSplineHeading(new Pose2d(13.5, -16.5, Math.toRadians(angle)), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(14, -17, Math.toRadians(angle)), Math.toRadians(180))
                 .build()
         );
 
 //      park
-        if (readFromCamera == 3) {
+        if (readFromCamera == 1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(12, -12, Math.toRadians(270)))
+                    .lineToLinearHeading(new Pose2d(12, -16, Math.toRadians(270)))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .splineToSplineHeading(new Pose2d(36, -12, Math.toRadians(270)), Math.toRadians(370))
+                    .splineToSplineHeading(new Pose2d(38, -16, Math.toRadians(270)), Math.toRadians(370))
                     .build()
             );
-        } else if (readFromCamera == 1) {
+        } else if (readFromCamera == 3) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToSplineHeading(new Pose2d(60, -15, Math.toRadians(270)))
+                    .lineToSplineHeading(new Pose2d(63, -18, Math.toRadians(270)))
                     .build()
             );
         }

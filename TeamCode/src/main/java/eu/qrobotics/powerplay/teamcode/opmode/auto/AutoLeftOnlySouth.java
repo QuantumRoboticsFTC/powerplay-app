@@ -29,7 +29,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Autonomous(name = "#1 AutoLeftSouth")
 public class AutoLeftOnlySouth extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.5;
-    public static Vector2d CONE_STACK = new Vector2d(-72, -12);
+    public static Vector2d CONE_STACK = new Vector2d(-71.5, -12);
     public static Vector2d PRE_CONE_STACK = new Vector2d(-69, -12);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(0, -24);
 
@@ -212,17 +212,16 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         if (i == 1) {
             robot.intake.clawMode = Intake.ClawMode.OPEN;
         }
-        if (!sleepFailsafe(robot, 0.1)) return;
-
-        robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
-        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
-        if (!sleepFailsafe(robot, 0.3)) return;
         if (i < 6) {
             robot.extendo.targetVector2d = PRE_CONE_STACK;
             robot.extendo.targetPosition = getExtendoLevel(i);
             robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
         }
-        if (!sleepFailsafe(robot, 0.4)) return;
+        if (!sleepFailsafe(robot, 0.1)) return;
+
+        robot.outtake.followingPosition = OUTTAKE_AUTO_HIGH_POS;
+        robot.outtake.turretMode = Outtake.TurretMode.FOLLOWING;
+        if (!sleepFailsafe(robot, 0.7)) return;
 
         robot.outtake.armPosition = Outtake.ArmPosition.SCORE_TILTED;
         if (!sleepFailsafe(robot, 0.15)) return;
@@ -232,20 +231,25 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         if (!sleepFailsafe(robot, 0.25)) return;
 
+        robot.outtake.alignerMode = Outtake.AlignerMode.AUTO_PROBLEM;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
-        if (!sleepFailsafe(robot, 0.15)) return;
+        if (!sleepFailsafe(robot, 0.1)) return;
         robot.elevator.isScoring = false;
         robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
         if (!sleepFailsafe(robot, 0.15)) return;
 
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
+        if (!sleepFailsafe(robot, 0.15)) return;
+
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
 
         if (i == 6) {
             robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
             return;
         }
 
+        robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
         robot.extendo.targetVector2d = CONE_STACK;
         while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             telemetry.addData("extendo target", robot.extendo.getTargetLength());
@@ -257,10 +261,14 @@ public class AutoLeftOnlySouth extends LinearOpMode {
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         if (!sleepFailsafe(robot, 0.2)) return;
 
+        robot.extendo.manualPower = Extendo.autonomousGoBackAfterStack;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
+        if (!sleepFailsafe(robot, 0.15)) return;
+
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.TRANSFER; // go a little bit :sus: so that you go down when transfering instead of going up
-        if (!sleepFailsafe(robot, 0.75)) return;
+        if (!sleepFailsafe(robot, 0.45)) return;
 
         robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         transferTimer.reset();
@@ -280,6 +288,7 @@ public class AutoLeftOnlySouth extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, true);
         robot.drive.setPoseEstimate(TrajectoriesLeftOnlySouth.START_POSE);
+        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         robot.elevator.isScoring = false;
         robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE5;

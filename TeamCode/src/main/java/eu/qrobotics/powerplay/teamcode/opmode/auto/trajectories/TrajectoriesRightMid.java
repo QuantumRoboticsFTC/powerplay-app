@@ -34,33 +34,33 @@ public class TrajectoriesRightMid {
         return new TrajectoryBuilder(pose, startTangent, BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT);
     }
 
-    public static double angle = 2;
+    public static double angle = 1;
 
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineTo(new Vector2d(34, -41))
-                .splineToSplineHeading(new Pose2d(32.4, -13.25, Math.toRadians(angle)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(33.4, -13.5, Math.toRadians(angle)), Math.toRadians(90))
                 .build()
         );
 
 //      park
-        if (readFromCamera == 3) {
+        if (readFromCamera == 1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                     .lineTo(new Vector2d(34, -14))
-                    .splineToSplineHeading(new Pose2d(12, -12, Math.toRadians(270)), Math.toRadians(90))
+                    .splineToSplineHeading(new Pose2d(12, -15, Math.toRadians(270)), Math.toRadians(90))
                     .build()
             );
         } else if (readFromCamera == 2 || readFromCamera == -1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(39, -13, Math.toRadians(270)))
+                    .lineToLinearHeading(new Pose2d(39, -15, Math.toRadians(270)))
                     .build()
             );
-        } else if (readFromCamera == 1) {
+        } else if (readFromCamera == 3) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                     .lineTo(new Vector2d(34, -15))
-                    .splineToSplineHeading(new Pose2d(58, -13, Math.toRadians(270)), Math.toRadians(180))
+                    .splineToSplineHeading(new Pose2d(58, -15, Math.toRadians(270)), Math.toRadians(180))
                     .build()
             );
         }

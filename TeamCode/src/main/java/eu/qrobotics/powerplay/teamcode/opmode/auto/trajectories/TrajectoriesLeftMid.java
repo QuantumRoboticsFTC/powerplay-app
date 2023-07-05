@@ -45,7 +45,7 @@ public class TrajectoriesLeftMid {
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                 .lineTo(new Vector2d(-34, -41))
-                .splineToSplineHeading(new Pose2d(-33, -13.25, Math.toRadians(angle)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-33.4, -13, Math.toRadians(angle)), Math.toRadians(90))
                 .build()
         );
 

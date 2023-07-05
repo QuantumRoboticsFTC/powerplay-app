@@ -30,7 +30,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Autonomous(name = "#2 AutoLeftContested")
 public class AutoLeftContested extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.3;
-    public static Vector2d CONE_STACK = new Vector2d(-71.5, -12);
+    public static Vector2d CONE_STACK = new Vector2d(-72, -12);
     public static Vector2d PRE_CONE_STACK = new Vector2d(-69, -12);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(-24, 0);
 
@@ -185,15 +185,20 @@ public class AutoLeftContested extends LinearOpMode {
         robot.sleep(0.2);
 
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
+        robot.outtake.alignerMode = Outtake.AlignerMode.AUTO_PROBLEM;
         robot.sleep(0.2);
+
+        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+        robot.sleep(0.15);
 
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
-        robot.sleep(0.05);
+        robot.sleep(0.2);
         robot.elevator.isScoring = false;
         robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
-        robot.sleep(0.1);
-        robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+
+        robot.sleep(0.2);
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
 
         if (i == 6) {
             robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
@@ -211,12 +216,16 @@ public class AutoLeftContested extends LinearOpMode {
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.sleep(0.2);
 
+        robot.extendo.manualPower = Extendo.autonomousGoBackAfterStack;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
+        robot.sleep(0.15);
+
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
-        robot.sleep(0.75);
+        robot.sleep(0.2);
 
-        robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
         transferTimer.reset();
         while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
@@ -239,7 +248,7 @@ public class AutoLeftContested extends LinearOpMode {
         robot.extendo.targetVector2d = CONE_STACK;
         robot.outtake.turretMode = Outtake.TurretMode.SCORE;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_INIT;
-        robot.outtake.bulanVar = 0;
+        robot.outtake.bulanVar = -3;
         robot.start();
 //        PhotonCore.enable();
 

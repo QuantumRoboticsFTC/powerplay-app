@@ -59,25 +59,25 @@ public class Extendo implements Subsystem {
 
     public enum TargetPosition {
         TRANSFER(0),
-        AUTO_CONE5(1.5) { // 1.6
+        AUTO_CONE5(1) { // 1.6
             @Override
             public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE4(1.1) { // 0.9
+        AUTO_CONE4(0.7) { // 0.9
             @Override
             public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE3(0.7) { // 0.1
+        AUTO_CONE3(0.4) { // 0.1
             @Override
             public TargetPosition previous() {
                 return this;
             }
         },
-        AUTO_CONE2(0.4) { // -0.2
+        AUTO_CONE2(0.2) { // -0.2
             @Override
             public TargetPosition previous() {
                 return this;
@@ -116,7 +116,6 @@ public class Extendo implements Subsystem {
     public Vector2d targetVector2d = new Vector2d(0, 0);
     private double downPosition;
     public static double transferDelta = 0;
-    public double teleopDeltaTicks = 0; // substation stuff
     private double lastEncoder;
     public double offsetPosition;
     public TargetPosition targetPosition = TargetPosition.TRANSFER;
@@ -127,13 +126,15 @@ public class Extendo implements Subsystem {
     private CachingDcMotorEx motor;
     private Robot robot;
 
-    public static PIDCoefficients coef = new PIDCoefficients(0.0075, 0.001, 0.0002);
+    public static PIDCoefficients coef = new PIDCoefficients(0.01, 0.009, 0.0001);
+//    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
     private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
-    public static double ff = 0.002;
+    public static double ff = 0.07;
+    public static double autonomousGoBackAfterStack = -0.125;
     public static double TRANSFER_THRESHOLD = 0.001;
 
     public double extendoLimitTicks = downPosition + 1635;
-    public static double extendoLimitDelta = 140;
+    public static double extendoLimitDelta = 100;
 
     public double powah;
 
@@ -189,7 +190,7 @@ public class Extendo implements Subsystem {
     }
 
     public double getDistanceLeft() {
-        double distance = getTargetLength() + teleopDeltaTicks - getCurrentLength();
+        double distance = getTargetLength() - getCurrentLength();
         distance = Math.abs(distance) + offsetPosition;
         return distance;
     }
@@ -222,6 +223,7 @@ public class Extendo implements Subsystem {
             targetPosition == TargetPosition.AUTO_CONE3 ||
             targetPosition == TargetPosition.AUTO_CONE4 ||
             targetPosition == TargetPosition.AUTO_CONE5 ||
+            targetPosition == TargetPosition.TRANSFER ||
             targetPosition == TargetPosition.AUTO_ROTATE_HIGH) {
             updateTargetLength();
         }
@@ -229,7 +231,7 @@ public class Extendo implements Subsystem {
         if (extendoMode == ExtendoMode.BRAKE) {
             setPower(ZERO_BEHAVIOUR);
         } else if (extendoMode == ExtendoMode.AUTOMATIC) {
-            double targetPos = inchesToEncoderTicks(getTargetLength() + teleopDeltaTicks);
+            double targetPos = inchesToEncoderTicks(getTargetLength());
             double current = getEncoder();
             pid.setPID(coef.p, coef.i, coef.d);
             double power = pid.calculate(current, targetPos);
@@ -268,7 +270,7 @@ public class Extendo implements Subsystem {
         }
     }
 
-    public double calculateTargetLength(Vector2d targetPosition) {
-        return robot.drive.getPoseEstimate().vec().distTo(targetPosition) - 18;
+    public double calculateTargetLength(Vector2d targetPosition2) {
+        return robot.drive.getPoseEstimate().vec().distTo(targetPosition2) - 18 + targetPosition.offset;
     }
 }

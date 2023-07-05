@@ -93,19 +93,19 @@ public class Intake implements Subsystem {
     public static double ARM_CONE_4_POSITION = 0.85;
     public static double ARM_CONE_5_POSITION = 0.8;
     public static double ARM_VERTICAL_POSITION = 0.76;
-    public static double ARM_TRANSFER_POSITION = 0.82;
+    public static double ARM_TRANSFER_POSITION = 0.81;
     public static double ARM_AUTOPARK_POSITION = 0.85;
 
-    public static double ROTATE_PARALLEL_POSITION = 0.48;
+    public static double ROTATE_PARALLEL_POSITION = 0.87;
     public static double ROTATE_STRAIGHT_POSITION = 0.3;
-    public static double ROTATE_TRANSFER_POSITION = 0; // -0.005
+    public static double ROTATE_TRANSFER_POSITION = 0.06; // -0.005
     public static double ROTATE_PARALLEL_CONE5_POSITION = 0.18;
     public static double ROTATE_PARALLEL_CONE4_POSITION = 0.44;
-    public static double ROTATE_LOW_POLE_POSITION = 0.26;
-    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.38;
+    public static double ROTATE_LOW_POLE_POSITION = 0.5;
+    public static double ROTATE_LOW_POLE_DROP_POSITION = 0.75;
 
-    public static double CLAW_OPEN_POSITION = 0.44;
-    public static double CLAW_CLOSED_POSITION = 0.705;
+    public static double CLAW_OPEN_POSITION = 0.55;
+    public static double CLAW_CLOSED_POSITION = 0.92;
 
     public static double SENSOR_TRESHOLD = 40;
     public static double armServoOffset = -0.02;

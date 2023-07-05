@@ -72,20 +72,20 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.1;
-    public static double ARM_UP_POSITION = 0.485;
-    public static double ARM_AUTO_INIT_POSITION = 0.22;
-    public static double ARM_SCORE_VERY_DOWN_POS  = 0.87;
-    public static double ARM_SCORE_POSITION = 0.83;
-    public static double ARM_SCORE_TILTED_POSITION = 0.76;
-    public static double ARM_PUSH_POSITION = 0.64;
-    public static double ARM_AUTO_VERTICAL_POSITION = 0.59;
+    public static double ARM_TRANSFER_POSITION = 0.125; //+0.025
+    public static double ARM_UP_POSITION = 0.51;
+    public static double ARM_AUTO_INIT_POSITION = 0.245;
+    public static double ARM_SCORE_VERY_DOWN_POS  = 0.895;
+    public static double ARM_SCORE_POSITION = 0.855;
+    public static double ARM_SCORE_TILTED_POSITION = 0.785;
+    public static double ARM_PUSH_POSITION = 0.665;
+    public static double ARM_AUTO_VERTICAL_POSITION = 0.55;
 
-    public static double CLAW_OPEN_POSITION = 0.67;
-    public static double CLAW_CLOSE_POSITION = 0.56;
+    public static double CLAW_OPEN_POSITION = 0.655;
+    public static double CLAW_CLOSE_POSITION = 0.5;
 
     public static double ALIGNER_RETRACTED_POSITION = 1;
-    public static double ALIGNER_AUTO_PROB_POSITION = 0.84;
+    public static double ALIGNER_AUTO_PROB_POSITION = 0.8;
     public static double ALIGNER_DEPLOYED_POSITION = 0.65;
 
     private CachingServo turretServo;

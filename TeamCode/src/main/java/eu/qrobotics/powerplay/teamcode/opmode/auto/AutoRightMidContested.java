@@ -28,7 +28,7 @@ import eu.qrobotics.powerplay.teamcode.subsystems.Robot;
 @Autonomous(name = "#8 AutoRightMidContested")
 public class AutoRightMidContested extends LinearOpMode {
     public static double EXTENDO_THRESHOLD = 0.5;
-    public static Vector2d CONE_STACK = new Vector2d(71, -12);
+    public static Vector2d CONE_STACK = new Vector2d(72, -12);
     public static Vector2d PRE_CONE_STACK = new Vector2d(66, -12);
     public static final Vector2d OUTTAKE_AUTO_MID_POS = new Vector2d(24, -24);
     public static final Vector2d OUTTAKE_AUTO_HIGH_POS = new Vector2d(24, 0);
@@ -170,13 +170,15 @@ public class AutoRightMidContested extends LinearOpMode {
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.15);
 
+        robot.outtake.alignerMode = Outtake.AlignerMode.AUTO_PROBLEM;
         robot.outtake.armPosition = Outtake.ArmPosition.SCORE_VERY_DOWN;
         robot.sleep(0.1);
 
         robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
         robot.elevator.targetPosition = Elevator.TargetHeight.GROUND;
         robot.elevator.isScoring = false;
-        robot.sleep(0.25);
+        robot.sleep(0.3);
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
     }
 
     // grija cand intra sa fie turretPosition pe CETNER
@@ -188,6 +190,7 @@ public class AutoRightMidContested extends LinearOpMode {
             robot.sleep(0.2);
         }
 
+        robot.extendo.extendoMode = Extendo.ExtendoMode.AUTOMATIC;
         robot.extendo.targetVector2d = CONE_STACK;
         while (robot.extendo.getDistanceLeft() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested()) {
             telemetry.addData("extendo target", robot.extendo.getTargetLength());
@@ -199,12 +202,17 @@ public class AutoRightMidContested extends LinearOpMode {
         robot.intake.clawMode = Intake.ClawMode.CLOSED;
         robot.sleep(0.2);
 
+        robot.extendo.manualPower = Extendo.autonomousGoBackAfterStack;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
+        robot.sleep(0.15);
+
         robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.TRANSFER;
         robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
-        robot.sleep(0.5);
+        robot.sleep(0.2);
 
         robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
+        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         transferTimer.reset();
         while (robot.extendo.getCurrentLength() > EXTENDO_THRESHOLD && opModeIsActive() && !isStopRequested() && transferTimer.seconds() < 1.5) {
             robot.sleep(0.01);
@@ -244,6 +252,7 @@ public class AutoRightMidContested extends LinearOpMode {
         robot.outtake.clawMode = Outtake.ClawMode.OPEN;
         robot.sleep(0.25);
 
+        robot.outtake.alignerMode = Outtake.AlignerMode.AUTO_PROBLEM;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
         robot.sleep(0.1);
         robot.elevator.isScoring = false;
@@ -252,12 +261,15 @@ public class AutoRightMidContested extends LinearOpMode {
         robot.outtake.turretPosition = Outtake.TurretPosition.CENTER;
         robot.outtake.turretMode = Outtake.TurretMode.TRANSFER;
         robot.outtake.armPosition = Outtake.ArmPosition.AUTO_VERTICAL;
+        robot.sleep(0.36);
+        robot.outtake.alignerMode = Outtake.AlignerMode.RETRACTED;
     }
 
     @Override
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, true);
         robot.drive.setPoseEstimate(TrajectoriesRightMidCtd.START_POSE);
+        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
         robot.elevator.isScoring = false;
         robot.elevator.scoringPosition = Elevator.TargetHeight.HIGH;
         robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE5;
