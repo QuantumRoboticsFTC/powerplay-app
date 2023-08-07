@@ -12,7 +12,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 
-
 @Config
 public class Extendo implements Subsystem {
 

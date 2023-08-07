@@ -52,7 +52,7 @@ public class TrajectoriesRightMidCtd {
         );
 
 //      park
-        if (readFromCamera == 3) {
+        if (readFromCamera == 1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(3.5), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                     .lineTo(new Vector2d(34, -14))
                     .splineToSplineHeading(new Pose2d(12, -12, Math.toRadians(270)), Math.toRadians(90))
@@ -63,7 +63,7 @@ public class TrajectoriesRightMidCtd {
                     .lineToLinearHeading(new Pose2d(39, -14, Math.toRadians(270)))
                     .build()
             );
-        } else if (readFromCamera == 1) {
+        } else if (readFromCamera == 3) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(3.5), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
                     .lineTo(new Vector2d(40, -15))
                     .splineToSplineHeading(new Pose2d(58, -13, Math.toRadians(270)), Math.toRadians(180))

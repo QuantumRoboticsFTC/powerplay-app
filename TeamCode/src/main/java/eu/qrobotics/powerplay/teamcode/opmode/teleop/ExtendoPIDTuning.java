@@ -2,6 +2,8 @@ package eu.qrobotics.powerplay.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -21,26 +23,29 @@ import eu.qrobotics.powerplay.teamcode.util.StickyGamepad;
 
 @TeleOp
 public class ExtendoPIDTuning extends OpMode {
+
     enum DriveMode {
         NORMAL,
         SLOW,
-        SUPER_SLOW
-    }
+        SUPER_SLOW;
 
+    }
     private Elevator.ElevatorMode prevElevatorMode;
     private ElapsedTime turretCenterTimer = new ElapsedTime(0);
     private ElapsedTime outtakeGrabTimer = new ElapsedTime(0);
     private ElapsedTime finishTransferTimer = new ElapsedTime(0);
     private ElapsedTime toggledClawTimer = new ElapsedTime(0);
 
+    public static Vector2d vec2d = new Vector2d(-72, 0);
+    public static Pose2d pos2d = new Pose2d(-14, 0, Math.toRadians(0));
+
+    Intake.ClawMode pastClawMode;
     private NanoClock loopTime;
 
     private boolean haveConeIntake = false;
     private boolean haveConeOuttake = false;
     private boolean pushOuttake = false;
     private boolean intakeTransferStarted = false;
-
-    Intake.ClawMode pastClawMode;
 
     Robot robot;
     DriveMode driveMode;
@@ -72,7 +77,7 @@ public class ExtendoPIDTuning extends OpMode {
     @Override
     public void start() {
         robot.start();
-        robot.drive.setPoseEstimate(TrajectoriesLeftMid.START_POSE);
+        robot.drive.setPoseEstimate(pos2d);
     }
 
     @Override
@@ -106,8 +111,8 @@ public class ExtendoPIDTuning extends OpMode {
                 robot.extendo.targetPosition = Extendo.TargetPosition.TRANSFER;
             }
             if (gamepad1.dpad_left) {
-                robot.extendo.targetPosition = Extendo.TargetPosition.CUSTOM;
-                robot.extendo.targetLength = robot.extendo.encoderTicksToInches(robot.extendo.extendoLimitTicks);
+                robot.extendo.targetPosition = Extendo.TargetPosition.AUTO_CONE1;
+                robot.extendo.targetVector2d = vec2d;
             }
         }
 

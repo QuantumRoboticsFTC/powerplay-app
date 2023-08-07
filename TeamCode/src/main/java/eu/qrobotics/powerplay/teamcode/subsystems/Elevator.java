@@ -152,6 +152,7 @@ public class Elevator implements Subsystem {
         if (elevatorMode == ElevatorMode.DISABLED)
             return;
 
+
         if (isScoring) {
             targetPosition = scoringPosition;
         }
