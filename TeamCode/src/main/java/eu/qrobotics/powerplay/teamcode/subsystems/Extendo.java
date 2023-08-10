@@ -7,13 +7,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import eu.qrobotics.powerplay.teamcode.hardware.CachingDcMotorEx;
 
 @Config
 public class Extendo implements Subsystem {
+
+    private ElapsedTime GoToSenzTimer = new ElapsedTime(0);
 
     public static double ZERO_BEHAVIOUR = -0.15;
 
@@ -53,7 +57,9 @@ public class Extendo implements Subsystem {
         RETRACTED,
         UP,
         BRAKE,
-        MANUAL
+        MANUAL,
+        GO_TO_SENSOR,
+        AUTO_SENSOR
     }
 
     public enum TargetPosition {
@@ -120,20 +126,23 @@ public class Extendo implements Subsystem {
     public TargetPosition targetPosition = TargetPosition.TRANSFER;
     public double targetLength;
     public double manualPower;
+    public double senzorDifValue = 2;
 
     public ExtendoMode extendoMode;
     private CachingDcMotorEx motor;
     private Robot robot;
 
-    public static PIDCoefficients coef = new PIDCoefficients(0.01, 0.009, 0.0001);
+    public static PIDCoefficients coef = new PIDCoefficients(0.0115, 0.009, 0.0001);
 //    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
     private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
     public static double ff = 0.07;
     public static double autonomousGoBackAfterStack = -0.125;
     public static double TRANSFER_THRESHOLD = 0.001;
 
-    public double extendoLimitTicks = downPosition + 1635;
+    public double extendoLimitTicks = downPosition + 1620;
     public static double extendoLimitDelta = 100;
+
+    public double teleopDT = 0;
 
     public double powah;
 
@@ -189,9 +198,12 @@ public class Extendo implements Subsystem {
     }
 
     public double getDistanceLeft() {
-        double distance = getTargetLength() - getCurrentLength();
-        distance = Math.abs(distance) + offsetPosition;
-        return distance;
+        if (extendoMode == ExtendoMode.AUTOMATIC) {
+            double distance = getTargetLength() - getCurrentLength();
+            distance = Math.abs(distance) + offsetPosition;
+            return distance;
+        }
+        return -1; // ill defined ig
     }
 
     private void setPower(double power) {
@@ -227,45 +239,77 @@ public class Extendo implements Subsystem {
             updateTargetLength();
         }
 
-        if (extendoMode == ExtendoMode.BRAKE) {
-            setPower(ZERO_BEHAVIOUR);
-        } else if (extendoMode == ExtendoMode.AUTOMATIC) {
-            double targetPos = inchesToEncoderTicks(getTargetLength());
-            double current = getEncoder();
-            pid.setPID(coef.p, coef.i, coef.d);
-            double power = pid.calculate(current, targetPos);
-            power = power + ff * signum(power);
+        switch (extendoMode) {
+            case BRAKE:
+                setPower(ZERO_BEHAVIOUR);
+                break;
+            case AUTOMATIC:
+                double targetPos = inchesToEncoderTicks(getTargetLength());
+                double current = getEncoder();
+                pid.setPID(coef.p, coef.i, coef.d);
+                double power = pid.calculate(current, targetPos);
+                power = power + ff * signum(power);
 //            if (targetPosition == TargetPosition.TRANSFER && power <= TRANSFER_THRESHOLD) {
 //                extendoMode = ExtendoMode.BRAKE;
 //            }
-            setPower(power);
-        } else if (extendoMode == ExtendoMode.RETRACTED) {
-            offsetPosition = 0;
-            if (getCurrentLength() <= THRESHOLD_DOWN) {
-                setPower(ZERO_BEHAVIOUR);
-                extendoMode = ExtendoMode.BRAKE;
-            } else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
-                setPower(DOWN_POWER_1);
-            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_2)
-                setPower(DOWN_POWER_2);
-            else if(getCurrentLength() <= THRESHOLD_DOWN_LEVEL_3)
-                setPower(DOWN_POWER_3);
-            else
-                setPower(DOWN_POWER_4);
-        } else if (extendoMode == ExtendoMode.UP) {
-            double distanceLeft = getDistanceLeft();
-            if (Math.abs(distanceLeft) <= THRESHOLD)
-                setPower(HOLD_POWER);
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_1)
-                setPower(LEVEL_1_POWER * Math.signum(distanceLeft));
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_2)
-                setPower(LEVEL_2_POWER * Math.signum(distanceLeft));
-            else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_3)
-                setPower(LEVEL_3_POWER * Math.signum(distanceLeft));
-            else
-                setPower(LEVEL_4_POWER * Math.signum(distanceLeft));
-        } else {
-            setPower(manualPower);
+                setPower(power);
+                break;
+            case RETRACTED:
+                offsetPosition = 0;
+                if (getCurrentLength() <= THRESHOLD_DOWN) {
+                    setPower(ZERO_BEHAVIOUR);
+                    extendoMode = ExtendoMode.BRAKE;
+                } else if (getCurrentLength() <= THRESHOLD_DOWN_LEVEL_1)
+                    setPower(DOWN_POWER_1);
+                else if (getCurrentLength() <= THRESHOLD_DOWN_LEVEL_2)
+                    setPower(DOWN_POWER_2);
+                else if (getCurrentLength() <= THRESHOLD_DOWN_LEVEL_3)
+                    setPower(DOWN_POWER_3);
+                else
+                    setPower(DOWN_POWER_4);
+                break;
+            case UP:
+                double distanceLeft = getDistanceLeft();
+                if (Math.abs(distanceLeft) <= THRESHOLD)
+                    setPower(HOLD_POWER);
+                else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_1)
+                    setPower(LEVEL_1_POWER * Math.signum(distanceLeft));
+                else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_2)
+                    setPower(LEVEL_2_POWER * Math.signum(distanceLeft));
+                else if (Math.abs(distanceLeft) <= THRESHOLD_LEVEL_3)
+                    setPower(LEVEL_3_POWER * Math.signum(distanceLeft));
+                else
+                    setPower(LEVEL_4_POWER * Math.signum(distanceLeft));
+                break;
+            case MANUAL:
+                setPower(manualPower);
+                break;
+            case GO_TO_SENSOR:
+                if (robot.intake.sensorDistance() < 10) {
+                    setPower(-teleopDT);
+                } else {
+                    double _current = getEncoder();
+                    double _targetPos = _current + inchesToEncoderTicks(robot.intake.sensorDistance() - 4);
+                    pid.setPID(coef.p, coef.i, coef.d);
+                    double _power = pid.calculate(_current, _targetPos);
+                    _power = _power + ff * signum(_power);
+//            if (targetPosition == TargetPosition.TRANSFER && power <= TRANSFER_THRESHOLD) {
+//                extendoMode = ExtendoMode.BRAKE;
+//            }
+                    setPower(_power);
+                }
+                break;
+            case AUTO_SENSOR:
+                double _current = getEncoder();
+                double _targetPos = _current + inchesToEncoderTicks(robot.intake.sensorDistance() - senzorDifValue);
+                pid.setPID(coef.p, coef.i, coef.d);
+                double _power = pid.calculate(_current, _targetPos);
+                _power = _power + ff * signum(_power);
+//            if (targetPosition == TargetPosition.TRANSFER && power <= TRANSFER_THRESHOLD) {
+//                extendoMode = ExtendoMode.BRAKE;
+//            }
+                setPower(_power);
+                break;
         }
     }
 

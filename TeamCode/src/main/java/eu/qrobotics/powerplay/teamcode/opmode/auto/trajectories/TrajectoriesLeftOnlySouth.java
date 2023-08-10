@@ -40,20 +40,20 @@ public class TrajectoriesLeftOnlySouth {
 
     public static List<Trajectory> getTrajectories(int readFromCamera) {
         List<Trajectory> trajectories = new ArrayList<>();
-        double angle = 176.25;
+        double angle = 177;
 //        double angle = 180;
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineTo(new Vector2d(-24, -63))
-                .splineToSplineHeading(new Pose2d(-9, -15, Math.toRadians(180)), Math.toRadians(90))
-                .splineToSplineHeading(new Pose2d(-14.5, -17, Math.toRadians(angle)), Math.toRadians(180))
+                .lineTo(new Vector2d(-25, -63))
+                .splineToSplineHeading(new Pose2d(-10, -20, Math.toRadians(180)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-14.5, -17, Math.toRadians(angle)), Math.toRadians(200))
                 .build()
         );
 
 //      park
         if (readFromCamera == 3 || readFromCamera == -1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-12, -16, Math.toRadians(270)))
+                    .lineToLinearHeading(new Pose2d(-12, -15, Math.toRadians(275)))
                     .build()
             );
         } else if (readFromCamera == 2) {

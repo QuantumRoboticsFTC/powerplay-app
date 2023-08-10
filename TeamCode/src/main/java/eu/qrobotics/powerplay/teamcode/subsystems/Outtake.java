@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -72,20 +73,20 @@ public class Outtake implements Subsystem {
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.125; //+0.025
-    public static double ARM_UP_POSITION = 0.51;
-    public static double ARM_AUTO_INIT_POSITION = 0.245;
-    public static double ARM_SCORE_VERY_DOWN_POS  = 0.895;
-    public static double ARM_SCORE_POSITION = 0.855;
-    public static double ARM_SCORE_TILTED_POSITION = 0.785;
-    public static double ARM_PUSH_POSITION = 0.665;
-    public static double ARM_AUTO_VERTICAL_POSITION = 0.55;
+    public static double ARM_TRANSFER_POSITION = 0.13; //+0.025
+    public static double ARM_UP_POSITION = 0.235;
+    public static double ARM_AUTO_INIT_POSITION = 0.25;
+    public static double ARM_SCORE_VERY_DOWN_POS  = 0.9;
+    public static double ARM_SCORE_POSITION = 0.86;
+    public static double ARM_SCORE_TILTED_POSITION = 0.79;
+    public static double ARM_PUSH_POSITION = 0.67;
+    public static double ARM_AUTO_VERTICAL_POSITION = 0.6;
 
-    public static double CLAW_OPEN_POSITION = 0.655;
-    public static double CLAW_CLOSE_POSITION = 0.5;
+    public static double CLAW_OPEN_POSITION = 0.65;
+    public static double CLAW_CLOSE_POSITION = 0.52;
 
     public static double ALIGNER_RETRACTED_POSITION = 1;
-    public static double ALIGNER_AUTO_PROB_POSITION = 0.8;
+    public static double ALIGNER_AUTO_PROB_POSITION = 0.73;
     public static double ALIGNER_DEPLOYED_POSITION = 0.65;
 
     private CachingServo turretServo;
@@ -95,6 +96,7 @@ public class Outtake implements Subsystem {
     private CachingServo alignerServo;
 
     private ColorRangeSensor outtakeSensor;
+    public DigitalChannel beamBreakSensor;
 
     public double turretManualPosition = TURRET_CENTER_POSITION;
     public double armManualPosition = ARM_UP_POSITION;
@@ -112,6 +114,8 @@ public class Outtake implements Subsystem {
         armServoRight = new CachingServo(hardwareMap.get(Servo.class, "outtakeArmServoRight"));
         clawServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeClawServo"));
         alignerServo = new CachingServo(hardwareMap.get(Servo.class, "outtakeAlignerServo"));
+        beamBreakSensor = hardwareMap.get(DigitalChannel.class, "beamBreak");
+        beamBreakSensor.setMode(DigitalChannel.Mode.INPUT);
 
         armServoRight.setDirection(Servo.Direction.REVERSE);
         turretServo.setDirection(Servo.Direction.REVERSE);
@@ -286,6 +290,10 @@ public class Outtake implements Subsystem {
 
     public static double approximateToThreeDecimals(double d) {
         return Math.round(d * 1000.0) / 1000.0;
+    }
+
+    public boolean getBeamBreakState() {
+        return !beamBreakSensor.getState();
     }
 
     public static Pose2d TURRET_ROBOT_POSE = new Pose2d(-5.51, 0, Math.toRadians(180));
