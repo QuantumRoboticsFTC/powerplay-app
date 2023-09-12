@@ -254,7 +254,7 @@ public class AutoLeftMid extends LinearOpMode {
 
         robot.intake.armPosition = getintakeArmPosition(intakeIteration);
         robot.intake.armRotate = Intake.ArmRotate.PARALLEL;
-        if (!sleepFailsafe(robot, 0.45)) return;
+        if (!sleepFailsafe(robot, 0.5)) return;
 
         if (intakeIteration < 6) {
             robot.outtake.followingPosition = OUTTAKE_AUTO_MID_POS;

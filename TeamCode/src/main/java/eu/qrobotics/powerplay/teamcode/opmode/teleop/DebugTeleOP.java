@@ -37,6 +37,7 @@ public class DebugTeleOP extends OpMode {
     private ElapsedTime toggledClawTimer = new ElapsedTime(0);
     private ElapsedTime intakeClosedRetractTimer = new ElapsedTime(0);
     private ElapsedTime beamBreakTimer = new ElapsedTime(0);
+    private ElapsedTime retractTimer = new ElapsedTime(0);
 
     // for some fed up reason the y needs to be positive? prob cuz dt is reversed but sussy
     private Pose2d SUBSTATION_CONE_LEFT_DT = new Pose2d(-12, -12, Math.toRadians(270));
@@ -51,6 +52,8 @@ public class DebugTeleOP extends OpMode {
     private boolean pushOuttake = false;
     private boolean scoringWithIntake = false;
     private boolean intakeTransferStarted = false;
+
+    boolean intakeSenzorActive = true;
 
     Intake.ClawMode pastClawMode;
 
@@ -71,6 +74,8 @@ public class DebugTeleOP extends OpMode {
         stickyGamepad1 = new StickyGamepad(gamepad1);
         stickyGamepad2 = new StickyGamepad(gamepad2);
         driveMode = DriveMode.NORMAL;
+
+        intakeSenzorActive = true;
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -96,8 +101,9 @@ public class DebugTeleOP extends OpMode {
         stickyGamepad2.update();
 
         boolean customCurve = false;
-        if (scoringWithIntake &&
-            robot.extendo.extendoMode == Extendo.ExtendoMode.RETRACTED) {
+        if ((scoringWithIntake &&
+            robot.extendo.extendoMode == Extendo.ExtendoMode.RETRACTED) ||
+            (!intakeSenzorActive)) {
             customCurve = true;
         }
 
@@ -182,7 +188,7 @@ public class DebugTeleOP extends OpMode {
                 Math.abs(gamepad1.left_stick_y) > 0.1 ||
                 Math.abs(gamepad1.right_stick_x) > 0.1 ||
                 Math.abs(gamepad1.right_stick_y) > 0.1)) {
-            retract();
+            retractTimer.reset();
         }
 
         // aici la close cand e pe low sa *censored* lowul
@@ -197,7 +203,8 @@ public class DebugTeleOP extends OpMode {
             robot.intake.armPosition != Intake.ArmPosition.LOW_POLE &&
             robot.intake.armPosition != Intake.ArmPosition.LOW_POLE_WHEN_IN_TRANSFER &&
             robot.intake.clawMode == Intake.ClawMode.OPEN &&
-            robot.intake.sensorDistance() < 4) {
+            robot.intake.sensorDistance() < 4 &&
+            intakeSenzorActive) {
             robot.extendo.manualPower = 0;
             robot.extendo.extendoMode = Extendo.ExtendoMode.MANUAL;
             pastClawMode = robot.intake.clawMode;
@@ -217,10 +224,14 @@ public class DebugTeleOP extends OpMode {
         }
 
         if (stickyGamepad1.dpad_down) {
-            retract();
+            retractTimer.reset();
         }
 
         if (stickyGamepad1.dpad_left) {
+            intakeSenzorActive = !intakeSenzorActive;
+        }
+
+        if (stickyGamepad1.dpad_right) {
             robot.extendo.extendoMode = Extendo.ExtendoMode.GO_TO_SENSOR;
             if (robot.intake.armPosition == Intake.ArmPosition.TRANSFER) {
                 robot.intake.armPosition = Intake.ArmPosition.CONE_1;
@@ -358,6 +369,7 @@ public class DebugTeleOP extends OpMode {
         updateToggleClawTimer();
         finishTransfer();
         pushOuttakeFunc();
+        updateRetract();
 
         updateIntakeClosedRetractTimer();
         //endregion
@@ -368,6 +380,7 @@ public class DebugTeleOP extends OpMode {
         telemetry.addData("extendo counteract dt", robot.extendo.teleopDT);
         telemetry.addData("extendo mode", robot.extendo.extendoMode);
         telemetry.addData("beam brake val", robot.outtake.getBeamBreakState());
+        telemetry.addData("intake senzor state", intakeSenzorActive);
 
         addStatistics();
         telemetry.update();
@@ -397,13 +410,17 @@ public class DebugTeleOP extends OpMode {
 
     }
 
-    private void retract() {
-        if (robot.intake.clawMode == Intake.ClawMode.CLOSED) {
-            scoringWithIntake = true;
+    private void updateRetract() {
+        if (retractTimer.seconds() < 0.075) {
+            if (robot.intake.clawMode == Intake.ClawMode.CLOSED) {
+                scoringWithIntake = true;
+            }
+            robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
+            robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
         }
-        robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
-        robot.intake.armPosition = Intake.ArmPosition.TRANSFER;
-        robot.intake.armRotate = Intake.ArmRotate.TRANSFER;
+        if (0.11 < retractTimer.seconds() && retractTimer.seconds() < 0.16) {
+            robot.extendo.extendoMode = Extendo.ExtendoMode.RETRACTED;
+        }
     }
 
     private boolean isIntakeClosedRetractTimerDone = false;
@@ -411,7 +428,7 @@ public class DebugTeleOP extends OpMode {
         if (0.45 < intakeClosedRetractTimer.seconds() &&
             intakeClosedRetractTimer.seconds() < 0.55 &&
             !isIntakeClosedRetractTimerDone) {
-            retract();
+            retractTimer.reset();
             isIntakeClosedRetractTimerDone = true;
         }
         if (0.55 < intakeClosedRetractTimer.seconds()) {
@@ -487,12 +504,12 @@ public class DebugTeleOP extends OpMode {
         if (0.075 < finishTransferTimer.seconds() && finishTransferTimer.seconds() < 0.125) {
             robot.intake.clawMode = Intake.ClawMode.OPEN;
         }
-        if (0.3 < finishTransferTimer.seconds() && finishTransferTimer.seconds() < 0.4 &&
+        if (0.55 < finishTransferTimer.seconds() && finishTransferTimer.seconds() < 0.7 &&
                 robot.outtake.getBeamBreakState()) {
             robot.outtake.clawMode = Outtake.ClawMode.CLOSED;
             beamBreakTimer.reset();
         }
-        if (0.2 < beamBreakTimer.seconds() && beamBreakTimer.seconds() < 0.3) {
+        if (0.35 < beamBreakTimer.seconds() && beamBreakTimer.seconds() < 0.5) {
             if (robot.outtake.armPosition == Outtake.ArmPosition.TRANSFER) {
                 robot.outtake.armPosition = Outtake.ArmPosition.UP;
             }

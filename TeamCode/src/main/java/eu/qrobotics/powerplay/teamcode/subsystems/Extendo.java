@@ -136,7 +136,7 @@ public class Extendo implements Subsystem {
 //    public static PIDCoefficients coef = new PIDCoefficients(0, 0, 0);
     private PIDController pid = new PIDController(coef.p, coef.i, coef.d);
     public static double ff = 0.07;
-    public static double autonomousGoBackAfterStack = -0.125;
+    public static double autonomousGoBackAfterStack = -0.16;
     public static double TRANSFER_THRESHOLD = 0.001;
 
     public double extendoLimitTicks = downPosition + 1620;

@@ -44,21 +44,21 @@ public class TrajectoriesLeftOnlySouth {
 //        double angle = 180;
 
         trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(270), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                .lineTo(new Vector2d(-25, -63))
-                .splineToSplineHeading(new Pose2d(-10, -20, Math.toRadians(180)), Math.toRadians(90))
-                .splineToSplineHeading(new Pose2d(-14.5, -17, Math.toRadians(angle)), Math.toRadians(200))
+                .lineTo(new Vector2d(-23, -63))
+                .splineToSplineHeading(new Pose2d(-9.5, -25, Math.toRadians(180)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-14.25, -16.5, Math.toRadians(177)), Math.toRadians(200))
                 .build()
         );
 
 //      park
         if (readFromCamera == 3 || readFromCamera == -1) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .lineToLinearHeading(new Pose2d(-12, -15, Math.toRadians(275)))
+                    .lineToLinearHeading(new Pose2d(-12, -16, Math.toRadians(275)))
                     .build()
             );
         } else if (readFromCamera == 2) {
             trajectories.add(makeTrajectoryBuilder(trajectories, Math.toRadians(angle), BASE_VEL_CONSTRAINT, BASE_ACCEL_CONSTRAINT)
-                    .splineToSplineHeading(new Pose2d(-38, -16, Math.toRadians(270)), Math.toRadians(370))
+                    .splineToSplineHeading(new Pose2d(-35, -16, Math.toRadians(270)), Math.toRadians(370))
                     .build()
             );
         } else if (readFromCamera == 1) {

@@ -66,21 +66,21 @@ public class Outtake implements Subsystem {
 
     public Vector2d followingPosition = new Vector2d(0, 0);
 
-    public static double TURRET_LEFT_POSITION = 0.4;
-    public static double TURRET_RIGHT_POSITION = 1;
-    public static double TURRET_CENTER_POSITION = 0.745;
+    public static double TURRET_LEFT_POSITION = 0.31;
+    public static double TURRET_RIGHT_POSITION = 0.91;
+    public static double TURRET_CENTER_POSITION = 0.673;
 
     public static double TURRET_LEFT_AUTO_SCORE_POSITION = 0.4;
     public static double TURRET_RIGHT_AUTO_SCORE_POSITION = 1;
 
-    public static double ARM_TRANSFER_POSITION = 0.13; //+0.025
+    public static double ARM_TRANSFER_POSITION = 0.145; //+0.025
     public static double ARM_UP_POSITION = 0.235;
     public static double ARM_AUTO_INIT_POSITION = 0.25;
     public static double ARM_SCORE_VERY_DOWN_POS  = 0.9;
     public static double ARM_SCORE_POSITION = 0.86;
     public static double ARM_SCORE_TILTED_POSITION = 0.79;
     public static double ARM_PUSH_POSITION = 0.67;
-    public static double ARM_AUTO_VERTICAL_POSITION = 0.6;
+    public static double ARM_AUTO_VERTICAL_POSITION = 0.615;
 
     public static double CLAW_OPEN_POSITION = 0.65;
     public static double CLAW_CLOSE_POSITION = 0.52;

@@ -38,7 +38,7 @@ public class Elevator implements Subsystem {
         },
         LOW_TILTED(0),
         MID_TILTED(395),
-        HIGH_TILTED(788),
+        HIGH_TILTED(770),
         HIGH_AUTO_DROP(500),
         MID_AUTO_DROP(100),
         AUTO_DROP_MID(320),
